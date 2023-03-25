@@ -261,7 +261,7 @@ class ComprarDolarView(TemplateView):
 
         # popular movimentações
 
-        movimentacaoConta = MovimentacaoConta.objects.all()[:10]
+        movimentacaoConta = MovimentacaoConta.objects.all()
 
         movimentacaoContasTemplate = []
         for conta in movimentacaoConta:
@@ -398,11 +398,10 @@ class ComprarDolarView(TemplateView):
 
         # popular movimentações
 
-        movimentacaoConta = MovimentacaoConta.objects.all()[:10]
+        movimentacaoConta = MovimentacaoConta.objects.all()
 
         movimentacaoContasTemplate = []
         for conta in movimentacaoConta:
-
             # Se for uma movimentação de compra ou venda não listar
             try:
                 contaCredito = Conta.objects.get(id=conta.contaCredito)
@@ -774,6 +773,8 @@ class FazerComprasView(TemplateView):
         precos = self.request.POST.getlist('preco')
         contaOrigem = self.request.POST.getlist('contaOrigem')
         frete = self.request.POST.getlist('frete')
+        localizacaoCompra = self.request.POST.getlist('localizacaoCompra')
+
         if frete[0] == "":
             frete[0] = 0
         else:
@@ -795,7 +796,7 @@ class FazerComprasView(TemplateView):
                              produto_id=produto,
                              frete=frete[0],
                              descricao=descricao,
-                             #idLocalizacao=localizacaoCompra[0],
+                             idLocalizacao_id=localizacaoCompra[0],
                              )
             valorCompra = valorCompra + float(precos[contador])*float(quantidades[contador])
             formCompra.save()

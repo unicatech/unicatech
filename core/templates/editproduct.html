@@ -1,0 +1,88 @@
+{% load static %}
+<!DOCTYPE html>
+
+ 			<!-- Header -->
+			{% include 'head.html' %}
+			<!-- /header -->
+
+			<!-- Select2 CSS -->
+			<link rel="stylesheet" href="{% static 'plugins/select2/css/select2.min.css' %}">
+			<!-- Sidebar -->
+			{% include 'sidebar.html' %}
+			<!-- /Sidebar -->
+
+			<div class="page-wrapper">
+				<div class="content">
+					<div class="page-header">
+						<div class="page-title">
+							<h4>Atualizar Produto</h4>
+
+						</div>
+
+					</div>
+					<!-- /add -->
+					<form method="POST" action="{% url 'editproduct' %}">
+						{% csrf_token %}
+					<div class="card">
+						<div class="card-body">
+							<div class="row">
+								<div class="col-lg-3 col-sm-6 col-12">
+									<div class="form-group">
+										<label>Nome do Produto</label>
+										<input type="text" name="nomeproduto" value="{{ produtoselecionado.NomeProduto }}">
+									</div>
+								</div>
+								<div class="col-lg-3 col-sm-6 col-12">
+									<div class="form-group">
+										<label>Categoria</label>
+										<select name="categoria" class="select">
+											<option>Escolha a Categoria</option>
+											{% for c in categoriaproduto %}
+											<option value="{{ c.id }}">{{ c.categoria }}</option>
+											{% endfor %}
+											<option value="{{ categoriaprodutoselecionado.id }}" selected>{{ produtoselecionado.categoria }}</option>
+										</select>
+									</div>
+								</div>
+
+								<div class="col-lg-3 col-sm-6 col-12">
+									<div class="form-group">
+										<label>SKU</label>
+										<input type="text" name="SKU" value="{{ produtoselecionado.SKU }}">
+									</div>
+								</div>
+								<div class="col-lg-3 col-sm-6 col-12">
+									<div class="form-group">
+										<label>Estoque</label>
+										<input type="text" name="estoque" value="{{ produtoselecionado.estoque }}">
+									</div>
+								</div>
+								<div class="col-lg-12">
+									<input type="hidden" name="idProduto" value="{{ produtoselecionado.id }} ">
+									<input type="submit" value="Atualizar" class="btn btn-submit me-2">
+									<a href="/productlist/" class="btn btn-cancel">Cancelar</a>
+								</div>
+							</div>
+						</div>
+					</div>
+					</form>
+					<!-- /add -->
+				</div>
+			</div>
+        </div>
+		<!-- /Main Wrapper -->
+		 
+		<!-- jQuery -->
+ 			{% include 'footer.html' %}
+
+        <!-- Select2 JS -->
+		<script src="{% static 'plugins/select2/js/select2.min.js' %}"></script>
+
+		<!-- Sweetalert 2 -->
+		<script src="{% static 'plugins/sweetalert/sweetalert2.all.min.js' %}"></script>
+		<script src="{% static 'plugins/sweetalert/sweetalerts.min.js' %}"></script>
+
+
+		
+    </body>
+</html>

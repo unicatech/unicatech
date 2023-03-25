@@ -1,0 +1,95 @@
+{% load static %}
+<!DOCTYPE html>
+
+ 			<!-- Header -->
+			{% include 'head.html' %}
+			<!-- /header -->
+
+			<!-- Select2 CSS -->
+			<link rel="stylesheet" href="{% static 'plugins/select2/css/select2.min.css' %}">
+			<!-- Sidebar -->
+			{% include 'sidebar.html' %}
+			<!-- /Sidebar -->
+
+			<div class="page-wrapper">
+				<div class="content">
+					<div class="page-header">
+						<div class="page-title">
+							<h4>Atualizar Conta</h4>
+
+						</div>
+					</div>
+					<!-- /add -->
+					<form method="POST" action="{% url 'editarconta' %}">
+						{% csrf_token %}
+						<input type="hidden" name="idConta" value="{{ contaselecionada.id }}"
+					<div class="card">
+						<div class="card-body">
+							<div class="row">
+								<div class="col-lg-3 col-sm-6 col-12">
+									<div class="form-group">
+										<label>Nome da Conta</label>
+										<input type="text" name="nomeConta" value="{{ contaselecionada.nomeConta }}">
+									</div>
+								</div>
+								<div class="col-lg-3 col-sm-6 col-12">
+									<div class="form-group">
+										<label>Tipo de Conta</label>
+										<select id="categoria" name="categoria" class="select">
+											<option>Escolha a Categoria</option>
+											<option value="{{ categoriacontaselecionada.id }}" SELECTED>{{ categoriacontaselecionada.categoria }}</option>
+											{% for c in categoria %}
+											<option value="{{ c.id }}">{{ c.categoria }}</option>
+											{% endfor %}
+										</select>
+									</div>
+								</div>
+
+								<div class="col-lg-3 col-sm-6 col-12">
+									<div class="form-group">
+										<label>Taxa de Depósito (%)</label>
+										<input type="text" name="taxas" value=" {{ contaselecionada.taxas }}">
+									</div>
+								</div>
+								<div class="col-lg-3 col-sm-6 col-12">
+									<div class="form-group">
+										<label>Saldo Inicial{% if categoriacontaselecionada.id == 4 %} USD {% else %} BRL {% endif %}</label>
+										<input type="text" name="saldoinicial" value="{{ contaselecionada.saldoInicial }}">
+									</div>
+								</div>
+								<div class="col-lg-3 col-sm-6 col-12">
+									<div class="form-group">
+										<label>Descrição</label>
+										<textarea type="text" name="descricao" rows="4" cols="50">
+											{{ contaselecionada.descricao }}
+										</textarea>
+									</div>
+								</div>
+								<div class="col-lg-12">
+									<input type="submit" value="Atualizar" class="btn btn-submit me-2">
+									<a href="/listarconta/" class="btn btn-cancel">Cancelar</a>
+								</div>
+							</div>
+						</div>
+					</div>
+					</form>
+					<!-- /add -->
+				</div>
+			</div>
+        </div>
+		<!-- /Main Wrapper -->
+		 
+		<!-- jQuery -->
+ 			{% include 'footer.html' %}
+
+        <!-- Select2 JS -->
+		<script src="{% static 'plugins/select2/js/select2.min.js' %}"></script>
+
+		<!-- Sweetalert 2 -->
+		<script src="{% static 'plugins/sweetalert/sweetalert2.all.min.js' %}"></script>
+		<script src="{% static 'plugins/sweetalert/sweetalerts.min.js' %}"></script>
+
+
+		
+    </body>
+</html>

@@ -1,0 +1,195 @@
+{% load static %}
+{% load l10n %}
+<!DOCTYPE html>
+
+ 			<!-- Header -->
+			{% include 'head.html' %}
+			<!-- /header -->
+
+			<!-- Select2 CSS -->
+			<link rel="stylesheet" href="{% static 'plugins/select2/css/select2.min.css' %}">
+			<!-- Sidebar -->
+			{% include 'sidebar.html' %}
+			<!-- /Sidebar -->
+
+			<div class="page-wrapper">
+				<div class="content">
+					<div class="page-header">
+						<div class="page-title">
+							<h4>Adicionar Saldo</h4>
+						</div>
+						{% if mensagem != "" %}
+						<div class="closebtn">
+							 <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
+							{{ mensagem }}
+						</div>
+						{% endif %}
+					</div>
+					<!-- /add -->
+					<form method="POST" action="{% url 'adicionarfundos' %}">
+						{% csrf_token %}
+						<input type="hidden" name="idConta" value="{{ contaselecionada.id }}"
+					<div class="card">
+						<div class="card-body">
+							<div class="row">
+								<div class="col-lg-3 col-sm-6 col-12">
+									<div class="form-group">
+										<label>Conta para Aporte</label>
+										<select name="contaOrigem" class="select">
+											{% for c in contaOrigem %}
+											<option value="{{ c.id }}">{{ c.nomeConta }}</option>
+											{% endfor %}
+										</select>
+									</div>
+								</div>
+								<div class="col-lg-3 col-sm-6 col-12">
+									<div class="form-group">
+										<label>Valor do Aporte </label>
+										<input type="text" name="valorReal">
+									</div>
+								</div>
+								<div class="col-lg-12">
+									<input type="submit" value="Comprar" class="btn btn-submit me-2">
+									<a href="/comprardolar/" class="btn btn-cancel">Cancelar</a>
+								</div>
+							</div>
+						</div>
+					</div>
+					</form>
+					<!-- /add -->
+				</div>
+			</div>
+        </div>
+
+			<!-- Valor Consolidado das contas -->
+			<div class="page-wrapper">
+				<div class="content">
+					<div class="row">
+						<div class="page-title">
+							<h4>Valores Consolidados por Tipo de Conta</h4>
+						</div>
+						<div class="col-lg-3 col-sm-6 col-12">
+							<div class="dash-widget">
+								<div class="dash-widgetimg">
+									<span><img src="{% static 'img/icons/dash1.svg' %}" alt="img"></span>
+								</div>
+								<div class="dash-widgetcontent">
+									<h5 >R$<span class="counters">{{ especieValorTotal|floatformat:2 }}</span></h5>
+									<h6>Total em Espécie</h6>
+								</div>
+							</div>
+						</div>
+						<div class="col-lg-3 col-sm-6 col-12">
+							<div class="dash-widget dash1">
+								<div class="dash-widgetimg">
+									<span><img src="{% static 'img/icons/dash2.svg' %}" alt="img"></span>
+								</div>
+								<div class="dash-widgetcontent">
+									<h5 >R$<span class="counters">{{ depositoRealValorTotal|floatformat:2 }}</span></h5>
+									<h6>Total da Conta em Reais</h6>
+								</div>
+							</div>
+						</div>
+						<div class="col-lg-3 col-sm-6 col-12">
+							<div class="dash-widget dash2">
+								<div class="dash-widgetimg">
+									<span><img src="{% static 'img/icons/dash3.svg' %}" alt="img"></span>
+								</div>
+								<div class="dash-widgetcontent">
+									<h5 >US$<span class="counters">{{ depositoDolarValorTotal|floatformat:2 }}</span></h5>
+									<h6>Total da Conta em Dólar</h6>
+								</div>
+							</div>
+						</div>
+						<div class="col-lg-3 col-sm-6 col-12">
+							<div class="dash-widget dash2">
+								<div class="dash-widgetimg">
+									<span><img src="{% static 'img/icons/dash3.svg' %}" alt="img"></span>
+								</div>
+								<div class="dash-widgetcontent">
+									<h5 >US$<span class="counters">{{ depositoDolarPyValorTotal|floatformat:2 }}</span></h5>
+									<h6>Total da Conta em Dólar no Paraguai</h6>
+								</div>
+							</div>
+						</div>
+						<div class="col-lg-3 col-sm-6 col-12">
+							<div class="dash-widget dash3">
+								<div class="dash-widgetimg">
+									<span><img src="{% static 'img/icons/dash4.svg' %}" alt="img"></span>
+								</div>
+								<div class="dash-widgetcontent">
+									<h5 >R$<span class="counters">{{ cartaoCreditoValorTotal|floatformat:2 }}</span></h5>
+									<h6>Total da Conta em Cartão de Crédito</h6>
+								</div>
+							</div>
+						</div>
+						<!--/ Valor Consolidado das contas -->
+
+						<!-- Valor Detalhado das contas -->
+						<div class="page-title">
+							<h4>Valores Detalhados em Contas </h4>
+						</div>
+						{% for c in contasDetalhadas %}
+						<div class="col-lg-3 col-sm-6 col-12 d-flex">
+							<div class="dash-count">
+								<div class="dash-counts">
+									<h4> {{ c.moeda }} {{ c.saldo|floatformat:2 }}</h4>
+									<h5>{{ c.nomeConta }}</h5>
+								</div>
+								<div class="dash-imgs">
+									<i data-feather="user"></i>
+								</div>
+							</div>
+						</div>
+						{% endfor %}
+
+
+						<div class="card mb-0">
+						<div class="card-body">
+							<h4 class="card-title">Últimas Movimentações</h4>
+							<div class="table-responsive dataview">
+								<table class="table datatable ">
+									<thead>
+										<tr>
+											<th>Data</th>
+											<th>Conta de Origem</th>
+											<th>Conta de Destino</th>
+											<th>Valor na Conta de Origem</th>
+											<th>Valor na Conta de Destino</th>
+											<th>Apagar</th>
+										</tr>
+									</thead>
+									<tbody>
+									{% for movimentacao in movimentacaoContas %}
+										<tr>
+											<td>{{ movimentacao.data }}</td>
+											<td>{{ movimentacao.contaOrigem }}</td>
+											<td>{{ movimentacao.contaDestino }}	</td>
+											<td>{{ movimentacao.valorContaOrigem|floatformat:2 }}</td>
+											<td>{{ movimentacao.valorContaDestino|floatformat:2 }}</td>
+											<td><a class="confirm-text"  href="{% url 'comprardolar' %}?idMovimento={{ movimentacao.idMovimento }}&funcao=apagar" onclick="javascript:void(0);">
+												<img src="{% static 'img/icons/delete.svg' %}" alt="img">
+												</a></td>
+										</tr>
+									{% endfor %}
+									</tbody>
+								</table>
+							</div>
+						</div>
+					</div>
+		<!-- /Main Wrapper -->
+		 
+		<!-- jQuery -->
+ 			{% include 'footer.html' %}
+
+        <!-- Select2 JS -->
+		<script src="{% static 'plugins/select2/js/select2.min.js' %}"></script>
+
+		<!-- Sweetalert 2 -->
+		<script src="{% static 'plugins/sweetalert/sweetalert2.all.min.js' %}"></script>
+		<script src="{% static 'plugins/sweetalert/sweetalerts.min.js' %}"></script>
+
+
+		
+    </body>
+</html>

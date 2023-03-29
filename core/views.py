@@ -700,6 +700,16 @@ class ListarComprasView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(ListarComprasView, self).get_context_data(**kwargs)
+
+        context['mensagem'] = ''
+        if self.request.GET.__contains__("idCompra"):
+            if self.request.GET["funcao"] == "apagar":
+                print(self.request.GET["idCompra"])
+                apagarcompras = Compra.objects.filter(identificadorCompra=self.request.GET["idCompra"])
+                for apagarcompra in apagarcompras:
+                    apagar = Compra(id=apagarcompra.id)
+                    apagar.delete()
+
         compras = Compra.objects.order_by('identificadorCompra')
 
         listarComprasTemplate = []

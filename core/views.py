@@ -717,8 +717,10 @@ class ListarComprasView(TemplateView):
         valorCompraTotal = 0
         for compra in compras:
             if identificadorCompra != compra.identificadorCompra:
+                valorCompraTotal = valorCompraTotal + compra.quantidadeProduto * compra.precoProduto
                 listarComprasTemplate.append(
-                    {'idCompra': compra.identificadorCompra,
+                    {
+                     'idCompra': compra.identificadorCompra,
                      'fornecedor': compra.fornecedor,
                      'dataCompra': compra.criados,
                      'valorCompra': valorCompraTotal,
@@ -733,6 +735,31 @@ class FazerComprasView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(FazerComprasView, self).get_context_data(**kwargs)
+        context['editarCompra'] = 0
+        if self.request.GET.__contains__("idCompra"):
+            compras = Compra.objects.filter(identificadorCompra=self.request.GET["idCompra"])
+            listarProdutosTemplate = []
+            identificadorCompra = 0
+            valorCompraTotal = 0
+            context['editarCompra'] = 1
+
+            for compra in compras:
+                #fornecedor = Fornecedor.objects.get(id=compra.fornecedor_id)
+                listarProdutosTemplate.append(
+                    {
+                     'idProduto': compra.produto_id,
+                     'quantidadeProduto': compra.quantidadeProduto,
+                     'precoProduto': compra.precoProduto,
+                     }
+                )
+                context['frete'] = compra.frete
+                context['idLocalizacao'] = compra.idLocalizacao_id
+                context['dataCompra'] = compra.criados.strftime('%d-%m-%Y')
+                context['idFornecedor'] = compra.fornecedor_id
+                context['identificadorCompra'] = compra.identificadorCompra
+                context['compra_identificada'] = listarProdutosTemplate
+                # identificadorCompra = compra.identificadorCompra
+
         context['compras'] = Compra.objects.all()
         context['mensagem'] = ''
         #Popular template
@@ -856,43 +883,3 @@ class FazerComprasView(TemplateView):
 
         return super(TemplateView, self).render_to_response(context)
 
-class EditarComprasView(TemplateView):
-    template_name = 'editarcompras.html'
-    def get_context_data(self, **kwargs):
-        context = super(EditarComprasView, self).get_context_data(**kwargs)
-        compras = Compra.objects.get(id=self.request.GET["idCompra"])
-
-        listarComprasTemplate = []
-        identificadorCompra = 0
-        valorCompraTotal = 0
-        for compra in compras:
-            listarComprasTemplate.append(
-                    {'idCompra': compra.identificadorCompra,
-                     'fornecedor': compra.fornecedor_id.nomeFornecedor,
-                     'dataCompra': compra.criados,
-                     'idProduto': compra.produto_id,
-                     'nomeProduto': compra.produto_id.NomeProduto,
-                     'idLocalizacao': compra.localizacao_id,
-                     'quantidadeProduto': compra.quantidadeProduto,
-                     'precoProduto': compra.precoProduto,
-                     'nomeLocalizacao': compra.localizacao_id.localizacaoCompra,
-                     'localizacaoCompra': compra.idLocalizacao.localizacaoCompra,
-                     }
-            )
-            #identificadorCompra = compra.identificadorCompra
-
-        context['listarCompras'] = listarComprasTemplate
-        return context
-
-    def post(self, request, *args, **kwargs):
-        dataform = Conta.objects.get(id=self.request.POST.get('idConta'))
-        dataform.nomeConta = self.request.POST.get('nomeConta')
-        dataform.categoria_id = self.request.POST.get('categoria')
-        dataform.taxas = self.request.POST.get('taxas')
-        dataform.descricao = self.request.POST.get('descricao')
-        dataform.saldoInicial = self.request.POST.get('saldoinicial')
-        dataform.save()
-        context = super(EditarContaView, self).get_context_data(**kwargs)
-        context['conta'] = Conta.objects.all()
-        context['categoriaconta'] = CategoriaConta.objects.all()
-        return HttpResponseRedirect('/listarconta/?contacadastrada=1')

@@ -29,6 +29,7 @@
 					</div>
 					<form method="POST" action="{% url 'fazercompras' %}">
 					{% csrf_token %}
+					<input type="hidden" name="identificadorCompra" value="{{identificadorCompra}}">
 					<div class="card">
 						<div class="card-body">
 							<div class="row">
@@ -38,9 +39,10 @@
 										<div class="row">
 											<div class="col-lg-10 col-sm-10 col-10">
 											<select name="fornecedor" id="fornecedor" class="select">
-											{% for f in fornecedores %}
-											<option value="{{ f.id }}">{{ f.nomeFornecedor }}</option>
-											{% endfor %}
+												{% for f in fornecedores %}
+												<option value="{{ f.id }}" {% if f.id == idFornecedor %} SELECTED {% endif %}>{{ f.nomeFornecedor }}</option>
+												{% endfor %}
+
 										</select>
 										</div>
 											<div class="col-lg-2 col-sm-2 col-2 ps-0">
@@ -55,7 +57,7 @@
 									<div class="form-group">
 										<label>Data da Compra </label>
 										<div class="input-groupicon">
-											<input type="text" placeholder="DD-MM-AAAA" class="datetimepicker" name="dataCompra">
+											<input type="text" placeholder="DD-MM-AAAA" class="datetimepicker" name="dataCompra" value="{{dataCompra}}">
 											<div class="addonset">
 												<img src="{% static 'img/icons/calendars.svg' %}" alt="img">
 											</div>
@@ -86,11 +88,54 @@
                         </tr>
 
                         <tr>
+							{% if editarCompra == 0 %}
 							<div class="row">
                             <td><select name="produto" class="select">
 								<option> Selecione o Produto</option>
 								{% for p in produtos %}
-											<option value="{{ p.id }}">{{ p.NomeProduto }}</option>
+											<option value="{{ p.id }}" >{{ p.NomeProduto }}</option>
+								{% endfor %}
+
+							</select></td>
+
+                            <td><input type="text" class="form-control" name="qtde" id="tab1" size="2" maxlength="3"></td>
+
+							<td><input type="text" class="form-control" name="preco" id="tab1" size="2" maxlength="5"></td>
+
+							<td><input type="text" class="form-control" name="total" id="tab1" size="2"></td>
+
+							<td><input class="btn btn-danger" name="remove" id="remove" value="Apagar" type="button">
+							</td>
+							</div>
+						</tr>
+						     <tr>
+
+							<div class="row">
+                            <td><select name="produto" class="select">
+								<option> Selecione o Produto</option>
+								{% for p in produtos %}
+											<option value="{{ p.id }}" >{{ p.NomeProduto }}</option>
+								{% endfor %}
+
+							</select></td>
+
+                            <td><input type="text" class="form-control" name="qtde" id="tab1" size="2" maxlength="3"></td>
+
+							<td><input type="text" class="form-control" name="preco" id="tab1" size="2" maxlength="5"></td>
+
+							<td><input type="text" class="form-control" name="total" id="tab1" size="2"></td>
+
+							<td><input class="btn btn-danger" name="remove" id="remove" value="Apagar" type="button">
+							</td>
+							</div>
+						</tr>
+						                        <tr>
+
+							<div class="row">
+                            <td><select name="produto" class="select">
+								<option> Selecione o Produto</option>
+								{% for p in produtos %}
+											<option value="{{ p.id }}" >{{ p.NomeProduto }}</option>
 								{% endfor %}
 
 							</select></td>
@@ -106,6 +151,31 @@
 							</div>
 						</tr>
 
+
+
+							{% endif %}
+
+							<div class="row">
+							{% for c in compra_identificada %}
+                            <td><select name="produto" class="select">
+								<option> Selecione o Produto</option>
+								{% for p in produtos %}
+											<option value="{{ p.id }}" {% if p.id == c.idProduto %} SELECTED {% endif %}>{{ p.NomeProduto }}</option>
+								{% endfor %}
+
+							</select></td>
+
+                            <td><input type="text" class="form-control" name="qtde" id="tab1" size="2" maxlength="3" value="{{ c.quantidadeProduto }}"></td>
+
+							<td><input type="text" class="form-control" name="preco" id="tab1" size="2" maxlength="5" value="{{ c.precoProduto }}"></td>
+
+							<td><input type="text" class="form-control" name="total" id="tab1" size="2"></td>
+
+							<td><input class="btn btn-danger" name="remove" id="remove" value="Apagar" type="button">
+							</td>
+							</div>
+						</tr>
+						{% endfor %}
 						<tr></tr>
 
                     </table>
@@ -141,14 +211,14 @@
 								<div class="col-lg-3 col-sm-6 col-12">
 									<div class="form-group">
 										<label>Frete</label>
-										<input type="text" name="frete" >
+										<input type="text" name="frete" value="{{frete}}" >
 									</div>
 								</div>
   								<div class="col-lg-3 col-sm-6 col-12">
 								<label>Local de Origem da Compra</label>
 									<select name="localizacaoCompra" class="select">
 										{% for l in localizacaoCompra %}
-										<option value="{{ l.id }}">{{ l.localizacaoCompra }}</option>
+										<option value="{{ l.id }}" {% if l.id == idLocalizacao %} SELECTED {% endif %}>{{ l.localizacaoCompra }}</option>
 										{% endfor %}
 									</select>
 								</div>

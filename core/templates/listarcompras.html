@@ -15,7 +15,7 @@
 								<h6>Gerencie suas Compras</h6>
 							</div>
 							<div class="page-btn">
-								<a href="{% url 'fazercompras' %}}" class="btn btn-added">
+								<a href="{% url 'fazercompras'%}" class="btn btn-added">
 									<img src="{% static 'img/icons/plus.svg' %}" alt="img">Fazer Nova Compra
 								</a>
 							</div>
@@ -131,7 +131,7 @@
 												<td><span class="badges bg-lightgreen">{{ compra.localizacaoCompra }}</span></td>
 												<td>
 													
-													<a class="me-3" href="/editarcompra/?idCompra={{ compra.idCompra }}">
+													<a class="me-3" href="/fazercompras/?idCompra={{ compra.idCompra }}">
 														<img src="{% static 'img/icons/edit.svg' %}" alt="img">
 													</a>
 													<a class="me-3 confirm-text" href="/listarcompras/?idCompra={{ compra.idCompra }}&funcao=apagar">

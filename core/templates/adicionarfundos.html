@@ -152,10 +152,8 @@
 									<thead>
 										<tr>
 											<th>Data</th>
-											<th>Conta de Origem</th>
-											<th>Conta de Destino</th>
-											<th>Valor na Conta de Origem</th>
-											<th>Valor na Conta de Destino</th>
+											<th>Conta Crédito</th>
+											<th>Valor Creditado</th>
 											<th>Apagar</th>
 										</tr>
 									</thead>
@@ -164,9 +162,7 @@
 										<tr>
 											<td>{{ movimentacao.data }}</td>
 											<td>{{ movimentacao.contaOrigem }}</td>
-											<td>{{ movimentacao.contaDestino }}	</td>
 											<td>{{ movimentacao.valorContaOrigem|floatformat:2 }}</td>
-											<td>{{ movimentacao.valorContaDestino|floatformat:2 }}</td>
 											<td><a class="confirm-text"  href="{% url 'comprardolar' %}?idMovimento={{ movimentacao.idMovimento }}&funcao=apagar" onclick="javascript:void(0);">
 												<img src="{% static 'img/icons/delete.svg' %}" alt="img">
 												</a></td>

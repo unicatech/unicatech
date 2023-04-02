@@ -265,7 +265,6 @@ class ComprarDolarView(TemplateView):
 
         movimentacaoContasTemplate = []
         for conta in movimentacaoConta:
-
             # Se for uma movimentação de compra ou venda não listar
             try:
                 contaCredito = Conta.objects.get(id=conta.contaCredito)
@@ -275,16 +274,18 @@ class ComprarDolarView(TemplateView):
                 contaDebito = Conta.objects.get(id=conta.contaDebito)
             except:
                 continue
-
-            movimentacaoContasTemplate.append(
-                {'data': conta.criados,
-                 'contaOrigem': contaDebito.nomeConta,
-                 'contaDestino': contaCredito.nomeConta,
-                 'valorContaOrigem': conta.valorDebito,
-                 'valorContaDestino': conta.valorCredito,
-                 'idMovimento': conta.id}
-            )
-
+            if (conta.contaDebito != 0 and conta.contaCredito !=0):
+                movimentacaoContasTemplate.append(
+                    {'data': conta.criados,
+                    'contaOrigem': contaDebito.nomeConta,
+                    'contaDestino': contaCredito.nomeConta,
+                    'valorContaOrigem': conta.valorDebito,
+                    'valorContaDestino': conta.valorCredito,
+                    'idMovimento': conta.id}
+                )
+                print(conta.contaCredito)
+                print(conta.contaDebito)
+                print(conta.identificadorCompra)
         context['movimentacaoContas'] = movimentacaoContasTemplate
 
         return context
@@ -545,21 +546,17 @@ class AdicionarFundosView(TemplateView):
 
         movimentacaoContasTemplate = []
         for conta in movimentacaoConta:
-
             # Se for uma movimentação de compra ou venda ou movimentação entre contas não listar
-            try:
-                contaDebito = Conta.objects.get(id=conta.contaDebito)
-            except:
-                if conta.identificadorCompra == 0 and conta.identificadorVenda == 0:
-                    contaCredito = Conta.objects.get(id=conta.contaCredito)
-                    print(conta.contaCredito)
-                    movimentacaoContasTemplate.append(
-                        {'data': conta.criados,
+            if conta.identificadorCompra == 0 and conta.identificadorVenda == 0:
+                contaCredito = Conta.objects.get(id=conta.contaCredito)
+                print(conta.identificadorCompra)
+                print(conta.identificadorVenda)
+                movimentacaoContasTemplate.append(
+                    {'data': conta.criados,
                          'contaOrigem': contaCredito.nomeConta,
                          'valorContaOrigem': conta.valorCredito,
                          'idMovimento': conta.id}
-                    )
-
+                )
         context['movimentacaoContas'] = movimentacaoContasTemplate
 
         return context
@@ -710,7 +707,7 @@ class ListarComprasView(TemplateView):
                     apagar = Compra(id=apagarcompra.id)
                     apagar.delete()
 
-        compras = Compra.objects.order_by('identificadorCompra')
+        compras = Compra.objects.order_by('identificadorCompra').filter(ativo=True)
 
         listarComprasTemplate = []
         identificadorCompra = 0
@@ -737,14 +734,13 @@ class FazerComprasView(TemplateView):
         context = super(FazerComprasView, self).get_context_data(**kwargs)
         context['editarCompra'] = 0
         if self.request.GET.__contains__("idCompra"):
-            compras = Compra.objects.filter(identificadorCompra=self.request.GET["idCompra"])
+            compras = Compra.objects.filter(identificadorCompra=self.request.GET["idCompra"],ativo=True)
             listarProdutosTemplate = []
             identificadorCompra = 0
             valorCompraTotal = 0
             context['editarCompra'] = 1
 
             for compra in compras:
-                #fornecedor = Fornecedor.objects.get(id=compra.fornecedor_id)
                 listarProdutosTemplate.append(
                     {
                      'idProduto': compra.produto_id,
@@ -757,8 +753,8 @@ class FazerComprasView(TemplateView):
                 context['dataCompra'] = compra.criados.strftime('%d-%m-%Y')
                 context['idFornecedor'] = compra.fornecedor_id
                 context['identificadorCompra'] = compra.identificadorCompra
+                context['idConta'] = compra.conta_id
                 context['compra_identificada'] = listarProdutosTemplate
-                # identificadorCompra = compra.identificadorCompra
 
         context['compras'] = Compra.objects.all()
         context['mensagem'] = ''
@@ -802,7 +798,6 @@ class FazerComprasView(TemplateView):
         except:
             proximaCompra = 1
 
-        print(self.request.POST.get)
         fornecedor = self.request.POST.getlist('fornecedor')
         dataCompra = self.request.POST.getlist('dataCompra')
         produtos = self.request.POST.getlist('produto')
@@ -811,6 +806,7 @@ class FazerComprasView(TemplateView):
         contaOrigem = self.request.POST.getlist('contaOrigem')
         frete = self.request.POST.getlist('frete')
         localizacaoCompra = self.request.POST.getlist('localizacaoCompra')
+        identificadorCompra = self.request.POST.getlist('identificadorCompra')
 
         if frete[0] == "":
             frete[0] = 0
@@ -819,10 +815,29 @@ class FazerComprasView(TemplateView):
         descricao = self.request.POST.getlist('descricao')
 
         dataModificada = re.sub(r'(\d{1,2})-(\d{1,2})-(\d{4})', '\\3-\\2-\\1', dataCompra[0])
-
+        print(dataModificada)
         contador = 0
         valorCompra = 0
+        valorEstorno = 0
 
+        # Desabilitando registro de Compra Salva caso função seja editar
+        if identificadorCompra[0] != 0:
+            compraDesabilitada = Compra.objects.filter(identificadorCompra=identificadorCompra[0],ativo=True)
+            #Devolvendo o dinheiro da Compra para a conta especifica
+            for compra in compraDesabilitada:
+                valorEstorno = valorEstorno + compra.quantidadeProduto*compra.precoProduto
+            formMovimentacao = MovimentacaoConta(
+                criados=str(dataModificada),
+                contaCredito=contaOrigem[0],
+                valorCredito=valorEstorno,
+                identificadorCompra=str(proximaCompra),
+                descricao=descricao,
+            )
+            formMovimentacao.save()
+            Compra.objects.filter(identificadorCompra=identificadorCompra[0]).update(ativo=False)
+            proximaCompra = identificadorCompra[0]
+
+        # Salvando Compra
         for produto in produtos:
             formCompra = Compra(
                              criados=str(dataModificada),
@@ -834,12 +849,14 @@ class FazerComprasView(TemplateView):
                              frete=frete[0],
                              descricao=descricao,
                              idLocalizacao_id=localizacaoCompra[0],
+                             conta_id=contaOrigem[0]
                              )
             valorCompra = valorCompra + float(precos[contador])*float(quantidades[contador])
             formCompra.save()
             contador = contador + 1
         valorCompra = valorCompra + float(frete[0])
 
+        #Debitando da conta
         formMovimentacao = MovimentacaoConta(
                              criados=str(dataModificada),
                              contaDebito=contaOrigem[0],

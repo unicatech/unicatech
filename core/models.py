@@ -5,8 +5,8 @@ from stdimage.models import StdImageField
 # Create your models here.
 
 class Base(models.Model):
-    criados = models.DateField('Criação', auto_now_add=True)
-    modificado = models.DateField('Atualização', auto_now=True)
+    criados = models.DateField('Criação', auto_now_add=False)
+    modificado = models.DateField('Atualização', auto_now_add=True)
     ativo = models.BooleanField('Ativo?', default=True)
 
     class Meta:
@@ -104,6 +104,7 @@ class Compra(Base):
     identificadorCompra = models.IntegerField()
     fornecedor = models.ForeignKey('core.Fornecedor', verbose_name='Fornecedor', on_delete=models.CASCADE)
     produto = models.ForeignKey('core.Produto', verbose_name='Produto', on_delete=models.CASCADE)
+    conta = models.ForeignKey('core.Conta', verbose_name='Produto', on_delete=models.CASCADE)
     quantidadeProduto = models.FloatField(default=0)
     precoProduto = models.FloatField(default=0)
     frete = models.FloatField(default=0)

@@ -7,6 +7,7 @@ from django.contrib import messages
 from .models import Produto, CategoriaProduto, Conta, CategoriaConta, MovimentacaoConta, Fornecedor, Compra, LocalizacaoCompra
 
 import re
+import logging
 
 class IndexView(TemplateView):
     template_name = 'index.html'
@@ -711,10 +712,12 @@ class ListarComprasView(TemplateView):
 
         listarComprasTemplate = []
         identificadorCompra = 0
-        valorCompraTotal = 0
         for compra in compras:
             if identificadorCompra != compra.identificadorCompra:
-                valorCompraTotal = valorCompraTotal + compra.quantidadeProduto * compra.precoProduto
+                compraIdentificada = Compra.objects.filter(identificadorCompra=compra.identificadorCompra,ativo=True)
+                valorCompraTotal = 0
+                for compra in compraIdentificada:
+                    valorCompraTotal = valorCompraTotal + compra.quantidadeProduto * compra.precoProduto
                 listarComprasTemplate.append(
                     {
                      'idCompra': compra.identificadorCompra,
@@ -724,6 +727,7 @@ class ListarComprasView(TemplateView):
                      'localizacaoCompra': compra.idLocalizacao.localizacaoCompra,
                      }
                 )
+                valorCompraTotal = 0
                 identificadorCompra = compra.identificadorCompra
         context['listarCompras'] = listarComprasTemplate
         return(context)

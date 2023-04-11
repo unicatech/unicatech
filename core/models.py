@@ -2,6 +2,7 @@ from django.db import models
 
 from stdimage.models import StdImageField
 
+
 # Create your models here.
 
 class Base(models.Model):
@@ -11,6 +12,7 @@ class Base(models.Model):
 
     class Meta:
         abstract = True
+
 
 class Produto(Base):
     SKU = models.CharField('SKU', max_length=10)
@@ -25,6 +27,7 @@ class Produto(Base):
     def __str__(self):
         return self.SKU
 
+
 class CategoriaProduto(Base):
     categoria = models.CharField('Categoria', max_length=20)
 
@@ -34,6 +37,7 @@ class CategoriaProduto(Base):
 
     def __str__(self):
         return self.categoria
+
 
 class Conta(Base):
     nomeConta = models.CharField('Nome da Conta', max_length=100)
@@ -67,6 +71,7 @@ class Conta(Base):
     def __str__(self):
         return self.nomeConta
 
+
 class CategoriaConta(Base):
     categoria = models.CharField('Categoria', max_length=200)
 
@@ -76,6 +81,7 @@ class CategoriaConta(Base):
 
     def __str__(self):
         return self.categoria
+
 
 class MovimentacaoConta(Base):
     contaCredito = models.IntegerField(default=0)
@@ -89,17 +95,21 @@ class MovimentacaoConta(Base):
     def __str__(self):
         return self.id
 
+
 class Fornecedor(Base):
     nomeFornecedor = models.CharField('Descrição', max_length=200)
 
     def __str__(self):
         return self.id
 
+
 class LocalizacaoCompra(Base):
     localizacaoCompra = models.CharField('Localização', max_length=200)
 
     def __str__(self):
         return self.id
+
+
 class Compra(Base):
     identificadorCompra = models.IntegerField()
     fornecedor = models.ForeignKey('core.Fornecedor', verbose_name='Fornecedor', on_delete=models.CASCADE)
@@ -111,6 +121,9 @@ class Compra(Base):
     descricao = models.CharField('Descrição', max_length=200)
     idLocalizacao = models.ForeignKey('core.LocalizacaoCompra', verbose_name='Localização', on_delete=models.CASCADE)
 
-
     def __str__(self):
         return self.id
+
+    @property
+    def valor_compra(self):
+        return self.quantidadeProduto * self.precoProduto

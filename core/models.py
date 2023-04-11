@@ -114,3 +114,22 @@ class Compra(Base):
 
     def __str__(self):
         return self.id
+
+class Venda(Base):
+    identificadorVenda = models.IntegerField()
+    cliente = models.ForeignKey('core.Cliente', verbose_name='Cliente', on_delete=models.CASCADE)
+    produto = models.ForeignKey('core.Produto', verbose_name='Produto', on_delete=models.CASCADE)
+#    conta = models.ForeignKey('core.Conta', verbose_name='Produto', on_delete=models.CASCADE)
+    quantidadeProduto = models.FloatField(default=0)
+    precoProduto = models.FloatField(default=0)
+    descricao = models.CharField('Descrição', max_length=200)
+
+
+    def __str__(self):
+        return self.id
+
+class Cliente(Base):
+    nomeCliente = models.CharField('Descrição', max_length=200)
+
+    def __str__(self):
+        return self.id

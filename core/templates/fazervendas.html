@@ -1,0 +1,310 @@
+{% load static %}
+{% load l10n %}
+<!DOCTYPE html>
+
+ 			<!-- Header -->
+			{% include 'head.html' %}
+			<!-- /header -->
+
+			<!-- Select2 CSS -->
+			<link rel="stylesheet" href="{% static 'plugins/select2/css/select2.min.css' %}">
+			<!-- Sidebar -->
+			{% include 'sidebar.html' %}
+			<!-- /Sidebar -->
+
+		<!-- Main Wrapper -->
+			<div class="page-wrapper">
+				<div class="content">
+					<div class="page-header">
+						<div class="page-title">
+							<h4>Vendas</h4>
+							<h6>Adicione/Edite sua Venda</h6>
+						</div>
+						{% if mensagem != "" %}
+						 <div class="closebtn">
+							 <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
+							 {{ mensagem }}
+						</div>
+						{% endif %}
+					</div>
+					<form method="POST" action="{% url 'fazervendas' %}">
+					{% csrf_token %}
+					<input type="hidden" name="identificadorVenda" value="{{identificadorVenda}}">
+					<div class="card">
+						<div class="card-body">
+							<div class="row">
+								<div class="col-lg-3 col-sm-6 col-12">
+									<div class="form-group">
+										<label>Cliente</label>
+										<div class="row">
+											<div class="col-lg-10 col-sm-10 col-10">
+											<select name="cliente" id="cliente" class="select">
+												{% for c in clientes %}
+												<option value="{{ c.id }}" {% if c.id == idCliente %} SELECTED {% endif %}>{{ c.nomeCliente }}</option>
+												{% endfor %}
+
+										</select>
+										</div>
+											<div class="col-lg-2 col-sm-2 col-2 ps-0">
+												<div class="add-icon">
+													<a href="javascript:void(0);"><img src="{% static 'img/icons/plus1.svg' %} " alt="img"></a>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+								<div class="col-lg-3 col-sm-6 col-12">
+									<div class="form-group">
+										<label>Data da Venda </label>
+										<div class="input-groupicon">
+											<input type="text" placeholder="DD-MM-AAAA" class="datetimepicker" name="dataVenda" value="{{dataVenda}}">
+											<div class="addonset">
+												<img src="{% static 'img/icons/calendars.svg' %}" alt="img">
+											</div>
+										</div>
+									</div>
+								</div>
+
+
+		<!-- parte do indiano -->
+
+
+            <div class="input-field">
+
+                <div class="table-responsive">
+
+                    <table class="table table-bordered text-center" id="table_field">
+
+                        <tr>
+
+                            <th>Produto</th>
+
+                            <th>Quantidade</th>
+
+                            <th>Preço</th>
+
+							<th> Total </th>
+
+                        </tr>
+
+                        <tr>
+							{% if editarVenda == 0 %}
+							<div class="row">
+                            <td><select name="produto" class="select">
+								<option> Selecione o Produto</option>
+								{% for p in produtos %}
+											<option value="{{ p.id }}" >{{ p.NomeProduto }}</option>
+								{% endfor %}
+
+							</select></td>
+
+                            <td><input type="text" class="form-control" name="qtde" id="tab1" size="2" maxlength="3"></td>
+
+							<td><input type="text" class="form-control" name="preco" id="tab1" size="2" maxlength="5"></td>
+
+							<td><input type="text" class="form-control" name="total" id="tab1" size="2"></td>
+
+							<td><input class="btn btn-danger" name="remove" id="remove" value="Apagar" type="button">
+							</td>
+							</div>
+						</tr>
+						     <tr>
+
+							<div class="row">
+                            <td><select name="produto" class="select">
+								<option> Selecione o Produto</option>
+								{% for p in produtos %}
+											<option value="{{ p.id }}" >{{ p.NomeProduto }}</option>
+								{% endfor %}
+
+							</select></td>
+
+                            <td><input type="text" class="form-control" name="qtde" id="tab1" size="2" maxlength="3"></td>
+
+							<td><input type="text" class="form-control" name="preco" id="tab1" size="2" maxlength="5"></td>
+
+							<td><input type="text" class="form-control" name="total" id="tab1" size="2"></td>
+
+							<td><input class="btn btn-danger" name="remove" id="remove" value="Apagar" type="button">
+							</td>
+							</div>
+						</tr>
+						                        <tr>
+
+							<div class="row">
+                            <td><select name="produto" class="select">
+								<option> Selecione o Produto</option>
+								{% for p in produtos %}
+											<option value="{{ p.id }}" >{{ p.NomeProduto }}</option>
+								{% endfor %}
+
+							</select></td>
+
+                            <td><input type="text" class="form-control" name="qtde" id="tab1" size="2" maxlength="3"></td>
+
+							<td><input type="text" class="form-control" name="preco" id="tab1" size="2" maxlength="5"></td>
+
+							<td><input type="text" class="form-control" name="total" id="tab1" size="2"></td>
+
+							<td><input class="btn btn-danger" name="remove" id="remove" value="Apagar" type="button">
+							</td>
+							</div>
+						</tr>
+
+
+
+							{% endif %}
+
+							<div class="row">
+							{% for c in venda_identificada %}
+                            <td><select name="produto" class="select">
+								<option> Selecione o Produto</option>
+								{% for p in produtos %}
+											<option value="{{ p.id }}" {% if p.id == c.idProduto %} SELECTED {% endif %}>{{ p.NomeProduto }}</option>
+								{% endfor %}
+
+							</select></td>
+
+                            <td><input type="text" class="form-control" name="qtde" id="tab1" size="2" maxlength="3" value="{{ c.quantidadeProduto }}"></td>
+
+							<td><input type="text" class="form-control" name="preco" id="tab1" size="2" maxlength="5" value="{{ c.precoProduto }}"></td>
+
+							<td><input type="text" class="form-control" name="total" id="tab1" size="2"></td>
+
+							<td><input class="btn btn-danger" name="remove" id="remove" value="Apagar" type="button">
+							</td>
+							</div>
+						</tr>
+						{% endfor %}
+						<tr></tr>
+
+                    </table>
+
+					<div class="row">
+
+                        <div class="col-12 text-left">
+
+                            Valor Total:
+
+                        </div>
+					</div>
+                    <div class="row">
+
+                        <div class="col-12 text-right">
+
+                            <input type="button" name="add" id="add" value="Adicionar Linha" class="btn btn-success">
+
+                        </div>
+
+
+						<div class="row">
+								<div class="col-lg-12">
+									<div class="form-group">
+										<label>Descrição</label>
+										<textarea class="form-control"></textarea>
+									</div>
+								</div>
+								<div class="col-lg-12">
+                        		    <input type="submit" name="save" id="save" value="Cadastrar Venda" class="btn btn-primary btn-block">
+								</div>
+							</div>
+                    </div>
+
+                </div>
+
+            </div>
+
+		<!-- /parte do indiano -->
+
+
+        </div>
+		</form>
+		<!-- /Main Wrapper -->
+
+		 
+		<!-- jQuery -->
+ 			{% include 'footer.html' %}
+
+        <!-- Select2 JS -->
+		<script src="{% static 'plugins/select2/js/select2.min.js' %}"></script>
+
+		<!-- Sweetalert 2 -->
+		<script src="{% static 'plugins/sweetalert/sweetalert2.all.min.js' %}"></script>
+		<script src="{% static 'plugins/sweetalert/sweetalerts.min.js' %}"></script>
+
+
+    <script type="text/javascript">
+
+            $(document).ready(function() {
+
+                var html = '<tr><td><select name="produto" class="select"><option>Selecione o Produto</option>{% for p in produtos %}<option value="{{ p.id }}">{{ p.NomeProduto }}</option>{% endfor %}</select></td><td><input type="text" class="form-control" name="qtde" id="tab1" size="4" maxlength="4"></td><td><input type="text" class="form-control" name="preco" id="tab1" size="4" maxlength="4"></td><td><input type="text" class="form-control" name="total" id="tab1" size="5" maxlength="5"></td><td><input class="btn btn-danger" id="remove" type="button" name="remove" value="Apagar" tabindex="-1"></td></tr>';
+
+                var max = 10;
+
+                var x = 1;
+
+                $("#add").click(function(){
+
+                    if(x <= max){
+
+                        $("#table_field").append(html);
+
+                        x++;
+
+                    }
+
+                })
+
+
+
+                $("#table_field").on('click', '#remove', function() {
+
+                    $(this).closest('tr').remove();
+
+                    x--;
+
+                })
+
+
+
+                $('#tab1').on('keydown', function(e){
+
+                    if(e.keyCode == 9){
+
+                        if(x <= max) {
+
+                            $("#table_field").append(html);
+
+                            x++
+
+                        }
+
+                    }
+
+                })
+
+
+
+                $("#table_field").on('keydown', '#tab2', function(e) {
+
+                    if(e.keyCode == 9){
+
+                        if (x <= max){
+
+                            $("#table_field").append(html)
+
+                            x++
+
+                        }
+
+                    }
+
+                })
+
+            })
+
+        </script>
+
+		
+    </body>
+</html>

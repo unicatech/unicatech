@@ -15,8 +15,8 @@
 								<h6>Gerencie suas Vendas</h6>
 							</div>
 							<div class="page-btn">
-								<a href="{% url 'fazercompras'%}" class="btn btn-added">
-									<img src="{% static 'img/icons/plus.svg' %}" alt="img">Fazer Nova Compra
+								<a href="{% url 'fazervendas'%}" class="btn btn-added">
+									<img src="{% static 'img/icons/plus.svg' %}" alt="img">Fazer Nova Venda
 								</a>
 							</div>
 						</div>
@@ -107,16 +107,15 @@
 														<span class="checkmarks"></span>
 													</label>
 												</th>
-												<th>Fornecedor</th>
-												<th>Identificador de Compra</th>
+												<th>Cliente</th>
+												<th>Identificador de Venda</th>
 												<th>Data</th>
-												<th>Valor de Compra</th>
-												<th>Localização da Compra</th>
+												<th>Valor de Venda</th>
 												<th>Ação</th>
 											</tr>
 										</thead>
 										<tbody>
-										{% for compra in listarCompras %}
+										{% for venda in listarVendas %}
 											<tr>
 												<td>
 													<label class="checkboxs">
@@ -124,17 +123,16 @@
 														<span class="checkmarks"></span>
 													</label>
 												</td>
-												<td class="text-bolds">{{ compra.fornecedor.nomeFornecedor}}</td>
-												<td>{{ compra.idCompra}}</td>
-												<td>{{ compra.dataCompra }}</td>
-												<td>{{ compra.valorCompra}}</td>
-												<td><span class="badges bg-lightgreen">{{ compra.localizacaoCompra }}</span></td>
+												<td class="text-bolds">{{ venda.cliente.nomeCliente}}</td>
+												<td>{{ venda.idVenda}}</td>
+												<td>{{ venda.dataVenda }}</td>
+												<td>{{ venda.valorVenda}}</td>
 												<td>
 													
-													<a class="me-3" href="/fazercompras/?idCompra={{ compra.idCompra }}">
+													<a class="me-3" href="/fazervendas/?idVenda={{ venda.idVenda }}">
 														<img src="{% static 'img/icons/edit.svg' %}" alt="img">
 													</a>
-													<a class="me-3 confirm-text" href="/listarcompras/?idCompra={{ compra.idCompra }}&funcao=apagar">
+													<a class="me-3 confirm-text" href="/listarvendas/?idVenda={{ venda.idVenda }}&funcao=apagar">
 														<img src="{% static 'img/icons/delete.svg' %}" alt="img">
 													</a>
 												</td>

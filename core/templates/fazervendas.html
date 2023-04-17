@@ -93,7 +93,7 @@
                             <td><select name="produto" class="select">
 								<option> Selecione o Produto</option>
 								{% for p in produtos %}
-											<option value="{{ p.id }}" >{{ p.NomeProduto }}</option>
+								{{p.estoque}}			<option value="{{ p.id }}" >{{ p.NomeProduto }}</option>
 								{% endfor %}
 
 							</select></td>
@@ -114,7 +114,7 @@
                             <td><select name="produto" class="select">
 								<option> Selecione o Produto</option>
 								{% for p in produtos %}
-											<option value="{{ p.id }}" >{{ p.NomeProduto }}</option>
+											{{p.estoque}}<option value="{{ p.id }}" >{{ p.NomeProduto }}</option>
 								{% endfor %}
 
 							</select></td>
@@ -135,7 +135,7 @@
                             <td><select name="produto" class="select">
 								<option> Selecione o Produto</option>
 								{% for p in produtos %}
-											<option value="{{ p.id }}" >{{ p.NomeProduto }}</option>
+											{{p.estoque}}<option value="{{ p.id }}" >{{ p.NomeProduto }}</option>
 								{% endfor %}
 
 							</select></td>
@@ -160,7 +160,7 @@
                             <td><select name="produto" class="select">
 								<option> Selecione o Produto</option>
 								{% for p in produtos %}
-											<option value="{{ p.id }}" {% if p.id == c.idProduto %} SELECTED {% endif %}>{{ p.NomeProduto }}</option>
+											{{p.estoque}}<option value="{{ p.id }}" {% if p.id == c.idProduto %} SELECTED {% endif %}>{{ p.NomeProduto }}</option>
 								{% endfor %}
 
 							</select></td>
@@ -237,7 +237,7 @@
 
             $(document).ready(function() {
 
-                var html = '<tr><td><select name="produto" class="select"><option>Selecione o Produto</option>{% for p in produtos %}<option value="{{ p.id }}">{{ p.NomeProduto }}</option>{% endfor %}</select></td><td><input type="text" class="form-control" name="qtde" id="tab1" size="4" maxlength="4"></td><td><input type="text" class="form-control" name="preco" id="tab1" size="4" maxlength="4"></td><td><input type="text" class="form-control" name="total" id="tab1" size="5" maxlength="5"></td><td><input class="btn btn-danger" id="remove" type="button" name="remove" value="Apagar" tabindex="-1"></td></tr>';
+                var html = '<tr><td><select name="produto" class="select"><option>Selecione o Produto</option>{% for p in produtos %}{{p.estoque}}<option value="{{ p.id }}">{{ p.NomeProduto }}</option>{% endfor %}</select></td><td><input type="text" class="form-control" name="qtde" id="tab1" size="4" maxlength="4"></td><td><input type="text" class="form-control" name="preco" id="tab1" size="4" maxlength="4"></td><td><input type="text" class="form-control" name="total" id="tab1" size="5" maxlength="5"></td><td><input class="btn btn-danger" id="remove" type="button" name="remove" value="Apagar" tabindex="-1"></td></tr>';
 
                 var max = 10;
 

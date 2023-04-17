@@ -5,7 +5,7 @@ from django.http import HttpResponseRedirect
 from django.contrib import messages
 
 from .models import Produto, CategoriaProduto, Conta, CategoriaConta, MovimentacaoConta, Fornecedor, Compra, \
-    LocalizacaoCompra
+    LocalizacaoCompra, Venda, Cliente
 
 import re
 import logging
@@ -975,21 +975,21 @@ class FazerVendasView(TemplateView):
             for venda in vendas:
                 listarProdutosTemplate.append(
                     {
-                     'idProduto': compra.produto_id,
-                     'quantidadeProduto': compra.quantidadeProduto,
-                     'precoProduto': compra.precoProduto,
+                     'idProduto': venda.produto_id,
+                     'quantidadeProduto': venda.quantidadeProduto,
+                     'precoProduto': venda.precoProduto,
                      }
                 )
-                context['dataVenda'] = compra.criados.strftime('%d-%m-%Y')
-                context['idCliente'] = compra.fornecedor_id
-                context['identificadorVenda'] = compra.identificadorCompra
+                context['dataVenda'] = venda.criados.strftime('%d-%m-%Y')
+                context['idCliente'] = venda.cliente_id
+                context['identificadorVenda'] = venda.identificadorVenda
                 context['venda_identificada'] = listarProdutosTemplate
 
         context['vendas'] = Venda.objects.all()
         context['mensagem'] = ''
         #Popular template
         context['clientes'] = Cliente.objects.all()
-        context['produtos'] = Produto.objects.all()
+        context['produtos'] = Produto.objects.all().filter(estoque__gt = 0)
 
         return context
 
@@ -997,7 +997,7 @@ class FazerVendasView(TemplateView):
         context = super(FazerVendasView, self).get_context_data(**kwargs)
 
         try:
-            ultimaVenda = Compra.objects.last()
+            ultimaVenda = Venda.objects.last()
             proximaVenda = ultimaVenda.identificadorCompra + 1
         except:
             proximaVenda = 1
@@ -1020,7 +1020,7 @@ class FazerVendasView(TemplateView):
         logging.warning("Antes do if")
         logging.warning(identificadorVenda)
         # Desabilitando registro de Venda Salva caso função seja editar
-        if identificadorVenda[0] != 0:
+        if identificadorVenda[0] != "":
             logging.warning("Depoisn do if")
             logging.warning(identificadorVenda)
             Venda.objects.filter(identificadorVenda=identificadorVenda[0]).update(ativo=False)
@@ -1028,31 +1028,34 @@ class FazerVendasView(TemplateView):
 
         # Salvando Venda
         for produto in produtos:
-            formVenda = Venda(
+            try:
+                quantidades[contador]
+                formVenda = Venda(
                              criados=str(dataModificada),
                              quantidadeProduto=quantidades[contador],
                              precoProduto=precos[contador],
                              identificadorVenda=str(proximaVenda),
                              cliente_id=cliente[0],
                              produto_id=produto,
-                             conta_id=contaOrigem[0]
                              )
-            valorVenda = valorVenda + float(precos[contador])*float(quantidades[contador])
-            formVenda.save()
-            #Atualizando o estoque
-            logging.warning("Removendo do Estoque")
-            atualizarEstoque = Produto.objects.get(id=produto)
-            atualizarEstoque.estoque =  atualizarEstoque.estoque - int(float(quantidades[contador]))
-            atualizarEstoque.save()
-            logging.warning(atualizarEstoque.NomeProduto)
-            logging.warning(atualizarEstoque.estoque)
+                valorVenda = valorVenda + float(precos[contador])*float(quantidades[contador])
+                formVenda.save()
+                #Atualizando o estoque
+                logging.warning("Removendo do Estoque")
+                atualizarEstoque = Produto.objects.get(id=produto)
+                atualizarEstoque.estoque = atualizarEstoque.estoque - int(float(quantidades[contador]))
+                atualizarEstoque.save()
+                logging.warning(atualizarEstoque.NomeProduto)
+                logging.warning(atualizarEstoque.estoque)
+            except:
+                continue
             contador = contador + 1
 
         context['mensagem'] = 'Venda Salva'
 
         #Popular template
         context['clientes'] = Cliente.objects.all()
-        context['produtos'] = Produto.objects.all()
+        context['produtos'] = Produto.objects.all().filter(estoque > 0)
 
         return super(TemplateView, self).render_to_response(context)
 
@@ -1063,34 +1066,33 @@ class ListarVendasView(TemplateView):
         context = super(ListarVendasView, self).get_context_data(**kwargs)
 
         context['mensagem'] = ''
-        if self.request.GET.__contains__("idCompra"):
+        if self.request.GET.__contains__("idVenda"):
             if self.request.GET["funcao"] == "apagar":
-                print(self.request.GET["idCompra"])
-                apagarcompras = Compra.objects.filter(identificadorCompra=self.request.GET["idCompra"])
-                for apagarcompra in apagarcompras:
-                    apagar = Compra(id=apagarcompra.id)
+                logging.warning(self.request.GET["idVenda"])
+                apagarvendas = Venda.objects.filter(identificadorVenda=self.request.GET["idVenda"])
+                for apagarvenda in apagarvendas:
+                    apagar = Venda(id=apagarvenda.id)
                     apagar.delete()
 
-        compras = Compra.objects.order_by('identificadorCompra').filter(ativo=True)
+        vendas = Venda.objects.order_by('identificadorVenda').filter(ativo=True)
 
-        listarComprasTemplate = []
-        identificadorCompra = 0
-        for compra in compras:
-            if identificadorCompra != compra.identificadorCompra:
-                compraIdentificada = Compra.objects.filter(identificadorCompra=compra.identificadorCompra,ativo=True)
-                valorCompraTotal = 0
-                for compra in compraIdentificada:
-                    valorCompraTotal = valorCompraTotal + compra.quantidadeProduto * compra.precoProduto
-                listarComprasTemplate.append(
+        listarVendasTemplate = []
+        identificadorVenda = 0
+        for venda in vendas:
+            if identificadorVenda != venda.identificadorVenda:
+                vendaIdentificada = Venda.objects.filter(identificadorVenda=venda.identificadorVenda,ativo=True)
+                valorVendaTotal = 0
+                for venda in vendaIdentificada:
+                    valorVendaTotal = valorVendaTotal + venda.quantidadeProduto * venda.precoProduto
+                listarVendasTemplate.append(
                     {
-                     'idCompra': compra.identificadorCompra,
-                     'fornecedor': compra.fornecedor,
-                     'dataCompra': compra.criados,
-                     'valorCompra': valorCompraTotal,
-                     'localizacaoCompra': compra.idLocalizacao.localizacaoCompra,
+                     'idVenda': venda.identificadorVenda,
+                     'cliente': venda.cliente,
+                     'dataVenda': venda.criados,
+                     'valorVenda': valorVendaTotal,
                      }
                 )
-                valorCompraTotal = 0
-                identificadorCompra = compra.identificadorCompra
-        context['listarCompras'] = listarComprasTemplate
+                valorVendaTotal = 0
+                identificadorVenda = venda.identificadorVenda
+        context['listarVendas'] = listarVendasTemplate
         return(context)

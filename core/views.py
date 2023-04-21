@@ -998,7 +998,7 @@ class FazerVendasView(TemplateView):
 
         try:
             ultimaVenda = Venda.objects.last()
-            proximaVenda = ultimaVenda.identificadorCompra + 1
+            proximaVenda = ultimaVenda.identificadorVenda + 1
         except:
             proximaVenda = 1
 
@@ -1021,41 +1021,43 @@ class FazerVendasView(TemplateView):
         logging.warning(identificadorVenda)
         # Desabilitando registro de Venda Salva caso função seja editar
         if identificadorVenda[0] != "":
-            logging.warning("Depoisn do if")
-            logging.warning(identificadorVenda)
+            for produto in produtos:
+                atualizarEstoque = Produto.objects.get(id=produto)
+                atualizarEstoque.estoque = atualizarEstoque.estoque + int(float(quantidades[contador]))
+                atualizarEstoque.save()
+                contador = contador + 1
+                logging.warning(atualizarEstoque.NomeProduto)
+                logging.warning(atualizarEstoque.estoque)
             Venda.objects.filter(identificadorVenda=identificadorVenda[0]).update(ativo=False)
             proximaVenda = identificadorVenda[0]
 
         # Salvando Venda
+        contador = 0
         for produto in produtos:
-            try:
-                quantidades[contador]
-                formVenda = Venda(
+           formVenda = Venda(
                              criados=str(dataModificada),
                              quantidadeProduto=quantidades[contador],
                              precoProduto=precos[contador],
                              identificadorVenda=str(proximaVenda),
                              cliente_id=cliente[0],
                              produto_id=produto,
-                             )
-                valorVenda = valorVenda + float(precos[contador])*float(quantidades[contador])
-                formVenda.save()
-                #Atualizando o estoque
-                logging.warning("Removendo do Estoque")
-                atualizarEstoque = Produto.objects.get(id=produto)
-                atualizarEstoque.estoque = atualizarEstoque.estoque - int(float(quantidades[contador]))
-                atualizarEstoque.save()
-                logging.warning(atualizarEstoque.NomeProduto)
-                logging.warning(atualizarEstoque.estoque)
-            except:
-                continue
-            contador = contador + 1
+                )
+           valorVenda = valorVenda + float(precos[contador])*float(quantidades[contador])
+           formVenda.save()
+           #Atualizando o estoque
+           logging.warning("Removendo do Estoque")
+           atualizarEstoque = Produto.objects.get(id=produto)
+           atualizarEstoque.estoque = atualizarEstoque.estoque - int(float(quantidades[contador]))
+           atualizarEstoque.save()
+           logging.warning(atualizarEstoque.NomeProduto)
+           logging.warning(atualizarEstoque.estoque)
+           contador = contador + 1
 
         context['mensagem'] = 'Venda Salva'
 
         #Popular template
         context['clientes'] = Cliente.objects.all()
-        context['produtos'] = Produto.objects.all().filter(estoque > 0)
+        context['produtos'] = Produto.objects.all().filter(estoque__gt = 0)
 
         return super(TemplateView, self).render_to_response(context)
 

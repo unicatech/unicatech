@@ -4,12 +4,16 @@ from django.shortcuts import render
 from django.http import HttpResponseRedirect
 from django.contrib import messages
 
-from .models import Produto, CategoriaProduto, Conta, CategoriaConta, MovimentacaoConta, Fornecedor, Compra, LocalizacaoCompra
+from .models import Produto, CategoriaProduto, Conta, CategoriaConta, MovimentacaoConta, Fornecedor, Compra, \
+    LocalizacaoCompra, Venda, Cliente
 
 import re
+import logging
+
 
 class IndexView(TemplateView):
     template_name = 'index.html'
+
 
 class ProductListView(TemplateView):
     template_name = 'productlist.html'
@@ -31,6 +35,7 @@ class ProductListView(TemplateView):
         context['categoriaproduto'] = CategoriaProduto.objects.all()
         return context
 
+
 class AddProductView(TemplateView):
     template_name = 'addproduct.html'
 
@@ -42,16 +47,17 @@ class AddProductView(TemplateView):
 
     def post(self, request, *args, **kwargs):
         dataform = Produto(
-                           NomeProduto=self.request.POST.get('nomeproduto'),
-                           categoria_id=self.request.POST.get('categoria'),
-                           SKU=self.request.POST.get('SKU'),
-                           estoque=self.request.POST.get('estoque')
-                           )
+            NomeProduto=self.request.POST.get('nomeproduto'),
+            categoria_id=self.request.POST.get('categoria'),
+            SKU=self.request.POST.get('SKU'),
+            estoque=self.request.POST.get('estoque')
+        )
         dataform.save()
         context = super(AddProductView, self).get_context_data(**kwargs)
         context['mensagem'] = 'Produto Salvo'
         context['categoriaproduto'] = CategoriaProduto.objects.all()
         return super(TemplateView, self).render_to_response(context)
+
 
 class EditProductView(TemplateView):
     template_name = 'editproduct.html'
@@ -60,12 +66,13 @@ class EditProductView(TemplateView):
         context = super(EditProductView, self).get_context_data(**kwargs)
         context['categoriaproduto'] = CategoriaProduto.objects.all()
         context['produtoselecionado'] = Produto.objects.get(id=self.request.GET["idProduto"])
-        context['categoriaprodutoselecionado'] = CategoriaProduto.objects.get(categoria=context['produtoselecionado'].categoria)
+        context['categoriaprodutoselecionado'] = CategoriaProduto.objects.get(
+            categoria=context['produtoselecionado'].categoria)
         context['mensagem'] = ''
         return context
 
     def post(self, request, *args, **kwargs):
-        dataform =Produto.objects.get(id=self.request.POST.get('idProduto'))
+        dataform = Produto.objects.get(id=self.request.POST.get('idProduto'))
         dataform.NomeProduto = self.request.POST.get('nomeproduto')
         dataform.categoria_id = self.request.POST.get('categoria')
         dataform.SKU = self.request.POST.get('SKU')
@@ -75,6 +82,7 @@ class EditProductView(TemplateView):
         context['produtos'] = Produto.objects.all()
         context['categoriaproduto'] = CategoriaProduto.objects.all()
         return HttpResponseRedirect('/productlist/?produtocadastrado=1')
+
 
 class CriarContaView(TemplateView):
     template_name = 'addaccount.html'
@@ -87,17 +95,18 @@ class CriarContaView(TemplateView):
 
     def post(self, request, *args, **kwargs):
         dataform = Conta(
-                         nomeConta=self.request.POST.get('nomeConta'),
-                         categoria_id=self.request.POST.get('categoria'),
-                         descricao=self.request.POST.get('descricao'),
-                         saldoInicial=self.request.POST.get('saldoinicial'),
-                         taxas=self.request.POST.get('taxas')
-                        )
+            nomeConta=self.request.POST.get('nomeConta'),
+            categoria_id=self.request.POST.get('categoria'),
+            descricao=self.request.POST.get('descricao'),
+            saldoInicial=self.request.POST.get('saldoinicial'),
+            taxas=self.request.POST.get('taxas')
+        )
         dataform.save()
         context = super(CriarContaView, self).get_context_data(**kwargs)
         context['mensagem'] = 'Conta Salva'
         context['categoria'] = CategoriaConta.objects.all()
         return super(TemplateView, self).render_to_response(context)
+
 
 class ListarContaView(TemplateView):
     template_name = 'accountlist.html'
@@ -119,6 +128,7 @@ class ListarContaView(TemplateView):
         context['categoriaconta'] = CategoriaConta.objects.all()
         return context
 
+
 class EditarContaView(TemplateView):
     template_name = 'editaccount.html'
 
@@ -128,7 +138,8 @@ class EditarContaView(TemplateView):
         context['contaselecionada'] = Conta.objects.get(id=self.request.GET["idConta"])
         context['contaselecionada'].taxas = str(float(context['contaselecionada'].taxas))
         context['contaselecionada'].saldoInicial = str(float(context['contaselecionada'].saldoInicial))
-        context['categoriacontaselecionada'] = CategoriaConta.objects.get(categoria=context['contaselecionada'].categoria)
+        context['categoriacontaselecionada'] = CategoriaConta.objects.get(
+            categoria=context['contaselecionada'].categoria)
         context['mensagem'] = ''
         return context
 
@@ -144,6 +155,7 @@ class EditarContaView(TemplateView):
         context['conta'] = Conta.objects.all()
         context['categoriaconta'] = CategoriaConta.objects.all()
         return HttpResponseRedirect('/listarconta/?contacadastrada=1')
+
 
 class ComprarDolarView(TemplateView):
     template_name = 'compradolar.html'
@@ -274,14 +286,14 @@ class ComprarDolarView(TemplateView):
                 contaDebito = Conta.objects.get(id=conta.contaDebito)
             except:
                 continue
-            if (conta.contaDebito != 0 and conta.contaCredito !=0):
+            if (conta.contaDebito != 0 and conta.contaCredito != 0):
                 movimentacaoContasTemplate.append(
                     {'data': conta.criados,
-                    'contaOrigem': contaDebito.nomeConta,
-                    'contaDestino': contaCredito.nomeConta,
-                    'valorContaOrigem': conta.valorDebito,
-                    'valorContaDestino': conta.valorCredito,
-                    'idMovimento': conta.id}
+                     'contaOrigem': contaDebito.nomeConta,
+                     'contaDestino': contaCredito.nomeConta,
+                     'valorContaOrigem': conta.valorDebito,
+                     'valorContaDestino': conta.valorCredito,
+                     'idMovimento': conta.id}
                 )
                 print(conta.contaCredito)
                 print(conta.contaDebito)
@@ -292,7 +304,11 @@ class ComprarDolarView(TemplateView):
 
     def post(self, request, *args, **kwargs):
         context = super(ComprarDolarView, self).get_context_data(**kwargs)
-        dataform = MovimentacaoConta(contaCredito=self.request.POST.get('contaDestino'), contaDebito=self.request.POST.get('contaOrigem'), valorCredito=float(self.request.POST.get('valorReal'))/float(self.request.POST.get('cotacao')),valorDebito=self.request.POST.get('valorReal'))
+        dataform = MovimentacaoConta(contaCredito=self.request.POST.get('contaDestino'),
+                                     contaDebito=self.request.POST.get('contaOrigem'),
+                                     valorCredito=float(self.request.POST.get('valorReal')) / float(
+                                         self.request.POST.get('cotacao')),
+                                     valorDebito=self.request.POST.get('valorReal'))
         dataform.save()
         context['mensagem'] = 'Compra Efetuada'
         # Popular template com dados de conta
@@ -426,6 +442,7 @@ class ComprarDolarView(TemplateView):
 
         return super(TemplateView, self).render_to_response(context)
 
+
 class AdicionarFundosView(TemplateView):
     template_name = 'adicionarfundos.html'
 
@@ -553,9 +570,9 @@ class AdicionarFundosView(TemplateView):
                 print(conta.identificadorVenda)
                 movimentacaoContasTemplate.append(
                     {'data': conta.criados,
-                         'contaOrigem': contaCredito.nomeConta,
-                         'valorContaOrigem': conta.valorCredito,
-                         'idMovimento': conta.id}
+                     'contaOrigem': contaCredito.nomeConta,
+                     'valorContaOrigem': conta.valorCredito,
+                     'idMovimento': conta.id}
                 )
         context['movimentacaoContas'] = movimentacaoContasTemplate
 
@@ -563,7 +580,8 @@ class AdicionarFundosView(TemplateView):
 
     def post(self, request, *args, **kwargs):
         context = super(AdicionarFundosView, self).get_context_data(**kwargs)
-        dataform = MovimentacaoConta(contaCredito=self.request.POST.get('contaOrigem'), contaDebito="0", valorCredito=self.request.POST.get('valorReal'),valorDebito="0")
+        dataform = MovimentacaoConta(contaCredito=self.request.POST.get('contaOrigem'), contaDebito="0",
+                                     valorCredito=self.request.POST.get('valorReal'), valorDebito="0")
         dataform.save()
         context['mensagem'] = 'Aporte Efetuado'
         # Popular template com dados de conta
@@ -678,7 +696,7 @@ class AdicionarFundosView(TemplateView):
             except:
                 if conta.identificadorCompra == 0 and conta.identificadorVenda == 0:
                     contaCredito = Conta.objects.get(id=conta.contaCredito)
-                    print(conta.contaCredito)
+                    logging.warning(conta.contaCredito)
                     movimentacaoContasTemplate.append(
                         {'data': conta.criados,
                          'contaOrigem': contaCredito.nomeConta,
@@ -689,7 +707,6 @@ class AdicionarFundosView(TemplateView):
         context['movimentacaoContas'] = movimentacaoContasTemplate
 
         return super(TemplateView, self).render_to_response(context)
-
 
 
 class ListarComprasView(TemplateView):
@@ -711,22 +728,46 @@ class ListarComprasView(TemplateView):
 
         listarComprasTemplate = []
         identificadorCompra = 0
-        valorCompraTotal = 0
         for compra in compras:
             if identificadorCompra != compra.identificadorCompra:
-                valorCompraTotal = valorCompraTotal + compra.quantidadeProduto * compra.precoProduto
+                compraIdentificada = Compra.objects.filter(identificadorCompra=compra.identificadorCompra, ativo=True)
+                valorCompraTotal = 0
+                for compra in compraIdentificada:
+                    valorCompraTotal = valorCompraTotal + compra.quantidadeProduto * compra.precoProduto
                 listarComprasTemplate.append(
                     {
-                     'idCompra': compra.identificadorCompra,
-                     'fornecedor': compra.fornecedor,
-                     'dataCompra': compra.criados,
-                     'valorCompra': valorCompraTotal,
-                     'localizacaoCompra': compra.idLocalizacao.localizacaoCompra,
-                     }
+                        'idCompra': compra.identificadorCompra,
+                        'fornecedor': compra.fornecedor,
+                        'dataCompra': compra.criados,
+                        'valorCompra': valorCompraTotal,
+                        'localizacaoCompra': compra.idLocalizacao.localizacaoCompra,
+                    }
                 )
+                valorCompraTotal = 0
                 identificadorCompra = compra.identificadorCompra
         context['listarCompras'] = listarComprasTemplate
-        return(context)
+
+        # from django.db.models import F
+        # lista_identificadores = compras.distinct().values_list('identificadorCompra', flat=True)
+        # for identificador in lista_identificadores:
+        #     compra = Compra.objects.filter(
+        #         identificadorCompra=identificador, ativo=True).annotate(
+        #         valorCompraTotal=Sum(F('quantidadeProduto') * F('precoProduto')
+        #                              )
+        #     )
+        #     listarComprasTemplate.append(
+        #         {
+        #             'idCompra': compra.identificadorCompra,
+        #             'fornecedor': compra.fornecedor,
+        #             'dataCompra': compra.criados,
+        #             'valorCompra': compra.valorCompraTotal,
+        #             'localizacaoCompra': compra.idLocalizacao.localizacaoCompra,
+        #         }
+        #     )
+
+        return (context)
+
+
 class FazerComprasView(TemplateView):
     template_name = 'fazercompras.html'
 
@@ -734,7 +775,7 @@ class FazerComprasView(TemplateView):
         context = super(FazerComprasView, self).get_context_data(**kwargs)
         context['editarCompra'] = 0
         if self.request.GET.__contains__("idCompra"):
-            compras = Compra.objects.filter(identificadorCompra=self.request.GET["idCompra"],ativo=True)
+            compras = Compra.objects.filter(identificadorCompra=self.request.GET["idCompra"], ativo=True)
             listarProdutosTemplate = []
             identificadorCompra = 0
             valorCompraTotal = 0
@@ -743,10 +784,10 @@ class FazerComprasView(TemplateView):
             for compra in compras:
                 listarProdutosTemplate.append(
                     {
-                     'idProduto': compra.produto_id,
-                     'quantidadeProduto': compra.quantidadeProduto,
-                     'precoProduto': compra.precoProduto,
-                     }
+                        'idProduto': compra.produto_id,
+                        'quantidadeProduto': compra.quantidadeProduto,
+                        'precoProduto': compra.precoProduto,
+                    }
                 )
                 context['frete'] = compra.frete
                 context['idLocalizacao'] = compra.idLocalizacao_id
@@ -758,12 +799,12 @@ class FazerComprasView(TemplateView):
 
         context['compras'] = Compra.objects.all()
         context['mensagem'] = ''
-        #Popular template
+        # Popular template
         context['fornecedores'] = Fornecedor.objects.all()
         context['produtos'] = Produto.objects.all()
         context['localizacaoCompra'] = LocalizacaoCompra.objects.all()
 
-        #Buscar saldo em contas
+        # Buscar saldo em contas
         contasDetalhadas = Conta.objects.all()
         contasDetalhadasTemplate = []
 
@@ -815,17 +856,18 @@ class FazerComprasView(TemplateView):
         descricao = self.request.POST.getlist('descricao')
 
         dataModificada = re.sub(r'(\d{1,2})-(\d{1,2})-(\d{4})', '\\3-\\2-\\1', dataCompra[0])
-        print(dataModificada)
         contador = 0
         valorCompra = 0
         valorEstorno = 0
-
+        logging.warning("1")
         # Desabilitando registro de Compra Salva caso função seja editar
-        if identificadorCompra[0] != 0:
+        if identificadorCompra[0] != "":
+            logging.warning(identificadorCompra[0])
             compraDesabilitada = Compra.objects.filter(identificadorCompra=identificadorCompra[0],ativo=True)
             #Devolvendo o dinheiro da Compra para a conta especifica
             for compra in compraDesabilitada:
                 valorEstorno = valorEstorno + compra.quantidadeProduto*compra.precoProduto
+            valorEstorno = valorEstorno + compra.frete
             formMovimentacao = MovimentacaoConta(
                 criados=str(dataModificada),
                 contaCredito=contaOrigem[0],
@@ -834,46 +876,63 @@ class FazerComprasView(TemplateView):
                 descricao=descricao,
             )
             formMovimentacao.save()
+            #Atualizando o estoque
+            logging.warning("Removendo")
+            for produto in produtos:
+                atualizarEstoque = Produto.objects.get(id=produto)
+                atualizarEstoque.estoque = atualizarEstoque.estoque - int(float(quantidades[contador]))
+                atualizarEstoque.save()
+                contador = contador + 1
+                logging.warning(atualizarEstoque.NomeProduto)
+                logging.warning(atualizarEstoque.estoque)
             Compra.objects.filter(identificadorCompra=identificadorCompra[0]).update(ativo=False)
             proximaCompra = identificadorCompra[0]
 
         # Salvando Compra
+        contador = 0
         for produto in produtos:
             formCompra = Compra(
-                             criados=str(dataModificada),
-                             quantidadeProduto=quantidades[contador],
-                             precoProduto=precos[contador],
-                             identificadorCompra=str(proximaCompra),
-                             fornecedor_id=fornecedor[0],
-                             produto_id=produto,
-                             frete=frete[0],
-                             descricao=descricao,
-                             idLocalizacao_id=localizacaoCompra[0],
-                             conta_id=contaOrigem[0]
-                             )
-            valorCompra = valorCompra + float(precos[contador])*float(quantidades[contador])
+                criados=str(dataModificada),
+                quantidadeProduto=quantidades[contador],
+                precoProduto=precos[contador],
+                identificadorCompra=str(proximaCompra),
+                fornecedor_id=fornecedor[0],
+                produto_id=produto,
+                frete=frete[0],
+                descricao=descricao,
+                idLocalizacao_id=localizacaoCompra[0],
+                conta_id=contaOrigem[0]
+            )
+            valorCompra = valorCompra + float(precos[contador]) * float(quantidades[contador])
             formCompra.save()
+            #Atualizando o estoque
+            logging.warning("Adicionando")
+            atualizarEstoque = Produto.objects.get(id=produto)
+            atualizarEstoque.estoque =  atualizarEstoque.estoque + int(float(quantidades[contador]))
+            atualizarEstoque.save()
+            logging.warning(atualizarEstoque.NomeProduto)
+            logging.warning(atualizarEstoque.estoque)
             contador = contador + 1
         valorCompra = valorCompra + float(frete[0])
 
-        #Debitando da conta
+        # Debitando da conta
         formMovimentacao = MovimentacaoConta(
-                             criados=str(dataModificada),
-                             contaDebito=contaOrigem[0],
-                             valorDebito=valorCompra,
-                             identificadorCompra=str(proximaCompra),
-                             descricao=descricao,
-                             )
+            criados=str(dataModificada),
+            contaDebito=contaOrigem[0],
+            valorDebito=valorCompra,
+            identificadorCompra=str(proximaCompra),
+            descricao=descricao,
+        )
         formMovimentacao.save()
 
         context['mensagem'] = 'Compra Salva'
 
-        #Popular template
+        # Popular template
         context['fornecedores'] = Fornecedor.objects.all()
         context['produtos'] = Produto.objects.all()
         context['localizacaoCompra'] = LocalizacaoCompra.objects.all()
 
-        #Buscar saldo em contas
+        # Buscar saldo em contas
         contasDetalhadas = Conta.objects.all()
         contasDetalhadasTemplate = []
 
@@ -894,9 +953,148 @@ class FazerComprasView(TemplateView):
             else:
                 moeda = 'US$'
 
-            contasDetalhadasTemplate.append({'nomeConta' : conta.nomeConta, 'saldo' : saldoConta, 'moeda' : moeda, 'id' : conta.id})
+            contasDetalhadasTemplate.append(
+                {'nomeConta': conta.nomeConta, 'saldo': saldoConta, 'moeda': moeda, 'id': conta.id})
 
         context['contasDetalhadas'] = contasDetalhadasTemplate
 
         return super(TemplateView, self).render_to_response(context)
 
+class FazerVendasView(TemplateView):
+    template_name = 'fazervendas.html'
+    def get_context_data(self, **kwargs):
+        context = super(FazerVendasView, self).get_context_data(**kwargs)
+        context['editarVenda'] = 0
+        if self.request.GET.__contains__("idVenda"):
+            vendas = Venda.objects.filter(identificadorVenda=self.request.GET["idVenda"],ativo=True)
+            listarProdutosTemplate = []
+            identificadorVenda = 0
+            valorCompraVenda = 0
+            context['editarVenda'] = 1
+
+            for venda in vendas:
+                listarProdutosTemplate.append(
+                    {
+                     'idProduto': venda.produto_id,
+                     'quantidadeProduto': venda.quantidadeProduto,
+                     'precoProduto': venda.precoProduto,
+                     }
+                )
+                context['dataVenda'] = venda.criados.strftime('%d-%m-%Y')
+                context['idCliente'] = venda.cliente_id
+                context['identificadorVenda'] = venda.identificadorVenda
+                context['venda_identificada'] = listarProdutosTemplate
+
+        context['vendas'] = Venda.objects.all()
+        context['mensagem'] = ''
+        #Popular template
+        context['clientes'] = Cliente.objects.all()
+        context['produtos'] = Produto.objects.all().filter(estoque__gt = 0)
+
+        return context
+
+    def post(self, request, *args, **kwargs):
+        context = super(FazerVendasView, self).get_context_data(**kwargs)
+
+        try:
+            ultimaVenda = Venda.objects.last()
+            proximaVenda = ultimaVenda.identificadorVenda + 1
+        except:
+            proximaVenda = 1
+
+        cliente = self.request.POST.getlist('cliente')
+        dataVenda = self.request.POST.getlist('dataVenda')
+        produtos = self.request.POST.getlist('produto')
+        quantidades = self.request.POST.getlist('qtde')
+        precos = self.request.POST.getlist('preco')
+        identificadorVenda = self.request.POST.getlist('identificadorVenda')
+
+
+        descricao = self.request.POST.getlist('descricao')
+
+        dataModificada = re.sub(r'(\d{1,2})-(\d{1,2})-(\d{4})', '\\3-\\2-\\1', dataVenda[0])
+
+        contador = 0
+        valorVenda = 0
+        valorEstorno = 0
+        logging.warning("Antes do if")
+        logging.warning(identificadorVenda)
+        # Desabilitando registro de Venda Salva caso função seja editar
+        if identificadorVenda[0] != "":
+            for produto in produtos:
+                atualizarEstoque = Produto.objects.get(id=produto)
+                atualizarEstoque.estoque = atualizarEstoque.estoque + int(float(quantidades[contador]))
+                atualizarEstoque.save()
+                contador = contador + 1
+                logging.warning(atualizarEstoque.NomeProduto)
+                logging.warning(atualizarEstoque.estoque)
+            Venda.objects.filter(identificadorVenda=identificadorVenda[0]).update(ativo=False)
+            proximaVenda = identificadorVenda[0]
+
+        # Salvando Venda
+        contador = 0
+        for produto in produtos:
+           formVenda = Venda(
+                             criados=str(dataModificada),
+                             quantidadeProduto=quantidades[contador],
+                             precoProduto=precos[contador],
+                             identificadorVenda=str(proximaVenda),
+                             cliente_id=cliente[0],
+                             produto_id=produto,
+                )
+           valorVenda = valorVenda + float(precos[contador])*float(quantidades[contador])
+           formVenda.save()
+           #Atualizando o estoque
+           logging.warning("Removendo do Estoque")
+           atualizarEstoque = Produto.objects.get(id=produto)
+           atualizarEstoque.estoque = atualizarEstoque.estoque - int(float(quantidades[contador]))
+           atualizarEstoque.save()
+           logging.warning(atualizarEstoque.NomeProduto)
+           logging.warning(atualizarEstoque.estoque)
+           contador = contador + 1
+
+        context['mensagem'] = 'Venda Salva'
+
+        #Popular template
+        context['clientes'] = Cliente.objects.all()
+        context['produtos'] = Produto.objects.all().filter(estoque__gt = 0)
+
+        return super(TemplateView, self).render_to_response(context)
+
+class ListarVendasView(TemplateView):
+    template_name = 'listarvendas.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(ListarVendasView, self).get_context_data(**kwargs)
+
+        context['mensagem'] = ''
+        if self.request.GET.__contains__("idVenda"):
+            if self.request.GET["funcao"] == "apagar":
+                logging.warning(self.request.GET["idVenda"])
+                apagarvendas = Venda.objects.filter(identificadorVenda=self.request.GET["idVenda"])
+                for apagarvenda in apagarvendas:
+                    apagar = Venda(id=apagarvenda.id)
+                    apagar.delete()
+
+        vendas = Venda.objects.order_by('identificadorVenda').filter(ativo=True)
+
+        listarVendasTemplate = []
+        identificadorVenda = 0
+        for venda in vendas:
+            if identificadorVenda != venda.identificadorVenda:
+                vendaIdentificada = Venda.objects.filter(identificadorVenda=venda.identificadorVenda,ativo=True)
+                valorVendaTotal = 0
+                for venda in vendaIdentificada:
+                    valorVendaTotal = valorVendaTotal + venda.quantidadeProduto * venda.precoProduto
+                listarVendasTemplate.append(
+                    {
+                     'idVenda': venda.identificadorVenda,
+                     'cliente': venda.cliente,
+                     'dataVenda': venda.criados,
+                     'valorVenda': valorVendaTotal,
+                     }
+                )
+                valorVendaTotal = 0
+                identificadorVenda = venda.identificadorVenda
+        context['listarVendas'] = listarVendasTemplate
+        return(context)

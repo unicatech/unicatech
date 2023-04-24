@@ -258,7 +258,7 @@ class ComprarDolarView(TemplateView):
             for saida in saidas:
                 saldoConta = saldoConta - saida.valorDebito
 
-            if conta.categoria_id <= 3:
+            if conta.categoria_id <= 3 and conta.categoria_id >= 1:
                 moeda = 'R$'
                 contaOrigem.append({'id': conta.id, 'nomeConta': conta.nomeConta})
             else:
@@ -400,7 +400,7 @@ class ComprarDolarView(TemplateView):
             for saida in saidas:
                 saldoConta = saldoConta - saida.valorDebito
 
-            if conta.categoria_id <= 3:
+            if conta.categoria_id <= 3 and conta.categoria_id >= 1:
                 moeda = 'R$'
                 contaOrigem.append({'id': conta.id, 'nomeConta': conta.nomeConta})
             else:
@@ -544,7 +544,7 @@ class AdicionarFundosView(TemplateView):
             for saida in saidas:
                 saldoConta = saldoConta - saida.valorDebito
 
-            if conta.categoria_id <= 3:
+            if conta.categoria_id <= 3 and conta.categoria_id >= 1:
                 moeda = 'R$'
             else:
                 moeda = 'US$'
@@ -673,7 +673,7 @@ class AdicionarFundosView(TemplateView):
             for saida in saidas:
                 saldoConta = saldoConta - saida.valorDebito
 
-            if conta.categoria_id <= 3:
+            if conta.categoria_id <= 3 and conta.categoria_id >= 1:
                 moeda = 'R$'
             else:
                 moeda = 'US$'
@@ -820,7 +820,7 @@ class FazerComprasView(TemplateView):
             for saida in saidas:
                 saldoConta = saldoConta - saida.valorDebito
 
-            if conta.categoria_id <= 3:
+            if conta.categoria_id <= 3 and conta.categoria_id >= 1:
                 moeda = 'R$'
             else:
                 moeda = 'US$'
@@ -948,7 +948,7 @@ class FazerComprasView(TemplateView):
             for saida in saidas:
                 saldoConta = saldoConta - saida.valorDebito
 
-            if conta.categoria_id <= 3:
+            if conta.categoria_id <= 3 and conta.categoria_id >= 1:
                 moeda = 'R$'
             else:
                 moeda = 'US$'
@@ -1100,4 +1100,61 @@ class ListarVendasView(TemplateView):
         return(context)
 
 class ParcelasReceberView(TemplateView):
-    pass
+    template_name = 'parcelasareceber.html'
+    def get_context_data(self, **kwargs):
+        context = super(ParcelasReceberView, self).get_context_data(**kwargs)
+        context['mensagem'] = ''
+
+        vendas = Venda.objects.order_by('identificadorVenda').filter(ativo=True)
+
+        listarVendasTemplate = []
+        identificadorVenda = 0
+        for venda in vendas:
+            if identificadorVenda != venda.identificadorVenda:
+                vendaIdentificada = Venda.objects.filter(identificadorVenda=venda.identificadorVenda,ativo=True)
+                valorVendaTotal = 0
+                for venda in vendaIdentificada:
+                    valorVendaTotal = valorVendaTotal + venda.quantidadeProduto * venda.precoProduto
+                listarVendasTemplate.append(
+                    {
+                     'idVenda': venda.identificadorVenda,
+                     'cliente': venda.cliente,
+                     'dataVenda': venda.criados,
+                     'valorVenda': valorVendaTotal,
+                     }
+                )
+                valorVendaTotal = 0
+                identificadorVenda = venda.identificadorVenda
+        context['listarVendas'] = listarVendasTemplate
+        return(context)
+
+class ParcelasReceberModalView(TemplateView):
+    template_name = 'parcelasarecebermodal.html'
+    def get_context_data(self, **kwargs):
+        context = super(ParcelasReceberModalView, self).get_context_data(**kwargs)
+        context['mensagem'] = ''
+
+        venda_recebimento = Venda.objects.filter(identificadorVenda=self.request.GET["idVenda"],ativo=True)
+        valor_venda_total = 0
+        for venda in venda_recebimento:
+            valor_venda_total = valor_venda_total + venda.quantidadeProduto * venda.precoProduto
+
+        listarVendasTemplate = {
+            'idVenda': venda_recebimento.identificadorVenda,
+            'cliente': venda_recebimento.cliente,
+            'dataVenda': venda_recebimento.criados,
+            'valorVenda': valorVendaTotal,
+        }
+
+        identificadorVenda = venda.identificadorVenda
+        context['listarVendas'] = listarVendasTemplate
+
+        contasDetalhadas = Conta.objects.all()
+        contaCredito = []
+        for conta in contasDetalhadas:
+            if conta.categoria_id <= 3 and conta.categoria_id >= 1:
+                moeda = 'R$'
+                contaCredito.append({'id': conta.id, 'nomeConta': conta.nomeConta})
+
+        context['contaCredito'] = contaCredito
+        return(context)

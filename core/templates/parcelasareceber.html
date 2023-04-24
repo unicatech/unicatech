@@ -7,17 +7,16 @@
 				{% include 'sidebar.html' %}
 				<!-- /Sidebar -->
 
+
 				<div class="page-wrapper">
 					<div class="content">
 						<div class="page-header">
 							<div class="page-title">
-								<h4>Lista de Vendas</h4>
-								<h6>Gerencie suas Vendas</h6>
+								<h4>Lista de Recebimentos</h4>
+								<h6>Gerencie seus Recebimentos</h6>
 							</div>
 							<div class="page-btn">
-								<a href="{% url 'fazervendas'%}" class="btn btn-added">
-									<img src="{% static 'img/icons/plus.svg' %}" alt="img">Fazer Nova Venda
-								</a>
+
 							</div>
 						</div>
 
@@ -129,10 +128,10 @@
 												<td>{{ venda.valorVenda}}</td>
 												<td>
 													
-													<a class="me-3" href="/fazervendas/?idVenda={{ venda.idVenda }}">
+													<a class="me-3" href="/parcelasarecebermodal/?idVenda={{ venda.idVenda }}">
 														<img src="{% static 'img/icons/edit.svg' %}" alt="img">
 													</a>
-													<a class="me-3 confirm-text" href="/listarvendas/?idVenda={{ venda.idVenda }}&funcao=apagar">
+													<a class="me-3 confirm-text" href="/parcelasarecebermodal/?idVenda={{ venda.idVenda }}&funcao=apagar">
 														<img src="{% static 'img/icons/delete.svg' %}" alt="img">
 													</a>
 												</td>
@@ -148,7 +147,8 @@
 				</div>
 			</div>
 			<!-- /Main Wrapper -->
+
             {% include 'footer.html' %}
-			
+
 		</body>
 	</html>

@@ -1098,3 +1098,6 @@ class ListarVendasView(TemplateView):
                 identificadorVenda = venda.identificadorVenda
         context['listarVendas'] = listarVendasTemplate
         return(context)
+
+class ParcelasReceberView(TemplateView):
+    pass

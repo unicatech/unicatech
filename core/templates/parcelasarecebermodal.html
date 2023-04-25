@@ -35,6 +35,10 @@
 								<div class="col-lg-3 col-sm-6 col-12">
 									<div class="form-group">
 										<label>Conta de Recebimento</label>
+										<label>Nota: {{listarVendas.idVenda}}</label>
+										<label>Cliente: {{listarVendas.cliente}}</label>
+										<label>Data da Venda: {{listarVendas.dataVenda}}</label>
+										<label>Valor total: {{listarVendas.valorVenda}}</label>
 										<select name="contaCredito" class="select">
 											{% for c in contaCredito %}
 											<option value="{{ c.id }}">{{ c.nomeConta }}</option>

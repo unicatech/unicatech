@@ -718,7 +718,6 @@ class ListarComprasView(TemplateView):
         context['mensagem'] = ''
         if self.request.GET.__contains__("idCompra"):
             if self.request.GET["funcao"] == "apagar":
-                print(self.request.GET["idCompra"])
                 apagarcompras = Compra.objects.filter(identificadorCompra=self.request.GET["idCompra"])
                 for apagarcompra in apagarcompras:
                     apagar = Compra(id=apagarcompra.id)
@@ -1138,15 +1137,14 @@ class ParcelasReceberModalView(TemplateView):
         valor_venda_total = 0
         for venda in venda_recebimento:
             valor_venda_total = valor_venda_total + venda.quantidadeProduto * venda.precoProduto
+            logging.warning(venda.criados)
+            listarVendasTemplate = {
+                'idVenda': venda.identificadorVenda,
+                'cliente': venda.cliente.nomeCliente,
+                'dataVenda': venda.criados,
+                'valorVenda': valor_venda_total,
+            }
 
-        listarVendasTemplate = {
-            'idVenda': venda_recebimento.identificadorVenda,
-            'cliente': venda_recebimento.cliente,
-            'dataVenda': venda_recebimento.criados,
-            'valorVenda': valorVendaTotal,
-        }
-
-        identificadorVenda = venda.identificadorVenda
         context['listarVendas'] = listarVendasTemplate
 
         contasDetalhadas = Conta.objects.all()

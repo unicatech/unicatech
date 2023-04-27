@@ -7,6 +7,7 @@ from django.contrib import messages
 from .models import Produto, CategoriaProduto, Conta, CategoriaConta, MovimentacaoConta, Fornecedor, Compra, \
     LocalizacaoCompra, Venda, Cliente
 
+from datetime import date, datetime
 import re
 import logging
 
@@ -295,9 +296,6 @@ class ComprarDolarView(TemplateView):
                      'valorContaDestino': conta.valorCredito,
                      'idMovimento': conta.id}
                 )
-                print(conta.contaCredito)
-                print(conta.contaDebito)
-                print(conta.identificadorCompra)
         context['movimentacaoContas'] = movimentacaoContasTemplate
 
         return context
@@ -1156,3 +1154,18 @@ class ParcelasReceberModalView(TemplateView):
 
         context['contaCredito'] = contaCredito
         return(context)
+
+    def post(self, request, *args, **kwargs):
+        context = super(ParcelasReceberModalView, self).get_context_data(**kwargs)
+        agora = datetime.now()
+        hoje = agora.strftime("%Y-%m-%d")
+        dataform = MovimentacaoConta(contaCredito=self.request.POST.get('contaCredito'),
+                                     criados=hoje,
+                                     contaDebito="0",
+                                     valorCredito=float(self.request.POST.get('valorRecebido')),
+                                     identificadorVenda=self.request.POST.get('identificadorVenda'),
+                                     descricao=self.request.POST.get('descricao'),
+        )
+        dataform.save()
+        context['mensagem'] = "Recebimento Efetuado"
+        return super(TemplateView, self).render_to_response(context)

@@ -84,7 +84,7 @@ class CategoriaConta(Base):
 
 
 class MovimentacaoConta(Base):
-    contaCredito = models.IntegerField(default=0)
+    contaCredito = models.ForeignKey('core.Conta', verbose_name='Conta', on_delete=models.CASCADE)
     contaDebito = models.IntegerField(default=0)
     valorCredito = models.FloatField(default=0)
     valorDebito = models.FloatField(default=0)

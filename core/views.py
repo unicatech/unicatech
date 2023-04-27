@@ -1105,6 +1105,7 @@ class ParcelasReceberView(TemplateView):
         vendas = Venda.objects.order_by('identificadorVenda').filter(ativo=True)
 
         listarVendasTemplate = []
+        recebimentos = []
         identificadorVenda = 0
         for venda in vendas:
             if identificadorVenda != venda.identificadorVenda:
@@ -1112,14 +1113,27 @@ class ParcelasReceberView(TemplateView):
                 valorVendaTotal = 0
                 for venda in vendaIdentificada:
                     valorVendaTotal = valorVendaTotal + venda.quantidadeProduto * venda.precoProduto
+                recebimentos_venda = MovimentacaoConta.objects.filter(identificadorVenda=venda.identificadorVenda,ativo=True)
+                for recebimento_venda in recebimentos_venda:
+                    recebimentos.append({
+                            'valor_recebimento': recebimento_venda.valorCredito,
+                            'data': recebimento_venda.criados,
+                            'Credito': recebimento_venda.contaCredito
+                    }
+                    )
+                    logging.warning(recebimentos)
+
                 listarVendasTemplate.append(
                     {
                      'idVenda': venda.identificadorVenda,
                      'cliente': venda.cliente,
                      'dataVenda': venda.criados,
                      'valorVenda': valorVendaTotal,
+                     'recebimentos': recebimentos,
                      }
                 )
+                recebimentos = []
+                logging.warning(type(listarVendasTemplate))
                 valorVendaTotal = 0
                 identificadorVenda = venda.identificadorVenda
         context['listarVendas'] = listarVendasTemplate

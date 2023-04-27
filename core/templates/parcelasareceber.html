@@ -136,6 +136,12 @@
 													</a>
 												</td>
 											</tr>
+
+										    {% for recebimento in venda.recebimentos %}
+													{{ recebimento.valor_recebimento}}
+										             {{ recebimento.data}}
+													 {{ recebimento.Credito}}
+												{% endfor %}
 										{% endfor %}
 										</tbody>
 									</table>

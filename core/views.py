@@ -1199,6 +1199,22 @@ class ParcelasReceberModalView(TemplateView):
                 taxa = float(conta_recebimento.taxacartao9)
             elif self.request.POST.get("parcelaCartao") == "10":
                 taxa = float(conta_recebimento.taxacartao10)
+            elif self.request.POST.get("parcelaCartao") == "11":
+                taxa = float(conta_recebimento.taxacartao11)
+            elif self.request.POST.get("parcelaCartao") == "12":
+                taxa = float(conta_recebimento.taxacartao12)
+            elif self.request.POST.get("parcelaCartao") == "13":
+                taxa = float(conta_recebimento.taxacartao13)
+            elif self.request.POST.get("parcelaCartao") == "14":
+                taxa = float(conta_recebimento.taxacartao14)
+            elif self.request.POST.get("parcelaCartao") == "15":
+                taxa = float(conta_recebimento.taxacartao15)
+            elif self.request.POST.get("parcelaCartao") == "16":
+                taxa = float(conta_recebimento.taxacartao16)
+            elif self.request.POST.get("parcelaCartao") == "17":
+                taxa = float(conta_recebimento.taxacartao17)
+            elif self.request.POST.get("parcelaCartao") == "18":
+                taxa = float(conta_recebimento.taxacartao18)
         elif conta_recebimento.categoria_id == 2:
             logging.warning("Depósito em real")
         elif conta_recebimento.categoria_id == 3:

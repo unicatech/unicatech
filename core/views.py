@@ -1173,10 +1173,43 @@ class ParcelasReceberModalView(TemplateView):
         context = super(ParcelasReceberModalView, self).get_context_data(**kwargs)
         agora = datetime.now()
         hoje = agora.strftime("%Y-%m-%d")
-        dataform = MovimentacaoConta(contaCredito=self.request.POST.get('contaCredito'),
+        conta_recebimento = Conta.objects.get(id=self.request.POST.get('contaCredito'), ativo=True)
+        taxa = 0
+        if conta_recebimento.categoria_id == 1:
+            logging.warning("Cartão de crédito")
+            logging.warning(f'Parcelas do Cartão:{self.request.POST.get("parcelaCartao")}')
+            # Quando migrar para o Python 3.10 utilizar match(equivalente do switch em C)
+            if self.request.POST.get("parcelaCartao") == "1":
+                taxa = float(conta_recebimento.taxacartao1)
+            elif self.request.POST.get("parcelaCartao") == "2":
+                taxa = float(conta_recebimento.taxacartao2)
+            elif self.request.POST.get("parcelaCartao") == "3":
+                taxa = float(conta_recebimento.taxacartao3)
+            elif self.request.POST.get("parcelaCartao") == "4":
+                taxa = float(conta_recebimento.taxacartao4)
+            elif self.request.POST.get("parcelaCartao") == "5":
+                taxa = float(conta_recebimento.taxacartao5)
+            elif self.request.POST.get("parcelaCartao") == "6":
+                taxa = float(conta_recebimento.taxacartao6)
+            elif self.request.POST.get("parcelaCartao") == "7":
+                taxa = float(conta_recebimento.taxacartao7)
+            elif self.request.POST.get("parcelaCartao") == "8":
+                taxa = float(conta_recebimento.taxacartao8)
+            elif self.request.POST.get("parcelaCartao") == "9":
+                taxa = float(conta_recebimento.taxacartao9)
+            elif self.request.POST.get("parcelaCartao") == "10":
+                taxa = float(conta_recebimento.taxacartao10)
+        elif conta_recebimento.categoria_id == 2:
+            logging.warning("Depósito em real")
+        elif conta_recebimento.categoria_id == 3:
+            logging.warning("Espécie")
+        valor_recebimento = (1-taxa/100) * float(self.request.POST.get('valorRecebido'))
+        logging.warning(f'Taxa = {taxa}')
+        logging.warning(f'Valor recebido = {valor_recebimento}')
+        dataform = MovimentacaoConta(contaCredito_id=self.request.POST.get('contaCredito'),
                                      criados=hoje,
                                      contaDebito="0",
-                                     valorCredito=float(self.request.POST.get('valorRecebido')),
+                                     valorCredito=valor_recebimento,
                                      identificadorVenda=self.request.POST.get('identificadorVenda'),
                                      descricao=self.request.POST.get('descricao'),
         )

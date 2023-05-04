@@ -45,24 +45,35 @@ class Conta(Base):
     taxas = models.FloatField()
     saldoInicial = models.FloatField(blank=True, default=None)
     descricao = models.CharField('Descrição', max_length=200)
-    taxacartao1 = models.FloatField(default=0)
-    taxacartao2 = models.FloatField(default=0)
-    taxacartao3 = models.FloatField(default=0)
-    taxacartao4 = models.FloatField(default=0)
-    taxacartao5 = models.FloatField(default=0)
-    taxacartao6 = models.FloatField(default=0)
-    taxacartao7 = models.FloatField(default=0)
-    taxacartao8 = models.FloatField(default=0)
-    taxacartao9 = models.FloatField(default=0)
-    taxacartao10 = models.FloatField(default=0)
-    taxacartao11 = models.FloatField(default=0)
-    taxacartao12 = models.FloatField(default=0)
-    taxacartao13 = models.FloatField(default=0)
-    taxacartao14 = models.FloatField(default=0)
-    taxacartao15 = models.FloatField(default=0)
-    taxacartao16 = models.FloatField(default=0)
-    taxacartao17 = models.FloatField(default=0)
-    taxacartao18 = models.FloatField(default=0)
+    cartao = models.ForeignKey('core.Cartao', verbose_name='Tipo', on_delete=models.CASCADE, null=True)
+    class Meta:
+        verbose_name = 'Conta'
+        verbose_name_plural = 'Contas'
+
+    def __str__(self):
+        return self.nomeConta
+
+class Cartao(Base):
+    cartao = models.IntegerField(null=True)
+    bandeira_cartao = models.CharField('Bandeira do Cartão', max_length=20)
+    taxa_cartao1 = models.FloatField(default=0)
+    taxa_cartao2 = models.FloatField(default=0)
+    taxa_cartao3 = models.FloatField(default=0)
+    taxa_cartao4 = models.FloatField(default=0)
+    taxa_cartao5 = models.FloatField(default=0)
+    taxa_cartao6 = models.FloatField(default=0)
+    taxa_cartao7 = models.FloatField(default=0)
+    taxa_cartao8 = models.FloatField(default=0)
+    taxa_cartao9 = models.FloatField(default=0)
+    taxa_cartao10 = models.FloatField(default=0)
+    taxa_cartao11 = models.FloatField(default=0)
+    taxa_cartao12 = models.FloatField(default=0)
+    taxa_cartao13 = models.FloatField(default=0)
+    taxa_cartao14 = models.FloatField(default=0)
+    taxa_cartao15 = models.FloatField(default=0)
+    taxa_cartao16 = models.FloatField(default=0)
+    taxa_cartao17 = models.FloatField(default=0)
+    taxa_cartao18 = models.FloatField(default=0)
 
     class Meta:
         verbose_name = 'Conta'

@@ -5,7 +5,7 @@ from django.http import HttpResponseRedirect
 from django.contrib import messages
 
 from .models import Produto, CategoriaProduto, Conta, CategoriaConta, MovimentacaoConta, Fornecedor, Compra, \
-    LocalizacaoCompra, Venda, Cliente
+    LocalizacaoCompra, Venda, Cliente, Cartao
 
 from datetime import date, datetime
 import re
@@ -95,14 +95,62 @@ class CriarContaView(TemplateView):
         return context
 
     def post(self, request, *args, **kwargs):
-        dataform = Conta(
-            nomeConta=self.request.POST.get('nomeConta'),
-            categoria_id=self.request.POST.get('categoria'),
-            descricao=self.request.POST.get('descricao'),
-            saldoInicial=self.request.POST.get('saldoinicial'),
-            taxas=self.request.POST.get('taxas')
-        )
-        dataform.save()
+        try:
+            ultima_conta = Cartao.objects.last()
+            proxima_conta = ultima_conta.cartao + 1
+            logging.warning(proxima_conta)
+        except:
+            proxima_conta = 1
+        agora = datetime.now()
+        hoje = agora.strftime("%Y-%m-%d")
+
+        if self.request.POST.get('categoria') == "1":
+            dataform_cartao = Cartao(
+                criados=hoje,
+                taxa_cartao1=self.request.POST.get('taxa1'),
+                taxa_cartao2=self.request.POST.get('taxa2'),
+                taxa_cartao3=self.request.POST.get('taxa3'),
+                taxa_cartao4=self.request.POST.get('taxa4'),
+                taxa_cartao5=self.request.POST.get('taxa5'),
+                taxa_cartao6=self.request.POST.get('taxa6'),
+                taxa_cartao7=self.request.POST.get('taxa7'),
+                taxa_cartao8=self.request.POST.get('taxa8'),
+                taxa_cartao9=self.request.POST.get('taxa9'),
+                taxa_cartao10=self.request.POST.get('taxa10'),
+                taxa_cartao11=self.request.POST.get('taxa11'),
+                taxa_cartao12=self.request.POST.get('taxa12'),
+                taxa_cartao13=self.request.POST.get('taxa13'),
+                taxa_cartao14=self.request.POST.get('taxa14'),
+                taxa_cartao15=self.request.POST.get('taxa15'),
+                taxa_cartao16=self.request.POST.get('taxa16'),
+                taxa_cartao17=self.request.POST.get('taxa17'),
+                taxa_cartao18=self.request.POST.get('taxa18'),
+                cartao=proxima_conta
+            )
+            dataform_cartao.save()
+
+            dataform_conta = Conta(
+                nomeConta=self.request.POST.get('nomeConta'),
+                criados=hoje,
+                categoria_id=self.request.POST.get('categoria'),
+                descricao=self.request.POST.get('descricao'),
+                saldoInicial=self.request.POST.get('saldoinicial'),
+                taxas=self.request.POST.get('taxas'),
+                #cartao_id=proxima_conta
+            )
+            dataform_conta.save()
+        else:
+            dataform_conta = Conta(
+                nomeConta=self.request.POST.get('nomeConta'),
+                criados=hoje,
+                categoria_id=self.request.POST.get('categoria'),
+                descricao=self.request.POST.get('descricao'),
+                saldoInicial=self.request.POST.get('saldoinicial'),
+                taxas=self.request.POST.get('taxas'),
+            )
+            dataform_conta.save()
+
+
         context = super(CriarContaView, self).get_context_data(**kwargs)
         context['mensagem'] = 'Conta Salva'
         context['categoria'] = CategoriaConta.objects.all()

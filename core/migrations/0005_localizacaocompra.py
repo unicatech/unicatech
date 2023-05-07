@@ -4,23 +4,22 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0004_rename_identificadorvenda_movimentacaoconta_identificadorvenda_and_more'),
+        ("core", "0004_rename_identificadorvenda_movimentacaoconta_identificadorvenda_and_more"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='LocalizacaoCompra',
+            name="LocalizacaoCompra",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('criados', models.DateField(auto_now_add=True, verbose_name='Criação')),
-                ('modificado', models.DateField(auto_now=True, verbose_name='Atualização')),
-                ('ativo', models.BooleanField(default=True, verbose_name='Ativo?')),
-                ('localizacaoCompra', models.CharField(max_length=200, verbose_name='Localização')),
+                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                ("criados", models.DateField(auto_now_add=True, verbose_name="Criação")),
+                ("modificado", models.DateField(auto_now=True, verbose_name="Atualização")),
+                ("ativo", models.BooleanField(default=True, verbose_name="Ativo?")),
+                ("localizacaoCompra", models.CharField(max_length=200, verbose_name="Localização")),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
     ]

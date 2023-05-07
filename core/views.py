@@ -7,6 +7,7 @@ from django.contrib import messages
 from .models import Produto, CategoriaProduto, Conta, CategoriaConta, MovimentacaoConta, Fornecedor, Compra, \
     LocalizacaoCompra, Venda, Cliente
 
+from datetime import date, datetime
 import re
 import logging
 
@@ -258,7 +259,7 @@ class ComprarDolarView(TemplateView):
             for saida in saidas:
                 saldoConta = saldoConta - saida.valorDebito
 
-            if conta.categoria_id <= 3:
+            if conta.categoria_id <= 3 and conta.categoria_id >= 1:
                 moeda = 'R$'
                 contaOrigem.append({'id': conta.id, 'nomeConta': conta.nomeConta})
             else:
@@ -295,9 +296,6 @@ class ComprarDolarView(TemplateView):
                      'valorContaDestino': conta.valorCredito,
                      'idMovimento': conta.id}
                 )
-                print(conta.contaCredito)
-                print(conta.contaDebito)
-                print(conta.identificadorCompra)
         context['movimentacaoContas'] = movimentacaoContasTemplate
 
         return context
@@ -400,7 +398,7 @@ class ComprarDolarView(TemplateView):
             for saida in saidas:
                 saldoConta = saldoConta - saida.valorDebito
 
-            if conta.categoria_id <= 3:
+            if conta.categoria_id <= 3 and conta.categoria_id >= 1:
                 moeda = 'R$'
                 contaOrigem.append({'id': conta.id, 'nomeConta': conta.nomeConta})
             else:
@@ -544,7 +542,7 @@ class AdicionarFundosView(TemplateView):
             for saida in saidas:
                 saldoConta = saldoConta - saida.valorDebito
 
-            if conta.categoria_id <= 3:
+            if conta.categoria_id <= 3 and conta.categoria_id >= 1:
                 moeda = 'R$'
             else:
                 moeda = 'US$'
@@ -673,7 +671,7 @@ class AdicionarFundosView(TemplateView):
             for saida in saidas:
                 saldoConta = saldoConta - saida.valorDebito
 
-            if conta.categoria_id <= 3:
+            if conta.categoria_id <= 3 and conta.categoria_id >= 1:
                 moeda = 'R$'
             else:
                 moeda = 'US$'
@@ -718,7 +716,6 @@ class ListarComprasView(TemplateView):
         context['mensagem'] = ''
         if self.request.GET.__contains__("idCompra"):
             if self.request.GET["funcao"] == "apagar":
-                print(self.request.GET["idCompra"])
                 apagarcompras = Compra.objects.filter(identificadorCompra=self.request.GET["idCompra"])
                 for apagarcompra in apagarcompras:
                     apagar = Compra(id=apagarcompra.id)
@@ -820,7 +817,7 @@ class FazerComprasView(TemplateView):
             for saida in saidas:
                 saldoConta = saldoConta - saida.valorDebito
 
-            if conta.categoria_id <= 3:
+            if conta.categoria_id <= 3 and conta.categoria_id >= 1:
                 moeda = 'R$'
             else:
                 moeda = 'US$'
@@ -948,7 +945,7 @@ class FazerComprasView(TemplateView):
             for saida in saidas:
                 saldoConta = saldoConta - saida.valorDebito
 
-            if conta.categoria_id <= 3:
+            if conta.categoria_id <= 3 and conta.categoria_id >= 1:
                 moeda = 'R$'
             else:
                 moeda = 'US$'
@@ -1098,3 +1095,140 @@ class ListarVendasView(TemplateView):
                 identificadorVenda = venda.identificadorVenda
         context['listarVendas'] = listarVendasTemplate
         return(context)
+
+class ParcelasReceberView(TemplateView):
+    template_name = 'parcelasareceber.html'
+    def get_context_data(self, **kwargs):
+        context = super(ParcelasReceberView, self).get_context_data(**kwargs)
+        context['mensagem'] = ''
+
+        vendas = Venda.objects.order_by('identificadorVenda').filter(ativo=True)
+
+        listarVendasTemplate = []
+        recebimentos = []
+        identificadorVenda = 0
+        for venda in vendas:
+            if identificadorVenda != venda.identificadorVenda:
+                vendaIdentificada = Venda.objects.filter(identificadorVenda=venda.identificadorVenda,ativo=True)
+                valorVendaTotal = 0
+                for venda in vendaIdentificada:
+                    valorVendaTotal = valorVendaTotal + venda.quantidadeProduto * venda.precoProduto
+                recebimentos_venda = MovimentacaoConta.objects.filter(identificadorVenda=venda.identificadorVenda,ativo=True)
+                for recebimento_venda in recebimentos_venda:
+                    recebimentos.append({
+                            'valor_recebimento': recebimento_venda.valorCredito,
+                            'data': recebimento_venda.criados,
+                            'Credito': recebimento_venda.contaCredito
+                    }
+                    )
+                    logging.warning(recebimentos)
+
+                listarVendasTemplate.append(
+                    {
+                     'idVenda': venda.identificadorVenda,
+                     'cliente': venda.cliente,
+                     'dataVenda': venda.criados,
+                     'valorVenda': valorVendaTotal,
+                     'recebimentos': recebimentos,
+                     }
+                )
+                recebimentos = []
+                logging.warning(type(listarVendasTemplate))
+                valorVendaTotal = 0
+                identificadorVenda = venda.identificadorVenda
+        context['listarVendas'] = listarVendasTemplate
+        return(context)
+
+class ParcelasReceberModalView(TemplateView):
+    template_name = 'parcelasarecebermodal.html'
+    def get_context_data(self, **kwargs):
+        context = super(ParcelasReceberModalView, self).get_context_data(**kwargs)
+        context['mensagem'] = ''
+
+        venda_recebimento = Venda.objects.filter(identificadorVenda=self.request.GET["idVenda"],ativo=True)
+        valor_venda_total = 0
+        for venda in venda_recebimento:
+            valor_venda_total = valor_venda_total + venda.quantidadeProduto * venda.precoProduto
+            logging.warning(venda.criados)
+            listarVendasTemplate = {
+                'idVenda': venda.identificadorVenda,
+                'cliente': venda.cliente.nomeCliente,
+                'dataVenda': venda.criados,
+                'valorVenda': valor_venda_total,
+            }
+
+        context['listarVendas'] = listarVendasTemplate
+
+        contasDetalhadas = Conta.objects.all()
+        contaCredito = []
+        for conta in contasDetalhadas:
+            if conta.categoria_id <= 3 and conta.categoria_id >= 1:
+                moeda = 'R$'
+                contaCredito.append({'id': conta.id, 'nomeConta': conta.nomeConta})
+
+        context['contaCredito'] = contaCredito
+        return(context)
+
+    def post(self, request, *args, **kwargs):
+        context = super(ParcelasReceberModalView, self).get_context_data(**kwargs)
+        agora = datetime.now()
+        hoje = agora.strftime("%Y-%m-%d")
+        conta_recebimento = Conta.objects.get(id=self.request.POST.get('contaCredito'), ativo=True)
+        taxa = 0
+        if conta_recebimento.categoria_id == 1:
+            logging.warning("Cartão de crédito")
+            logging.warning(f'Parcelas do Cartão:{self.request.POST.get("parcelaCartao")}')
+            # Quando migrar para o Python 3.10 utilizar match(equivalente do switch em C)
+            if self.request.POST.get("parcelaCartao") == "1":
+                taxa = float(conta_recebimento.cartao.taxa_cartao1)
+            elif self.request.POST.get("parcelaCartao") == "2":
+                taxa = float(conta_recebimento.cartao.taxa_cartao2)
+            elif self.request.POST.get("parcelaCartao") == "3":
+                taxa = float(conta_recebimento.cartao.taxa_cartao3)
+            elif self.request.POST.get("parcelaCartao") == "4":
+                taxa = float(conta_recebimento.cartao.taxa_cartao4)
+            elif self.request.POST.get("parcelaCartao") == "5":
+                taxa = float(conta_recebimento.cartao.taxa_cartao5)
+            elif self.request.POST.get("parcelaCartao") == "6":
+                taxa = float(conta_recebimento.cartao.taxa_cartao6)
+            elif self.request.POST.get("parcelaCartao") == "7":
+                taxa = float(conta_recebimento.cartao.taxa_cartao7)
+            elif self.request.POST.get("parcelaCartao") == "8":
+                taxa = float(conta_recebimento.cartao.taxa_cartao8)
+            elif self.request.POST.get("parcelaCartao") == "9":
+                taxa = float(conta_recebimento.cartao.taxa_cartao9)
+            elif self.request.POST.get("parcelaCartao") == "10":
+                taxa = float(conta_recebimento.cartao.taxa_cartao10)
+            elif self.request.POST.get("parcelaCartao") == "11":
+                taxa = float(conta_recebimento.cartao.taxa_cartao11)
+            elif self.request.POST.get("parcelaCartao") == "12":
+                taxa = float(conta_recebimento.cartao.taxa_cartao12)
+            elif self.request.POST.get("parcelaCartao") == "13":
+                taxa = float(conta_recebimento.cartao.taxa_cartao13)
+            elif self.request.POST.get("parcelaCartao") == "14":
+                taxa = float(conta_recebimento.cartao.taxa_cartao14)
+            elif self.request.POST.get("parcelaCartao") == "15":
+                taxa = float(conta_recebimento.cartao.taxa_cartao15)
+            elif self.request.POST.get("parcelaCartao") == "16":
+                taxa = float(conta_recebimento.cartao.taxa_cartao16)
+            elif self.request.POST.get("parcelaCartao") == "17":
+                taxa = float(conta_recebimento.cartao.taxa_cartao17)
+            elif self.request.POST.get("parcelaCartao") == "18":
+                taxa = float(conta_recebimento.cartao.taxa_cartao18)
+        elif conta_recebimento.categoria_id == 2:
+            logging.warning("Depósito em real")
+        elif conta_recebimento.categoria_id == 3:
+            logging.warning("Espécie")
+        valor_recebimento = (1-taxa/100) * float(self.request.POST.get('valorRecebido'))
+        logging.warning(f'Taxa = {taxa}')
+        logging.warning(f'Valor recebido = {valor_recebimento}')
+        dataform = MovimentacaoConta(contaCredito_id=self.request.POST.get('contaCredito'),
+                                     criados=hoje,
+                                     contaDebito="0",
+                                     valorCredito=valor_recebimento,
+                                     identificadorVenda=self.request.POST.get('identificadorVenda'),
+                                     descricao=self.request.POST.get('descricao'),
+        )
+        dataform.save()
+        context['mensagem'] = "Recebimento Efetuado"
+        return super(TemplateView, self).render_to_response(context)

@@ -1,0 +1,104 @@
+{% load static %}
+{% load l10n %}
+<!DOCTYPE html>
+
+ 			<!-- Header -->
+			{% include 'head.html' %}
+			<!-- /header -->
+
+			<!-- Select2 CSS -->
+			<link rel="stylesheet" href="{% static 'plugins/select2/css/select2.min.css' %}">
+			<!-- Sidebar -->
+			{% include 'sidebar.html' %}
+			<!-- /Sidebar -->
+
+			<div class="page-wrapper">
+				<div class="content">
+					<div class="page-header">
+						<div class="page-title">
+							<h4>Parcelas a Receber</h4>
+						</div>
+						{% if mensagem != "" %}
+						<div class="closebtn">
+							 <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
+							{{ mensagem }}
+						</div>
+						{% endif %}
+					</div>
+					<!-- /add -->
+					<form method="POST" action="{% url 'parcelasarecebermodal' %}">
+						{% csrf_token %}
+						<input type="hidden" name="identificadorVenda" value="{{ listarVendas.idVenda }}"
+					<div class="card">
+						<div class="card-body">
+							<div class="row">
+								<div class="col-lg-3 col-sm-6 col-12">
+									<div class="form-group">
+										<label>Conta de Recebimento</label>
+										<label>Nota: {{listarVendas.idVenda}}</label>
+										<label>Cliente: {{listarVendas.cliente}}</label>
+										<label>Data da Venda: {{listarVendas.dataVenda}}</label>
+										<label>Valor total: {{listarVendas.valorVenda}}</label>
+										<label>Meio de Pagamento: </label>
+										<select name="contaCredito" class="select">
+											{% for c in contaCredito %}
+											<option value="{{ c.id }}">{{ c.nomeConta }}</option>
+											{% endfor %}
+										</select>
+										<label>Valor a Receber: <input type="text" name="valorRecebido" ></label>
+										<label>Parcelas do Cartão: </label>
+										<select name="parcelaCartao" class="select">
+											<option value="1">1</option>
+											<option value="2">2</option>
+											<option value="3">3</option>
+											<option value="4">4</option>
+											<option value="5">5</option>
+											<option value="6">6</option>
+											<option value="7">7</option>
+											<option value="8">8</option>
+											<option value="9">9</option>
+											<option value="10">10</option>
+											<option value="11">11</option>
+											<option value="12">12</option>
+											<option value="13">13</option>
+											<option value="14">14</option>
+											<option value="15">15</option>
+											<option value="16">16</option>
+											<option value="17">17</option>
+											<option value="18">18</option>
+										</select>
+										<label>Descrição</label>
+										<textarea name="descricao" class="form-control"></textarea>
+									</div>
+								</div>
+
+								<div class="col-lg-12">
+									<input type="submit" value="Efetuar Recebimento" class="btn btn-submit me-2">
+									<a href="/parcelasareceber/" class="btn btn-cancel">Cancelar</a>
+								</div>
+							</div>
+						</div>
+					</div>
+					</form>
+					<!-- /add -->
+				</div>
+			</div>
+        </div>
+
+
+		<!-- /Main Wrapper -->
+		 
+		<!-- jQuery -->
+ 			{% include 'footer.html' %}
+
+        <!-- Select2 JS -->
+		<script src="{% static 'plugins/select2/js/select2.min.js' %}"></script>
+
+		<!-- Sweetalert 2 -->
+		<script src="{% static 'plugins/sweetalert/sweetalert2.all.min.js' %}"></script>
+		<script src="{% static 'plugins/sweetalert/sweetalerts.min.js' %}"></script>
+
+
+		
+    </body>
+</html>

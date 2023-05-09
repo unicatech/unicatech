@@ -11,7 +11,7 @@ class Base(models.Model):
         abstract = True
 class Venda(Base):
     identificadorVenda = models.IntegerField()
-    produto = models.ForeignKey('core.Produto', verbose_name='Produto', on_delete=models.CASCADE)
+    produto = models.ForeignKey('Produtos.Produto', verbose_name='Produto', on_delete=models.CASCADE)
     quantidadeProduto = models.FloatField(default=0)
     precoProduto = models.FloatField(default=0)
     descricao = models.CharField('Descrição', max_length=200)

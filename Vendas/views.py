@@ -10,7 +10,8 @@ import re
 import logging
 
 from .models import Venda
-from core.models import MovimentacaoConta, Conta, Cliente, Produto
+from Produtos.models import Produto
+from core.models import MovimentacaoConta, Conta, Cliente
 # Create your views here.
 
 class FazerVendasView(TemplateView):

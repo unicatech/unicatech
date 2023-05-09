@@ -146,7 +146,7 @@
 											</td>
 											<td>{{ p.SKU }}</td>
 											<td>{{ p.categoria }}</td>
-											<td>100.00</td>
+											<td>{{ p.estoque }}</td>
 											<td>
 												<a class="me-3" href="{% url 'editproduct' %}?idProduto={{ p.id }}">
 													<img src="{% static 'img/icons/edit.svg' %}" alt="img">

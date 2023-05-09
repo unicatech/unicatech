@@ -13,7 +13,7 @@ class Base(models.Model):
 class Compra(Base):
     identificadorCompra = models.IntegerField()
     fornecedor = models.ForeignKey('core.Fornecedor', verbose_name='Fornecedor', on_delete=models.CASCADE)
-    produto = models.ForeignKey('core.Produto', verbose_name='Produto', on_delete=models.CASCADE)
+    produto = models.ForeignKey('Produtos.Produto', verbose_name='Produto', on_delete=models.CASCADE)
     conta = models.ForeignKey('core.Conta', verbose_name='Produto', on_delete=models.CASCADE)
     quantidadeProduto = models.FloatField(default=0)
     precoProduto = models.FloatField(default=0)

@@ -5,7 +5,8 @@ from django.http import HttpResponseRedirect
 from django.contrib import messages
 
 from .models import Compra, LocalizacaoCompra
-from core.models import Fornecedor, Produto, CategoriaProduto, Conta, MovimentacaoConta
+from Produtos.models import Produto, CategoriaProduto
+from core.models import Fornecedor, Conta, MovimentacaoConta
 from datetime import date, datetime
 import re
 import logging

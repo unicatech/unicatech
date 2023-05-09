@@ -95,7 +95,7 @@ class CategoriaConta(Base):
 
 
 class MovimentacaoConta(Base):
-    contaCredito = models.ForeignKey('core.Conta', verbose_name='Conta', on_delete=models.CASCADE)
+    contaCredito = models.ForeignKey('core.Conta', verbose_name='Conta', on_delete=models.CASCADE, null=True)
     contaDebito = models.IntegerField(default=0)
     valorCredito = models.FloatField(default=0)
     valorDebito = models.FloatField(default=0)
@@ -112,32 +112,6 @@ class Fornecedor(Base):
 
     def __str__(self):
         return self.id
-
-
-class LocalizacaoCompra(Base):
-    localizacaoCompra = models.CharField('Localização', max_length=200)
-
-    def __str__(self):
-        return self.id
-
-
-class Compra(Base):
-    identificadorCompra = models.IntegerField()
-    fornecedor = models.ForeignKey('core.Fornecedor', verbose_name='Fornecedor', on_delete=models.CASCADE)
-    produto = models.ForeignKey('core.Produto', verbose_name='Produto', on_delete=models.CASCADE)
-    conta = models.ForeignKey('core.Conta', verbose_name='Produto', on_delete=models.CASCADE)
-    quantidadeProduto = models.FloatField(default=0)
-    precoProduto = models.FloatField(default=0)
-    frete = models.FloatField(default=0)
-    descricao = models.CharField('Descrição', max_length=200)
-    idLocalizacao = models.ForeignKey('core.LocalizacaoCompra', verbose_name='Localização', on_delete=models.CASCADE)
-
-    def __str__(self):
-        return self.id
-
-    @property
-    def valor_compra(self):
-        return self.quantidadeProduto * self.precoProduto
 
 
 

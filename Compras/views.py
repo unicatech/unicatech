@@ -70,6 +70,23 @@ class FazerComprasView(TemplateView):
 
             contasDetalhadasTemplate.append({'nomeConta' : conta.nomeConta, 'saldo' : saldoConta, 'moeda' : moeda, 'id' : conta.id})
 
+        #Cálculo de dólar médio
+        movimentacoes = MovimentacaoConta.objects.all()
+        valorTotalReal = 0
+        valorTotalCredito = 0
+        for movimentacao in movimentacoes:
+            if movimentacao.identificadorDolar == True:
+                if movimentacao.identificadorCompra == 0:
+                    valorTotalReal = valorTotalReal + movimentacao.valorCredito * movimentacao.cotacaoDolar
+                    valorTotalCredito = valorTotalCredito + movimentacao.valorCredito
+                    logging.warning("Compra de Dolar")
+                else:
+                    valorTotalReal = valorTotalReal - movimentacao.valorDebito * movimentacao.cotacaoDolar
+                    valorTotalCredito = valorTotalCredito - movimentacao.valorDebito
+                    logging.warning("Compra de Celular")
+        dolarMedio = valorTotalReal / valorTotalCredito
+
+        context['dolarMedio'] = dolarMedio
         context['contasDetalhadas'] = contasDetalhadasTemplate
         return context
 
@@ -91,7 +108,7 @@ class FazerComprasView(TemplateView):
         frete = self.request.POST.getlist('frete')
         localizacaoCompra = self.request.POST.getlist('localizacaoCompra')
         identificadorCompra = self.request.POST.getlist('identificadorCompra')
-
+        cotacaoDolar = self.request.POST.getlist('dolarMedio')
         if frete[0] == "":
             frete[0] = 0
         else:
@@ -126,8 +143,6 @@ class FazerComprasView(TemplateView):
                 atualizarEstoque.estoque = atualizarEstoque.estoque - int(float(quantidades[contador]))
                 atualizarEstoque.save()
                 contador = contador + 1
-                logging.warning(atualizarEstoque.NomeProduto)
-                logging.warning(atualizarEstoque.estoque)
             Compra.objects.filter(identificadorCompra=identificadorCompra[0]).update(ativo=False)
             proximaCompra = identificadorCompra[0]
 
@@ -159,13 +174,20 @@ class FazerComprasView(TemplateView):
                 contador = contador + 1
         valorCompra = valorCompra + float(frete[0])
 
+        tipoConta = Conta.objects.get(id=contaOrigem[0])
+        identificadorDolar = False
+        if tipoConta.categoria_id == 4 or tipoConta.categoria_id == 5:
+            identificadorDolar = True
         # Debitando da conta
+        cotacaoDolar = cotacaoDolar[0].replace(',','.')
         formMovimentacao = MovimentacaoConta(
             criados=str(dataModificada),
             contaDebito=contaOrigem[0],
             valorDebito=valorCompra,
             identificadorCompra=str(proximaCompra),
             descricao=descricao,
+            cotacaoDolar=float(cotacaoDolar),
+            identificadorDolar=identificadorDolar,
         )
         formMovimentacao.save()
 

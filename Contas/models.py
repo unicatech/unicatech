@@ -67,13 +67,14 @@ class CategoriaConta(Base):
 
 class MovimentacaoConta(Base):
     contaCredito = models.ForeignKey('Contas.Conta', verbose_name='Conta', on_delete=models.CASCADE, null=True)
-    #contaCredito = models.IntegerField(default=0)
     contaDebito = models.IntegerField(default=0)
     valorCredito = models.FloatField(default=0)
     valorDebito = models.FloatField(default=0)
     identificadorCompra = models.IntegerField(default=0)
     identificadorVenda = models.IntegerField(default=0)
+    cotacaoDolar = models.FloatField(default=0)
     descricao = models.CharField('Descrição', max_length=200)
+    identificadorDolar = models.BooleanField('Dólar?', default=True)
 
     def __str__(self):
         return self.id

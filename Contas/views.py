@@ -280,11 +280,17 @@ class ComprarDolarView(TemplateView):
 
     def post(self, request, *args, **kwargs):
         context = super(ComprarDolarView, self).get_context_data(**kwargs)
-        dataform = MovimentacaoConta(contaCredito=self.request.POST.get('contaDestino'),
+        agora = datetime.now()
+        hoje = agora.strftime("%Y-%m-%d")
+        dataform = MovimentacaoConta(contaCredito_id=self.request.POST.get('contaDestino'),
                                      contaDebito=self.request.POST.get('contaOrigem'),
                                      valorCredito=float(self.request.POST.get('valorReal')) / float(
                                          self.request.POST.get('cotacao')),
-                                     valorDebito=self.request.POST.get('valorReal'))
+                                     valorDebito=self.request.POST.get('valorReal'),
+                                     criados=hoje,
+                                     cotacaoDolar=float(self.request.POST.get('cotacao')),
+                                     identificadorDolar=True
+                                     )
         dataform.save()
         context['mensagem'] = 'Compra Efetuada'
         # Popular template com dados de conta

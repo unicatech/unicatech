@@ -12,13 +12,11 @@ class Base(models.Model):
 
 class Conta(Base):
     nomeConta = models.CharField('Nome da Conta', max_length=100)
-    #categoria = models.ForeignKey('core.CategoriaConta', verbose_name='Tipo', on_delete=models.CASCADE)
-    categoria = models.CharField('Descrição', max_length=200)
+    categoria = models.ForeignKey('Contas.CategoriaConta', verbose_name='Tipo', on_delete=models.CASCADE)
     taxas = models.FloatField()
     saldoInicial = models.FloatField(blank=True, default=None)
     descricao = models.CharField('Descrição', max_length=200)
-    #cartao = models.ForeignKey('core.Cartao', verbose_name='Tipo', on_delete=models.CASCADE, null=True)
-    cartao = models.FloatField()
+    cartao = models.ForeignKey('Contas.Cartao', verbose_name='Tipo', on_delete=models.CASCADE, null=True)
     class Meta:
         verbose_name = 'Conta'
         verbose_name_plural = 'Contas'
@@ -68,8 +66,8 @@ class CategoriaConta(Base):
 
 
 class MovimentacaoConta(Base):
-    #contaCredito = models.ForeignKey('core.Conta', verbose_name='Conta', on_delete=models.CASCADE, null=True)
-    contaCredito = models.IntegerField(default=0)
+    contaCredito = models.ForeignKey('Contas.Conta', verbose_name='Conta', on_delete=models.CASCADE, null=True)
+    #contaCredito = models.IntegerField(default=0)
     contaDebito = models.IntegerField(default=0)
     valorCredito = models.FloatField(default=0)
     valorDebito = models.FloatField(default=0)

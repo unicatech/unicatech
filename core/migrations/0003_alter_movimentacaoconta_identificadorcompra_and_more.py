@@ -4,20 +4,19 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0002_remove_compra_datacompra'),
+        ("core", "0002_remove_compra_datacompra"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='movimentacaoconta',
-            name='identificadorCompra',
+            model_name="movimentacaoconta",
+            name="identificadorCompra",
             field=models.IntegerField(default=0),
         ),
         migrations.AlterField(
-            model_name='movimentacaoconta',
-            name='identificadorvenda',
+            model_name="movimentacaoconta",
+            name="identificadorvenda",
             field=models.IntegerField(default=0),
         ),
     ]

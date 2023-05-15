@@ -6,7 +6,7 @@ from django.contrib import messages
 
 from .models import Conta, CategoriaConta, MovimentacaoConta, Cartao
 
-from core.models import Cliente
+from Vendas.models import Cliente
 
 from Compras.models import Fornecedor
 from Vendas.models import Venda

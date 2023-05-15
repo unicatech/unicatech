@@ -4,8 +4,9 @@ from django.shortcuts import render
 from django.http import HttpResponseRedirect
 from django.contrib import messages
 
-from core.models import Conta, CategoriaConta, MovimentacaoConta,  \
-     Cliente, Cartao
+from .models import Conta, CategoriaConta, MovimentacaoConta, Cartao
+
+from core.models import Cliente
 
 from Compras.models import Fornecedor
 from Vendas.models import Venda

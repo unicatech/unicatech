@@ -6,7 +6,7 @@ from django.contrib import messages
 
 from .models import Compra, LocalizacaoCompra, Fornecedor
 from Produtos.models import Produto, CategoriaProduto
-from core.models import Conta, MovimentacaoConta
+from Contas.models import Conta, MovimentacaoConta
 from datetime import date, datetime
 import re
 import logging

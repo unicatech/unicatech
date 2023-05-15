@@ -18,7 +18,8 @@
 					<div class="page-header">
 						<div class="page-title">
 							<h4>Compras</h4>
-							<h6>Adicione/Edite sua Compra</h6>
+							<h6>Adicione/Edite sua Compra. </h6>
+							<h9> <b>Dólar Médio R${{dolarMedio | floatformat:4}}</b></h9>
 						</div>
 						{% if mensagem != "" %}
 						 <div class="closebtn">
@@ -30,6 +31,7 @@
 					<form method="POST" action="{% url 'fazercompras' %}">
 					{% csrf_token %}
 					<input type="hidden" name="identificadorCompra" value="{{identificadorCompra}}">
+					<input type="hidden" name="dolarMedio" value="{{dolarMedio | floatformat:4}}">
 					<div class="card">
 						<div class="card-body">
 							<div class="row">

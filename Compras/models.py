@@ -20,6 +20,7 @@ class Compra(Base):
     frete = models.FloatField(default=0)
     descricao = models.CharField('Descrição', max_length=200)
     idLocalizacao = models.ForeignKey('Compras.LocalizacaoCompra', verbose_name='Localização', on_delete=models.CASCADE)
+    valorDolarMedio = models.FloatField(default=0)
     def __str__(self):
         return self.id
 

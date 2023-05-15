@@ -15,6 +15,11 @@ class Venda(Base):
     quantidadeProduto = models.FloatField(default=0)
     precoProduto = models.FloatField(default=0)
     descricao = models.CharField('Descrição', max_length=200)
-    cliente = models.ForeignKey('core.Cliente', verbose_name='Cliente', on_delete=models.CASCADE)
+    cliente = models.ForeignKey('Vendas.Cliente', verbose_name='Cliente', on_delete=models.CASCADE)
+    def __str__(self):
+        return self.id
+
+class Cliente(Base):
+    nomeCliente = models.CharField('Descrição', max_length=200)
     def __str__(self):
         return self.id

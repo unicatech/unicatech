@@ -13,8 +13,4 @@ class Base(models.Model):
     class Meta:
         abstract = True
 
-class Cliente(Base):
-    nomeCliente = models.CharField('Descrição', max_length=200)
-    def __str__(self):
-        return self.id
 

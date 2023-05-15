@@ -4,14 +4,13 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0007_compra_conta'),
+        ("core", "0007_compra_conta"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='compra',
-            name='conta',
+            model_name="compra",
+            name="conta",
         ),
     ]

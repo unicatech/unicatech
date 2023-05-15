@@ -1,0 +1,57 @@
+repos:
+  - repo: https://github.com/timothycrosley/isort
+    rev: 5.12.0
+    hooks:
+      - id: isort
+        exclude: |
+            (?x)^(
+                migrations/.*|
+                core/templates/.*|
+                core/static/.*|
+                )$
+
+  - repo: https://github.com/psf/black
+    rev: 23.1.0
+    hooks:
+      - id: black
+        exclude: |
+            (?x)^(
+                migrations/.*|
+                core/templates/.*|
+                core/static/.*|
+                )$
+
+  - repo: https://github.com/PyCQA/flake8
+    rev: 6.0.0
+    hooks:
+      - id: flake8
+        exclude: |
+            (?x)^(
+                migrations/.*|
+                core/templates/.*|
+                core/static/.*|
+                )$
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.4.0
+    hooks:
+      - id: debug-statements
+      - id: trailing-whitespace
+        exclude: |
+            (?x)^(
+                migrations/.*|
+                core/templates/.*|
+                core/static/.*|
+                )$
+      # - id: check-yaml
+      - id: check-builtin-literals
+      - id: end-of-file-fixer
+        exclude: |
+            (?x)^(
+                migrations/.*|
+                core/templates/.*|
+                core/static/.*|
+                )$
+      - id: check-ast
+      - id: check-docstring-first
+      - id: requirements-txt-fixer

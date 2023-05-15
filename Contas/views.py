@@ -4,9 +4,10 @@ from django.shortcuts import render
 from django.http import HttpResponseRedirect
 from django.contrib import messages
 
-from core.models import Conta, CategoriaConta, MovimentacaoConta, Fornecedor, \
+from core.models import Conta, CategoriaConta, MovimentacaoConta,  \
      Cliente, Cartao
 
+from Compras.models import Fornecedor
 from Vendas.models import Venda
 
 from datetime import date, datetime

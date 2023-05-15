@@ -84,15 +84,8 @@ class MovimentacaoConta(Base):
         return self.id
 
 
-class Fornecedor(Base):
-    nomeFornecedor = models.CharField('Descrição', max_length=200)
-
-    def __str__(self):
-        return self.id
-
-
-
 class Cliente(Base):
     nomeCliente = models.CharField('Descrição', max_length=200)
     def __str__(self):
         return self.id
+

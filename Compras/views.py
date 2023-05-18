@@ -46,52 +46,8 @@ class FazerComprasView(TemplateView):
         context['fornecedores'] = Fornecedor.objects.all()
         context['produtos'] = Produto.objects.all()
         context['localizacaoCompra'] = LocalizacaoCompra.objects.all()
-
-        # Buscar saldo em contas
-        contasDetalhadas = Conta.objects.all()
-        contasDetalhadasTemplate = []
-
-        for conta in contasDetalhadas:
-            saldoConta = conta.saldoInicial
-            entradas = MovimentacaoConta.objects.filter(contaCredito=conta.id)
-
-            for entrada in entradas:
-                saldoConta = saldoConta + entrada.valorCredito
-
-            saidas = MovimentacaoConta.objects.filter(contaDebito=conta.id)
-
-            for saida in saidas:
-                saldoConta = saldoConta - saida.valorDebito
-
-            if conta.categoria_id <= 3 and conta.categoria_id >= 1:
-                moeda = 'R$'
-            else:
-                moeda = 'US$'
-
-            contasDetalhadasTemplate.append({'nomeConta' : conta.nomeConta, 'saldo' : saldoConta, 'moeda' : moeda, 'id' : conta.id})
-
-        #Cálculo de dólar médio
-        comprasDolar = MovimentacaoConta.objects.filter(identificadorDolar=True,identificadorCompra=0)
-        movimentacoesCompra = MovimentacaoConta.objects.filter(identificadorDolar=True,identificadorCompra__gt=0)
-        totalCompraDolar = 0
-
-        for movimentacao in movimentacoesCompra:
-            totalCompraDolar = totalCompraDolar + movimentacao.valorDebito * movimentacao.cotacaoDolar
-
-        creditoRemanescente = 0
-        somaValorReal = 0
-        for compra in comprasDolar:
-            totalCompraDolar = totalCompraDolar - compra.valorDebito
-            if totalCompraDolar < 0:
-               logging.warning(totalCompraDolar)
-               creditoRemanescente = creditoRemanescente + (-1) * totalCompraDolar * compra.cotacaoDolar
-               somaValorReal = somaValorReal + (-1) * totalCompraDolar
-               totalCompraDolar = 0
-
-        dolarMedio = creditoRemanescente / somaValorReal
-
-        context['dolarMedio'] = dolarMedio
-        context['contasDetalhadas'] = contasDetalhadasTemplate
+        context['dolarMedio'] = self.dolarMedio
+        context['contasDetalhadas'] = self.saldoConta
         return context
 
     def post(self, request, *args, **kwargs):
@@ -201,7 +157,31 @@ class FazerComprasView(TemplateView):
         context['fornecedores'] = Fornecedor.objects.all()
         context['produtos'] = Produto.objects.all()
         context['localizacaoCompra'] = LocalizacaoCompra.objects.all()
+        context['contasDetalhadas'] = self.saldoConta
+        context['dolarMedio'] = self.dolarMedio
+        return super(TemplateView, self).render_to_response(context)
+    def dolarMedio(self):
+        comprasDolar = MovimentacaoConta.objects.filter(identificadorDolar=True, identificadorCompra=0)
+        movimentacoesCompra = MovimentacaoConta.objects.filter(identificadorDolar=True, identificadorCompra__gt=0)
+        totalCompraDolar = 0
 
+        for movimentacao in movimentacoesCompra:
+            totalCompraDolar = totalCompraDolar + movimentacao.valorDebito * movimentacao.cotacaoDolar
+
+        creditoRemanescente = 0
+        somaValorReal = 0
+        for compra in comprasDolar:
+            totalCompraDolar = totalCompraDolar - compra.valorDebito
+            if totalCompraDolar < 0:
+                logging.warning(totalCompraDolar)
+                creditoRemanescente = creditoRemanescente + (-1) * totalCompraDolar * compra.cotacaoDolar
+                somaValorReal = somaValorReal + (-1) * totalCompraDolar
+                totalCompraDolar = 0
+
+        valorDolarMedio = creditoRemanescente / somaValorReal
+        return(valorDolarMedio)
+
+    def saldoConta(self):
         # Buscar saldo em contas
         contasDetalhadas = Conta.objects.all()
         contasDetalhadasTemplate = []
@@ -226,10 +206,7 @@ class FazerComprasView(TemplateView):
             contasDetalhadasTemplate.append(
                 {'nomeConta': conta.nomeConta, 'saldo': saldoConta, 'moeda': moeda, 'id': conta.id})
 
-        context['contasDetalhadas'] = contasDetalhadasTemplate
-
-        return super(TemplateView, self).render_to_response(context)
-
+        return(contasDetalhadasTemplate)
 
 class ListarComprasView(TemplateView):
     template_name = 'listarcompras.html'

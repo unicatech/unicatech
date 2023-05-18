@@ -222,6 +222,7 @@ class ParcelasReceberModalView(TemplateView):
         for venda in venda_recebimento:
             valor_venda_total = valor_venda_total + venda.quantidadeProduto * venda.precoProduto
             total_receber = valor_venda_total - recebimento
+
             listarVendasTemplate = {
                 'idVenda': venda.identificadorVenda,
                 'cliente': venda.cliente.nomeCliente,

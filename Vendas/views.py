@@ -16,6 +16,7 @@ from Vendas.models import Cliente
 # Create your views here.
 
 class FazerVendasView(TemplateView):
+
     template_name = 'fazervendas.html'
     def get_context_data(self, **kwargs):
         context = super(FazerVendasView, self).get_context_data(**kwargs)
@@ -119,6 +120,7 @@ class FazerVendasView(TemplateView):
         return super(TemplateView, self).render_to_response(context)
 
 class ListarVendasView(TemplateView):
+
     template_name = 'listarvendas.html'
 
     def get_context_data(self, **kwargs):
@@ -157,6 +159,7 @@ class ListarVendasView(TemplateView):
         return(context)
 
 class ParcelasReceberView(TemplateView):
+
     template_name = 'parcelasareceber.html'
     def get_context_data(self, **kwargs):
         context = super(ParcelasReceberView, self).get_context_data(**kwargs)
@@ -200,21 +203,31 @@ class ParcelasReceberView(TemplateView):
         return(context)
 
 class ParcelasReceberModalView(TemplateView):
+
     template_name = 'parcelasarecebermodal.html'
     def get_context_data(self, **kwargs):
+
         context = super(ParcelasReceberModalView, self).get_context_data(**kwargs)
         context['mensagem'] = ''
 
         venda_recebimento = Venda.objects.filter(identificadorVenda=self.request.GET["idVenda"],ativo=True)
-        valor_venda_total = 0
+        recebimentos_venda = MovimentacaoConta.objects.filter(identificadorVenda=self.request.GET["idVenda"], ativo=True)
+        recebimento = 0
+        for recebimento_venda in recebimentos_venda:
+               recebimento = recebimento + recebimento_venda.valorCredito
+
+        valor_venda_total = 0.0
+        total_receber = 0.0
+
         for venda in venda_recebimento:
             valor_venda_total = valor_venda_total + venda.quantidadeProduto * venda.precoProduto
-            logging.warning(venda.criados)
+            total_receber = valor_venda_total - recebimento
             listarVendasTemplate = {
                 'idVenda': venda.identificadorVenda,
                 'cliente': venda.cliente.nomeCliente,
                 'dataVenda': venda.criados,
                 'valorVenda': valor_venda_total,
+                'total_receber': total_receber,
             }
 
         context['listarVendas'] = listarVendasTemplate
@@ -230,6 +243,7 @@ class ParcelasReceberModalView(TemplateView):
         return(context)
 
     def post(self, request, *args, **kwargs):
+
         context = super(ParcelasReceberModalView, self).get_context_data(**kwargs)
         agora = datetime.now()
         hoje = agora.strftime("%Y-%m-%d")
@@ -280,14 +294,14 @@ class ParcelasReceberModalView(TemplateView):
         elif conta_recebimento.categoria_id == 3:
             logging.warning("Espécie")
         valor_recebimento = (1-taxa/100) * float(self.request.POST.get('valorRecebido'))
-        logging.warning(f'Taxa = {taxa}')
-        logging.warning(f'Valor recebido = {valor_recebimento}')
+
         dataform = MovimentacaoConta(contaCredito_id=self.request.POST.get('contaCredito'),
                                      criados=hoje,
                                      contaDebito="0",
                                      valorCredito=valor_recebimento,
                                      identificadorVenda=self.request.POST.get('identificadorVenda'),
                                      descricao=self.request.POST.get('descricao'),
+                                     identificadorDolar=False,
         )
         dataform.save()
         context['mensagem'] = "Recebimento Efetuado"

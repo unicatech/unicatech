@@ -71,20 +71,24 @@ class FazerComprasView(TemplateView):
             contasDetalhadasTemplate.append({'nomeConta' : conta.nomeConta, 'saldo' : saldoConta, 'moeda' : moeda, 'id' : conta.id})
 
         #Cálculo de dólar médio
-        movimentacoes = MovimentacaoConta.objects.all()
-        valorTotalReal = 0
-        valorTotalCredito = 0
-        for movimentacao in movimentacoes:
-            if movimentacao.identificadorDolar == True:
-                if movimentacao.identificadorCompra == 0:
-                    valorTotalReal = valorTotalReal + movimentacao.valorCredito * movimentacao.cotacaoDolar
-                    valorTotalCredito = valorTotalCredito + movimentacao.valorCredito
-                    logging.warning("Compra de Dolar")
-                else:
-                    valorTotalReal = valorTotalReal - movimentacao.valorDebito * movimentacao.cotacaoDolar
-                    valorTotalCredito = valorTotalCredito - movimentacao.valorDebito
-                    logging.warning("Compra de Celular")
-        dolarMedio = valorTotalReal / valorTotalCredito
+        comprasDolar = MovimentacaoConta.objects.filter(identificadorDolar=True,identificadorCompra=0)
+        movimentacoesCompra = MovimentacaoConta.objects.filter(identificadorDolar=True,identificadorCompra__gt=0)
+        totalCompraDolar = 0
+
+        for movimentacao in movimentacoesCompra:
+            totalCompraDolar = totalCompraDolar + movimentacao.valorDebito * movimentacao.cotacaoDolar
+
+        creditoRemanescente = 0
+        somaValorReal = 0
+        for compra in comprasDolar:
+            totalCompraDolar = totalCompraDolar - compra.valorDebito
+            if totalCompraDolar < 0:
+               logging.warning(totalCompraDolar)
+               creditoRemanescente = creditoRemanescente + (-1) * totalCompraDolar * compra.cotacaoDolar
+               somaValorReal = somaValorReal + (-1) * totalCompraDolar
+               totalCompraDolar = 0
+
+        dolarMedio = creditoRemanescente / somaValorReal
 
         context['dolarMedio'] = dolarMedio
         context['contasDetalhadas'] = contasDetalhadasTemplate

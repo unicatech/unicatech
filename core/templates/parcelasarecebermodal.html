@@ -39,13 +39,14 @@
 										<label>Cliente: {{listarVendas.cliente}}</label>
 										<label>Data da Venda: {{listarVendas.dataVenda}}</label>
 										<label>Valor total: {{listarVendas.valorVenda}}</label>
+										<label>A receber: {{listarVendas.total_receber}}</label>
 										<label>Meio de Pagamento: </label>
 										<select name="contaCredito" class="select">
 											{% for c in contaCredito %}
 											<option value="{{ c.id }}">{{ c.nomeConta }}</option>
 											{% endfor %}
 										</select>
-										<label>Valor a Receber: <input type="text" name="valorRecebido" ></label>
+										<label>Valor a Receber: <input type="text" name="valorRecebido" value="{{listarVendas.total_receber}}"></label>
 										<label>Parcelas do Cartão: </label>
 										<select name="parcelaCartao" class="select">
 											<option value="1">1</option>

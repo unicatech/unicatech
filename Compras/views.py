@@ -265,3 +265,10 @@ class ListarComprasView(TemplateView):
 
         return (context)
 
+class AdicionarLocalizacao(TemplateView):
+    template_name = 'adicionarlocalizacao.html'
+    def get_context_data(self, **kwargs):
+        context = super(AdicionarLocalizacao, self).get_context_data(**kwargs)
+
+    def post(self, request, *args, **kwargs):
+        context = super(FazerComprasView, self).get_context_data(**kwargs)

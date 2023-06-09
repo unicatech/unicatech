@@ -17,6 +17,7 @@ class FazerComprasView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(FazerComprasView, self).get_context_data(**kwargs)
         context['editarCompra'] = 0
+        context['dolarMedio'] = self.dolarMedio
         if self.request.GET.__contains__("idCompra"):
             compras = Compra.objects.filter(identificadorCompra=self.request.GET["idCompra"], ativo=True)
             listarProdutosTemplate = []
@@ -39,6 +40,7 @@ class FazerComprasView(TemplateView):
                 context['identificadorCompra'] = compra.identificadorCompra
                 context['idConta'] = compra.conta_id
                 context['compra_identificada'] = listarProdutosTemplate
+                context['dolarMedio'] = compra.valorDolarMedio
 
         context['compras'] = Compra.objects.all()
         context['mensagem'] = ''
@@ -46,7 +48,6 @@ class FazerComprasView(TemplateView):
         context['fornecedores'] = Fornecedor.objects.all()
         context['produtos'] = Produto.objects.all()
         context['localizacaoCompra'] = LocalizacaoCompra.objects.all()
-        context['dolarMedio'] = self.dolarMedio
         context['contasDetalhadas'] = self.saldoConta
         return context
 
@@ -108,6 +109,7 @@ class FazerComprasView(TemplateView):
 
         # Salvando Compra
         contador = 0
+        cotacaoDolar = cotacaoDolar[0].replace(',','.')
         for produto in produtos:
             if precos[contador] != "" and quantidades[contador] != "":
                 formCompra = Compra(
@@ -120,7 +122,8 @@ class FazerComprasView(TemplateView):
                     frete=frete[0],
                     descricao=descricao,
                     idLocalizacao_id=localizacaoCompra[0],
-                    conta_id=contaOrigem[0]
+                    conta_id=contaOrigem[0],
+                    valorDolarMedio=float(cotacaoDolar)
                 )
                 valorCompra = valorCompra + float(precos[contador]) * float(quantidades[contador])
                 formCompra.save()
@@ -139,7 +142,6 @@ class FazerComprasView(TemplateView):
         if tipoConta.categoria_id == 4 or tipoConta.categoria_id == 5:
             identificadorDolar = True
         # Debitando da conta
-        cotacaoDolar = cotacaoDolar[0].replace(',','.')
         formMovimentacao = MovimentacaoConta(
             criados=str(dataModificada),
             contaDebito=contaOrigem[0],

@@ -161,24 +161,30 @@ class FazerComprasView(TemplateView):
         context['dolarMedio'] = self.dolarMedio
         return super(TemplateView, self).render_to_response(context)
     def dolarMedio(self):
+        #Compras em moeda de dólar
         comprasDolar = MovimentacaoConta.objects.filter(identificadorDolar=True, identificadorCompra=0)
+        #Compras efetuadas em dólar
         movimentacoesCompra = MovimentacaoConta.objects.filter(identificadorDolar=True, identificadorCompra__gt=0)
+
+        #total em dólares de compras de produtos feitas em dólar
         totalCompraDolar = 0
-
         for movimentacao in movimentacoesCompra:
-            totalCompraDolar = totalCompraDolar + movimentacao.valorDebito * movimentacao.cotacaoDolar
+            totalCompraDolar = totalCompraDolar + movimentacao.valorDebito
 
+        #Diminuir o total da compra de moeda em dólares das compras de produtos feitas em dólar. A partir daí tirar o dólar médio
         creditoRemanescente = 0
         somaValorReal = 0
         for compra in comprasDolar:
-            totalCompraDolar = totalCompraDolar - compra.valorDebito
+            totalCompraDolar = totalCompraDolar - compra.valorCredito
             if totalCompraDolar < 0:
+                creditoRemanescente = creditoRemanescente + (-1) * totalCompraDolar
+                somaValorReal = somaValorReal + (-1) * totalCompraDolar * compra.cotacaoDolar
                 logging.warning(totalCompraDolar)
-                creditoRemanescente = creditoRemanescente + (-1) * totalCompraDolar * compra.cotacaoDolar
-                somaValorReal = somaValorReal + (-1) * totalCompraDolar
+                logging.warning(creditoRemanescente)
+                logging.warning(somaValorReal)
                 totalCompraDolar = 0
 
-        valorDolarMedio = creditoRemanescente / somaValorReal
+        valorDolarMedio = somaValorReal / creditoRemanescente
         return(valorDolarMedio)
 
     def saldoConta(self):

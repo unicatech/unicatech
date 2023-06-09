@@ -598,7 +598,7 @@ class AdicionarFundosView(TemplateView):
 
             contasDetalhadasTemplate.append({'nomeConta': conta.nomeConta, 'saldo': saldoConta, 'moeda': moeda})
 
-        return  contasDetalhadasTemplate
+        return contasDetalhadasTemplate
 
     def contas_origem(self):
         contasDetalhadas = Conta.objects.all()

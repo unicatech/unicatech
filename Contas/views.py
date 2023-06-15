@@ -521,10 +521,9 @@ class AdicionarFundosView(TemplateView):
         context["depositoDolarPyValorTotal"] = self.valores_dolar_paraguai
 
         # Popular template com dados de conta
-        (
-            context["contasDetalhadas"],
-            context["contaOrigem"],
-        ) = self.contas_origem_e_detalhadas()
+        contas = self.contas_origem_e_detalhadas()
+        context["contasDetalhadas"] = contas["contasDetalhadasTemplate"]
+        context["contaOrigem"] = contas["contaOrigem"]
         # popular movimentações
         context["movimentacaoContas"] = self.movimentacoes_contas
 
@@ -552,10 +551,11 @@ class AdicionarFundosView(TemplateView):
         context["cartaoCreditoValorTotal"] = self.valores_cartao_credito
 
         # Popular template com dados de conta
-        context["contasDetalhadas"] = self.contas_detalhadas
-        context["contaOrigem"] = self.contas_origem
-        # popular movimentações
+        contas = self.contas_origem_e_detalhadas()
+        context["contasDetalhadas"] = contas["contasDetalhadasTemplate"]
+        context["contaOrigem"] = contas["contaOrigem"]
 
+        # popular movimentações
         context["movimentacaoContas"] = self.movimentacoes_contas
 
         return super(TemplateView, self).render_to_response(context)
@@ -689,66 +689,6 @@ class AdicionarFundosView(TemplateView):
 
         return movimentacaoContasTemplate
 
-    def contas_detalhadas(self):
-        contasDetalhadas = Conta.objects.all()
-        contasDetalhadasTemplate = []
-        contaOrigem = []
-        contaDestino = []
-        for conta in contasDetalhadas:
-            saldoConta = conta.saldoInicial
-            entradas = MovimentacaoConta.objects.filter(contaCredito=conta.id)
-
-            for entrada in entradas:
-                saldoConta = saldoConta + entrada.valorCredito
-
-            saidas = MovimentacaoConta.objects.filter(contaDebito=conta.id)
-
-            for saida in saidas:
-                saldoConta = saldoConta - saida.valorDebito
-
-            if conta.categoria_id <= 3 and conta.categoria_id >= 1:
-                moeda = "R$"
-            else:
-                moeda = "US$"
-
-            contaOrigem.append({"id": conta.id, "nomeConta": conta.nomeConta})
-
-            contasDetalhadasTemplate.append(
-                {"nomeConta": conta.nomeConta, "saldo": saldoConta, "moeda": moeda}
-            )
-
-        return contasDetalhadasTemplate
-
-    def contas_origem(self):
-        contasDetalhadas = Conta.objects.all()
-        contasDetalhadasTemplate = []
-        contaOrigem = []
-        contaDestino = []
-        for conta in contasDetalhadas:
-            saldoConta = conta.saldoInicial
-            entradas = MovimentacaoConta.objects.filter(contaCredito=conta.id)
-
-            for entrada in entradas:
-                saldoConta = saldoConta + entrada.valorCredito
-
-            saidas = MovimentacaoConta.objects.filter(contaDebito=conta.id)
-
-            for saida in saidas:
-                saldoConta = saldoConta - saida.valorDebito
-
-            if conta.categoria_id <= 3 and conta.categoria_id >= 1:
-                moeda = "R$"
-            else:
-                moeda = "US$"
-
-            contaOrigem.append({"id": conta.id, "nomeConta": conta.nomeConta})
-
-            contasDetalhadasTemplate.append(
-                {"nomeConta": conta.nomeConta, "saldo": saldoConta, "moeda": moeda}
-            )
-
-        return contaOrigem
-
     def contas_origem_e_detalhadas(self):
         contasDetalhadas = Conta.objects.all()
         contasDetalhadasTemplate = []
@@ -777,4 +717,4 @@ class AdicionarFundosView(TemplateView):
                 {"nomeConta": conta.nomeConta, "saldo": saldoConta, "moeda": moeda}
             )
 
-        return contaOrigem, contasDetalhadasTemplate
+        return {"contaOrigem" : contaOrigem, "contasDetalhadasTemplate": contasDetalhadasTemplate}

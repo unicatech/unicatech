@@ -104,7 +104,11 @@ class FazerComprasView(TemplateView):
             logging.warning("Removendo")
             for produto in produtos:
                 atualizarEstoque = Produto.objects.get(id=produto)
-                atualizarEstoque.estoque = atualizarEstoque.estoque - int(float(quantidades[contador]))
+                quantidadeOriginalEstoque = Compra.objects.get(identificadorCompra=identificadorCompra[0],produto_id=produto,ativo=True)
+                logging.warning(atualizarEstoque.NomeProduto)
+                logging.warning(quantidadeOriginalEstoque.quantidadeProduto)
+                atualizarEstoque.estoque = atualizarEstoque.estoque + quantidadeOriginalEstoque.quantidadeProduto
+                logging.warning(atualizarEstoque.estoque)
                 atualizarEstoque.save()
                 contador = contador + 1
             Compra.objects.filter(identificadorCompra=identificadorCompra[0]).update(ativo=False)
@@ -133,8 +137,13 @@ class FazerComprasView(TemplateView):
                 #Atualizando o estoque
                 logging.warning("Adicionando")
                 atualizarEstoque = Produto.objects.get(id=produto)
-                atualizarEstoque.estoque =  atualizarEstoque.estoque + int(float(quantidades[contador]))
+                logging.warning("Antes")
+                logging.warning(atualizarEstoque.NomeProduto)
+                logging.warning(atualizarEstoque.estoque)
+                logging.warning(int(float(quantidades[contador])))
+                atualizarEstoque.estoque = atualizarEstoque.estoque - int(float(quantidades[contador]))
                 atualizarEstoque.save()
+                logging.warning("Depois")
                 logging.warning(atualizarEstoque.NomeProduto)
                 logging.warning(atualizarEstoque.estoque)
                 contador = contador + 1
@@ -174,8 +183,8 @@ class FazerComprasView(TemplateView):
         #total em dólares de compras de produtos feitas em dólar
         totalCompraDolar = 0
         for movimentacao in movimentacoesCompra:
-            totalCompraDolar = totalCompraDolar + movimentacao.valorDebito
-
+            totalCompraDolar = totalCompraDolar + movimentacao.valorDebito - movimentacao.valorCredito
+            logging.warning(movimentacao.valorDebito)
         #Diminuir o total da compra de moeda em dólares das compras de produtos feitas em dólar. A partir daí tirar o dólar médio
         creditoRemanescente = 0
         somaValorReal = 0
@@ -184,9 +193,6 @@ class FazerComprasView(TemplateView):
             if totalCompraDolar < 0:
                 creditoRemanescente = creditoRemanescente + (-1) * totalCompraDolar
                 somaValorReal = somaValorReal + (-1) * totalCompraDolar * compra.cotacaoDolar
-                logging.warning(totalCompraDolar)
-                logging.warning(creditoRemanescente)
-                logging.warning(somaValorReal)
                 totalCompraDolar = 0
 
         valorDolarMedio = somaValorReal / creditoRemanescente

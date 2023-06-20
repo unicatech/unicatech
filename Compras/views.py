@@ -105,10 +105,7 @@ class FazerComprasView(TemplateView):
             for produto in produtos:
                 atualizarEstoque = Produto.objects.get(id=produto)
                 quantidadeOriginalEstoque = Compra.objects.get(identificadorCompra=identificadorCompra[0],produto_id=produto,ativo=True)
-                logging.warning(atualizarEstoque.NomeProduto)
-                logging.warning(quantidadeOriginalEstoque.quantidadeProduto)
-                atualizarEstoque.estoque = atualizarEstoque.estoque + quantidadeOriginalEstoque.quantidadeProduto
-                logging.warning(atualizarEstoque.estoque)
+                atualizarEstoque.estoque = atualizarEstoque.estoque - quantidadeOriginalEstoque.quantidadeProduto
                 atualizarEstoque.save()
                 contador = contador + 1
             Compra.objects.filter(identificadorCompra=identificadorCompra[0]).update(ativo=False)
@@ -141,7 +138,7 @@ class FazerComprasView(TemplateView):
                 logging.warning(atualizarEstoque.NomeProduto)
                 logging.warning(atualizarEstoque.estoque)
                 logging.warning(int(float(quantidades[contador])))
-                atualizarEstoque.estoque = atualizarEstoque.estoque - int(float(quantidades[contador]))
+                atualizarEstoque.estoque = atualizarEstoque.estoque + int(float(quantidades[contador]))
                 atualizarEstoque.save()
                 logging.warning("Depois")
                 logging.warning(atualizarEstoque.NomeProduto)

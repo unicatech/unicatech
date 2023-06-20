@@ -65,7 +65,10 @@ class FazerComprasView(TemplateView):
         produtos = self.request.POST.getlist('produto')
         quantidades = self.request.POST.getlist('qtde')
         precos = self.request.POST.getlist('preco')
+        #Conta de saída do dinheiro
         contaOrigem = self.request.POST.getlist('contaOrigem')
+        #Se a função for "Editar Compra" o valor será estornado para a conta de origem original da compra
+        contaOrigemOriginal = self.request.POST.getlist('idConta')
         frete = self.request.POST.getlist('frete')
         localizacaoCompra = self.request.POST.getlist('localizacaoCompra')
         identificadorCompra = self.request.POST.getlist('identificadorCompra')
@@ -91,7 +94,7 @@ class FazerComprasView(TemplateView):
             valorEstorno = valorEstorno + compra.frete
             formMovimentacao = MovimentacaoConta(
                 criados=str(dataModificada),
-                contaCredito_id=contaOrigem[0],
+                contaCredito_id=contaOrigemOriginal[0],
                 valorCredito=valorEstorno,
                 identificadorCompra=str(proximaCompra),
                 descricao=descricao,

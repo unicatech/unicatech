@@ -16,7 +16,9 @@ class Conta(Base):
     taxas = models.FloatField()
     saldoInicial = models.FloatField(blank=True, default=None)
     descricao = models.CharField('Descrição', max_length=200)
-    cartao = models.ForeignKey('Contas.Cartao', verbose_name='Tipo', on_delete=models.CASCADE, null=True)
+    #cartao = models.ForeignKey('Contas.Cartao', verbose_name='Tipo', on_delete=models.CASCADE, null=True)
+    cartao = models.IntegerField(null=True)
+
     class Meta:
         verbose_name = 'Conta'
         verbose_name_plural = 'Contas'

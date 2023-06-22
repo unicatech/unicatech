@@ -32,7 +32,7 @@ class CriarContaView(TemplateView):
             proxima_conta = 1
         agora = datetime.now()
         hoje = agora.strftime("%Y-%m-%d")
-
+        logging.warning(proxima_conta)
         if self.request.POST.get("categoria") == "1":
             dataform_cartao = Cartao(
                 criados=hoje,
@@ -65,7 +65,7 @@ class CriarContaView(TemplateView):
                 descricao=self.request.POST.get("descricao"),
                 saldoInicial=self.request.POST.get("saldoinicial"),
                 taxas=self.request.POST.get("taxas"),
-                # cartao_id=proxima_conta
+                cartao=proxima_conta
             )
             dataform_conta.save()
         else:

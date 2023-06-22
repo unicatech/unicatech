@@ -134,15 +134,9 @@ class FazerComprasView(TemplateView):
                 #Atualizando o estoque
                 logging.warning("Adicionando")
                 atualizarEstoque = Produto.objects.get(id=produto)
-                logging.warning("Antes")
-                logging.warning(atualizarEstoque.NomeProduto)
-                logging.warning(atualizarEstoque.estoque)
-                logging.warning(int(float(quantidades[contador])))
                 atualizarEstoque.estoque = atualizarEstoque.estoque + int(float(quantidades[contador]))
                 atualizarEstoque.save()
-                logging.warning("Depois")
-                logging.warning(atualizarEstoque.NomeProduto)
-                logging.warning(atualizarEstoque.estoque)
+
                 contador = contador + 1
         valorCompra = valorCompra + float(frete[0])
 

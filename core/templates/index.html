@@ -58,8 +58,8 @@
 						<div class="col-lg-3 col-sm-6 col-12 d-flex">
 							<div class="dash-count">
 								<div class="dash-counts">
-									<h4>100</h4>
-									<h5>Customers</h5>
+									<h4>{{lucro_total}}</h4>
+									<h5>Lucro Total no Período</h5>
 								</div>
 								<div class="dash-imgs">
 									<i data-feather="user"></i>
@@ -69,8 +69,8 @@
 						<div class="col-lg-3 col-sm-6 col-12 d-flex">
 							<div class="dash-count das1">
 								<div class="dash-counts">
-									<h4>100</h4>
-									<h5>Suppliers</h5>
+									<h4>{{vendas_total}}</h4>
+									<h5>Faturamento Total no Período</h5>
 								</div>
 								<div class="dash-imgs">
 									<i data-feather="user-check"></i>
@@ -126,22 +126,21 @@
 										<table class="table datatable ">
 											<thead>
 												<tr>
-													<th>Sno</th>
-													<th>Products</th>
-													<th>Price</th>
+													<th>Nota</th>
+													<th>Cliente</th>
+													<th>Lucro</th>
+													<th>Data</th>
 												</tr>
 											</thead>
 											<tbody>
 											{% for venda in vendas %}
 												<tr>
-													<td>1</td>
+													<td>{{venda.venda_id}}</td>
 													<td class="productimgname">
-														<a href="productlist.html" class="product-img">
-															<img src="{% static 'img/product/product22.jpg' %}" alt="product">
-														</a>
-														<a href="productlist.html">{{venda.produto_id.nomeProduto}}</a>
+														{{venda.cliente}}
 													</td>
-													<td>{{venda.precoProduto}}</td>
+													<td>{{venda.lucro}}</td>
+													<td>{{venda.data_venda}}</td>
 												</tr>
 											{% endfor %}
 											</tbody>

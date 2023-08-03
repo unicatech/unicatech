@@ -32,18 +32,52 @@ class IndexView(TemplateView):
         #vendas = Venda.objects.filter(criados__month=mes_selecionado).filter(criados__year=ano_selecionado).filter(ativo=True)
         vendas = Venda.objects.filter(criados__month='6').filter(criados__year='2023').order_by('-id')
         vendas_template = []
-        venda_total_produto = 0
-        compra_total_produto = 0
-        # Cálculo do preço médio de compra do produto vendido
+        venda_lucro = 0
+        venda_lucro_total = 0
+        venda_total = 0
+        #Campo Resumo Lucro Líquido por Venda
+        venda_identificador = 0
+        venda_cliente_nome_cliente = ''
+        venda_datavenda = ''
+        primeira_vez = 1
         for venda in vendas:
-            venda_total_produto = venda_total_produto + venda.quantidadeProduto * venda.precoProduto
-            vendas_template.append(
-                {
-                    'produto_id': venda.produto_id,
-                    #'nome_produto': venda.produto_id.NomeProduto,
-                    'quantidadeProduto': venda.quantidadeProduto,
-                    'precoProduto': venda.precoProduto,
-                }
-            )
+            if primeira_vez:
+               venda_identificador = venda.identificadorVenda
+               primeira_vez = 0
+            if (venda_identificador != venda.identificadorVenda):
+                vendas_template.append(
+                   {
+                      'venda_id': venda_identificador,
+                      #'nome_produto': venda.produto_id.NomeProduto,
+                      'cliente': venda_cliente_nome_cliente,
+                      'precoProduto': venda.precoProduto,
+                      'lucro': venda_lucro,
+                      'data_venda': venda.criados
+                    }
+                )
+                venda_lucro = 0
+            venda_lucro = venda_lucro + venda.lucro
+            venda_cliente_nome_cliente = venda.cliente.nomeCliente
+            venda_datavenda = venda.criados
+            venda_preco_produto = venda.precoProduto
+            venda_quantidade_produto = venda.quantidadeProduto
+            venda_lucro_total = venda_lucro_total + venda.lucro
+            venda_total = venda_total + venda_preco_produto * venda_quantidade_produto
+            venda_identificador = venda.identificadorVenda
+            logging.warning(venda_identificador)
+        vendas_template.append(
+            {
+                'venda_id': venda_identificador,
+                # 'nome_produto': venda.produto_id.NomeProduto,
+                'cliente': venda_cliente_nome_cliente,
+                'precoProduto': venda.precoProduto,
+                'lucro': venda_lucro,
+                'data_venda': venda.criados
+            }
+        )
+        venda_lucro_total = venda_lucro_total + venda_lucro
+        venda_total = venda_total + venda_preco_produto * venda_quantidade_produto
         context['vendas'] = vendas_template
+        context['lucro_total'] = venda_lucro_total
+        context['vendas_total'] = venda_total
         return context

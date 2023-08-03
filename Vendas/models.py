@@ -16,6 +16,7 @@ class Venda(Base):
     precoProduto = models.FloatField(default=0)
     descricao = models.CharField('Descrição', max_length=200)
     cliente = models.ForeignKey('Vendas.Cliente', verbose_name='Cliente', on_delete=models.CASCADE)
+    lucro = models.FloatField(default=0)
     def __str__(self):
         return self.id
 

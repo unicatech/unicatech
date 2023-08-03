@@ -15,7 +15,7 @@ class Compra(Base):
     fornecedor = models.ForeignKey('Compras.Fornecedor', verbose_name='Fornecedor', on_delete=models.CASCADE)
     produto = models.ForeignKey('Produtos.Produto', verbose_name='Produto', on_delete=models.CASCADE)
     conta = models.ForeignKey('Contas.Conta', verbose_name='Produto', on_delete=models.CASCADE)
-    quantidadeProduto = models.FloatField(default=0)
+    quantidadeProduto = models.IntegerField(default=0)
     precoProduto = models.FloatField(default=0)
     frete = models.FloatField(default=0)
     descricao = models.CharField('Descrição', max_length=200)

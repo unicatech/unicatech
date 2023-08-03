@@ -11,8 +11,9 @@ import logging
 
 from .models import Venda
 from Produtos.models import Produto
-from Contas.models import MovimentacaoConta, Conta
+from Contas.models import MovimentacaoConta, Conta, Cartao
 from Vendas.models import Cliente
+from Compras.models import Compra
 # Create your views here.
 
 class FazerVendasView(TemplateView):
@@ -73,8 +74,7 @@ class FazerVendasView(TemplateView):
         contador = 0
         valorVenda = 0
         valorEstorno = 0
-        logging.warning("Antes do if")
-        logging.warning(identificadorVenda)
+
         # Desabilitando registro de Venda Salva caso função seja editar
         if identificadorVenda[0] != "":
             for produto in produtos:
@@ -89,8 +89,42 @@ class FazerVendasView(TemplateView):
 
         # Salvando Venda
         contador = 0
+        estoque_anterior = 0
         for produto in produtos:
            if precos[contador] != "" and quantidades[contador] != "":
+                #Atualizando o estoque
+                logging.warning("Removendo do Estoque")
+                atualizarEstoque = Produto.objects.get(id=produto)
+                estoque_anterior = atualizarEstoque.estoque
+                atualizarEstoque.estoque = atualizarEstoque.estoque - int(float(quantidades[contador]))
+                atualizarEstoque.save()
+                #Calculando o lucro
+                compras_produto = Compra.objects.filter(produto_id=atualizarEstoque.id, ativo=True).order_by('-id')
+                estoque_produto = int(atualizarEstoque.estoque)
+                #Calculando preço médio do estoque (média móvel)
+                compra_total_produto = 0
+                estoque_preco_medio = estoque_anterior
+                quantidade_produto = 0
+                for compra in compras_produto:
+                    logging.warning(compra.identificadorCompra)
+                    if compra.quantidadeProduto >= estoque_preco_medio:
+                        compra_total_produto = (compra_total_produto +
+                                                estoque_preco_medio *
+                                                float(compra.precoProduto) * compra.valorDolarMedio)
+                        quantidade_produto = quantidade_produto + estoque_preco_medio
+                        break
+                    else:
+                        compra_total_produto = (compra_total_produto +
+                                                compra.quantidadeProduto * compra.precoProduto * compra.valorDolarMedio)
+                        estoque_preco_medio = estoque_preco_medio - compra.quantidadeProduto
+                        quantidade_produto = quantidade_produto + compra.quantidadeProduto
+                preco_medio = compra_total_produto / quantidade_produto
+                lucro = float(quantidades[contador]) * (float(precos[contador]) - preco_medio)
+                logging.warning(preco_medio)
+                logging.warning(lucro)
+                logging.warning(precos[contador])
+
+                #Cadastrando Venda
                 formVenda = Venda(
                              criados=str(dataModificada),
                              quantidadeProduto=quantidades[contador],
@@ -98,17 +132,11 @@ class FazerVendasView(TemplateView):
                              identificadorVenda=str(proximaVenda),
                              cliente_id=cliente[0],
                              produto_id=produto,
+                             lucro=lucro,
                 )
+                formVenda.save()
 
                 valorVenda = valorVenda + float(precos[contador])*float(quantidades[contador])
-                formVenda.save()
-                #Atualizando o estoque
-                logging.warning("Removendo do Estoque")
-                atualizarEstoque = Produto.objects.get(id=produto)
-                atualizarEstoque.estoque = atualizarEstoque.estoque - int(float(quantidades[contador]))
-                atualizarEstoque.save()
-                logging.warning(atualizarEstoque.NomeProduto)
-                logging.warning(atualizarEstoque.estoque)
                 contador = contador + 1
 
         context['mensagem'] = 'Venda Salva'
@@ -249,47 +277,48 @@ class ParcelasReceberModalView(TemplateView):
         agora = datetime.now()
         hoje = agora.strftime("%Y-%m-%d")
         conta_recebimento = Conta.objects.get(id=self.request.POST.get('contaCredito'), ativo=True)
+        conta_cartao = Cartao.objects.get(cartao=conta_recebimento.cartao)
         taxa = 0
         if conta_recebimento.categoria_id == 1:
             logging.warning("Cartão de crédito")
             logging.warning(f'Parcelas do Cartão:{self.request.POST.get("parcelaCartao")}')
             # Quando migrar para o Python 3.10 utilizar match(equivalente do switch em C)
             if self.request.POST.get("parcelaCartao") == "1":
-                taxa = float(conta_recebimento.cartao.taxa_cartao1)
+                taxa = float(conta_cartao.taxa_cartao1)
             elif self.request.POST.get("parcelaCartao") == "2":
-                taxa = float(conta_recebimento.cartao.taxa_cartao2)
+                taxa = float(conta_cartao.taxa_cartao2)
             elif self.request.POST.get("parcelaCartao") == "3":
-                taxa = float(conta_recebimento.cartao.taxa_cartao3)
+                taxa = float(conta_cartao.taxa_cartao3)
             elif self.request.POST.get("parcelaCartao") == "4":
-                taxa = float(conta_recebimento.cartao.taxa_cartao4)
+                taxa = float(conta_cartao.taxa_cartao4)
             elif self.request.POST.get("parcelaCartao") == "5":
-                taxa = float(conta_recebimento.cartao.taxa_cartao5)
+                taxa = float(conta_cartao.taxa_cartao5)
             elif self.request.POST.get("parcelaCartao") == "6":
-                taxa = float(conta_recebimento.cartao.taxa_cartao6)
+                taxa = float(conta_cartao.taxa_cartao6)
             elif self.request.POST.get("parcelaCartao") == "7":
-                taxa = float(conta_recebimento.cartao.taxa_cartao7)
+                taxa = float(conta_cartao.taxa_cartao7)
             elif self.request.POST.get("parcelaCartao") == "8":
-                taxa = float(conta_recebimento.cartao.taxa_cartao8)
+                taxa = float(conta_cartao.taxa_cartao8)
             elif self.request.POST.get("parcelaCartao") == "9":
-                taxa = float(conta_recebimento.cartao.taxa_cartao9)
+                taxa = float(conta_cartao.taxa_cartao9)
             elif self.request.POST.get("parcelaCartao") == "10":
-                taxa = float(conta_recebimento.cartao.taxa_cartao10)
+                taxa = float(conta_cartao.taxa_cartao10)
             elif self.request.POST.get("parcelaCartao") == "11":
-                taxa = float(conta_recebimento.cartao.taxa_cartao11)
+                taxa = float(conta_cartao.taxa_cartao11)
             elif self.request.POST.get("parcelaCartao") == "12":
-                taxa = float(conta_recebimento.cartao.taxa_cartao12)
+                taxa = float(conta_cartao.taxa_cartao12)
             elif self.request.POST.get("parcelaCartao") == "13":
-                taxa = float(conta_recebimento.cartao.taxa_cartao13)
+                taxa = float(conta_cartao.taxa_cartao13)
             elif self.request.POST.get("parcelaCartao") == "14":
-                taxa = float(conta_recebimento.cartao.taxa_cartao14)
+                taxa = float(conta_cartao.taxa_cartao14)
             elif self.request.POST.get("parcelaCartao") == "15":
-                taxa = float(conta_recebimento.cartao.taxa_cartao15)
+                taxa = float(conta_cartao.taxa_cartao15)
             elif self.request.POST.get("parcelaCartao") == "16":
-                taxa = float(conta_recebimento.cartao.taxa_cartao16)
+                taxa = float(conta_cartao.taxa_cartao16)
             elif self.request.POST.get("parcelaCartao") == "17":
-                taxa = float(conta_recebimento.cartao.taxa_cartao17)
+                taxa = float(conta_cartao.taxa_cartao17)
             elif self.request.POST.get("parcelaCartao") == "18":
-                taxa = float(conta_recebimento.cartao.taxa_cartao18)
+                taxa = float(conta_cartao.taxa_cartao18)
         elif conta_recebimento.categoria_id == 2:
             logging.warning("Depósito em real")
         elif conta_recebimento.categoria_id == 3:

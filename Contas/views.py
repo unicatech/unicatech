@@ -65,7 +65,7 @@ class CriarContaView(TemplateView):
                 descricao=self.request.POST.get("descricao"),
                 saldoInicial=self.request.POST.get("saldoinicial"),
                 taxas=self.request.POST.get("taxas"),
-                cartao=proxima_conta
+                cartao=proxima_conta,
             )
             dataform_conta.save()
         else:

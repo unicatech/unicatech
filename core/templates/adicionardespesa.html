@@ -1,0 +1,99 @@
+{% load static %}
+<!DOCTYPE html>
+
+ 			<!-- Header -->
+			{% include 'head.html' %}
+			<!-- /header -->
+
+			<!-- Select2 CSS -->
+			<link rel="stylesheet" href="{% static 'plugins/select2/css/select2.min.css' %}">
+			<!-- Sidebar -->
+			{% include 'sidebar.html' %}
+			<!-- /Sidebar -->
+
+			<div class="page-wrapper">
+				<div class="content">
+					<div class="page-header">
+						<div class="page-title">
+							<h4>Adicionar Despesa</h4>
+							<h6>Cadastrar Nova Despesa</h6>
+						</div>
+				        {% if mensagem != "" %}
+						 <div class="closebtn">
+							 <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
+  							Despesa Cadastrada.
+						</div>
+						{% endif %}
+					</div>
+					<!-- /add -->
+					<form method="POST" action="{% url 'adicionardespesa' %}">
+						{% csrf_token %}
+					<div class="card">
+						<div class="card-body">
+							<div class="row">
+								<div class="col-lg-3 col-sm-6 col-12">
+									<div class="form-group">
+										<label>Descrição da Despesa</label>
+										<input type="text" name="nome_despesa">
+									</div>
+								</div>
+
+								<div class="col-lg-3 col-sm-6 col-12">
+									<div class="form-group">
+										<label>Frequência</label>
+										<select name="periodicidade" class="select">
+											<option value="0">Escolha a Categoria</option>
+											<option value="1">Diária</option>
+											<option value="2">Semanal</option>
+											<option value="3">Quinzenal</option>
+											<option value="4">Mensal</option>
+											<option value="5">Trimestral</option>
+											<option value="6">Semestral</option>
+											<option value="7">Anual</option>
+										</select>
+									</div>
+								</div>
+								<div class="col-lg-3 col-sm-6 col-12">
+									Data de Início
+										<div class="input-groupicon">
+											<input type="text" placeholder="DD-MM-AAAA" class="datetimepicker" name="data_despesa" value="{{data_despesa}}">
+											<div class="addonset">
+												<img src="{% static 'img/icons/calendars.svg' %}" alt="img">
+											</div>
+										</div>
+								</div>
+								<div class="col-lg-3 col-sm-6 col-12">
+									<div class="form-group">
+										<label>Valor da Despesa</label>
+										<input type="text" name="valor_despesa">
+									</div>
+								</div>
+
+								<div class="col-lg-12">
+									<input type="submit" value="Cadastrar" class="btn btn-submit me-2">
+									<a href="/productlist/" class="btn btn-cancel">Cancelar</a>
+								</div>
+							</div>
+						</div>
+					</div>
+					</form>
+					<!-- /add -->
+				</div>
+			</div>
+        </div>
+		<!-- /Main Wrapper -->
+		 
+		<!-- jQuery -->
+ 			{% include 'footer.html' %}
+
+        <!-- Select2 JS -->
+		<script src="{% static 'plugins/select2/js/select2.min.js' %}"></script>
+
+		<!-- Sweetalert 2 -->
+		<script src="{% static 'plugins/sweetalert/sweetalert2.all.min.js' %}"></script>
+		<script src="{% static 'plugins/sweetalert/sweetalerts.min.js' %}"></script>
+
+
+		
+    </body>
+</html>

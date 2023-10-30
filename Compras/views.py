@@ -186,7 +186,10 @@ class FazerComprasView(TemplateView):
                 somaValorReal = somaValorReal + (-1) * totalCompraDolar * compra.cotacaoDolar
                 totalCompraDolar = 0
 
-        valorDolarMedio = somaValorReal / creditoRemanescente
+        if creditoRemanescente > 0:
+            valorDolarMedio = somaValorReal / creditoRemanescente
+        else:
+            valorDolarMedio = -1
         return(valorDolarMedio)
 
     def saldoConta(self):

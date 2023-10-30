@@ -65,7 +65,7 @@ class IndexView(TemplateView):
             venda_total = venda_total + venda_preco_produto * venda_quantidade_produto
             venda_identificador = venda.identificadorVenda
             logging.warning(venda_identificador)
-        vendas_template.append(
+            vendas_template.append(
             {
                 'venda_id': venda_identificador,
                 # 'nome_produto': venda.produto_id.NomeProduto,
@@ -74,9 +74,9 @@ class IndexView(TemplateView):
                 'lucro': venda_lucro,
                 'data_venda': venda.criados
             }
-        )
-        venda_lucro_total = venda_lucro_total + venda_lucro
-        venda_total = venda_total + venda_preco_produto * venda_quantidade_produto
+            )
+            venda_lucro_total = venda_lucro_total + venda_lucro
+            venda_total = venda_total + venda_preco_produto * venda_quantidade_produto
         context['vendas'] = vendas_template
         context['lucro_total'] = venda_lucro_total
         context['vendas_total'] = venda_total

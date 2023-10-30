@@ -19,7 +19,12 @@
 						<div class="page-title">
 							<h4>Compras</h4>
 							<h6>Adicione/Edite sua Compra. </h6>
-							<h9> <b>Dólar Médio R${{dolarMedio | floatformat:4}}</b></h9>
+							<h9>{% if dolarMedio != -1 %}
+								<b>Dólar Médio R${{dolarMedio | floatformat:4}}</b>
+								{% else %}
+								<b>Não há compra de dólar cadastrada. Talvez você tenha apenas saldo</b>
+								{% endif %}
+							</h9>
 						</div>
 						{% if mensagem != "" %}
 						 <div class="closebtn">

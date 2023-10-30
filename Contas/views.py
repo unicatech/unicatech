@@ -80,6 +80,22 @@ class CriarContaView(TemplateView):
             )
             dataform_conta.save()
 
+            identificadorDolar = 0
+            if ((self.request.POST.get("categoria") == "4") or (self.request.POST.get("categoria") == "5")):
+                identificadorDolar = 1
+
+            agora = datetime.now()
+            hoje = agora.strftime("%Y-%m-%d")
+            dataform_movimentacaoconta = MovimentacaoConta(
+                criados=hoje,
+                contaCredito_id=dataform_conta.id,
+                valorCredito=self.request.POST.get("saldoinicial"),
+                descricao="Saldo Inicial",
+                cotacaoDolar=self.request.POST.get("valordolarmedio"),
+                identificadorDolar=identificadorDolar,
+            )
+            dataform_movimentacaoconta.save()
+
         context = super(CriarContaView, self).get_context_data(**kwargs)
         context["mensagem"] = "Conta Salva"
         context["categoria"] = CategoriaConta.objects.all()

@@ -198,7 +198,7 @@ class FazerComprasView(TemplateView):
         contasDetalhadasTemplate = []
 
         for conta in contasDetalhadas:
-            saldoConta = conta.saldoInicial
+            saldoConta = 0
             entradas = MovimentacaoConta.objects.filter(contaCredito=conta.id)
 
             for entrada in entradas:

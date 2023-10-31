@@ -63,18 +63,27 @@ class CriarContaView(TemplateView):
                 criados=hoje,
                 categoria_id=self.request.POST.get("categoria"),
                 descricao=self.request.POST.get("descricao"),
-                saldoInicial=self.request.POST.get("saldoinicial"),
                 taxas=self.request.POST.get("taxas"),
                 cartao=proxima_conta,
             )
             dataform_conta.save()
+
+            agora = datetime.now()
+            hoje = agora.strftime("%Y-%m-%d")
+            dataform_movimentacaoconta = MovimentacaoConta(
+                criados=hoje,
+                contaCredito_id=dataform_conta.id,
+                valorCredito=self.request.POST.get("saldoinicial"),
+                descricao="Saldo Inicial",
+                identificadorDolar="0",
+            )
+            dataform_movimentacaoconta.save()
         else:
             dataform_conta = Conta(
                 nomeConta=self.request.POST.get("nomeConta"),
                 criados=hoje,
                 categoria_id=self.request.POST.get("categoria"),
                 descricao=self.request.POST.get("descricao"),
-                saldoInicial=self.request.POST.get("saldoinicial"),
                 taxas=self.request.POST.get("taxas"),
                 valor_dolar_medio=self.request.POST.get("valordolarmedio"),
             )

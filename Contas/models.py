@@ -14,9 +14,7 @@ class Conta(Base):
     nomeConta = models.CharField('Nome da Conta', max_length=100)
     categoria = models.ForeignKey('Contas.CategoriaConta', verbose_name='Tipo', on_delete=models.CASCADE)
     taxas = models.FloatField()
-    saldoInicial = models.FloatField(blank=True, default=None)
     descricao = models.CharField('Descrição', max_length=200)
-    #cartao = models.ForeignKey('Contas.Cartao', verbose_name='Tipo', on_delete=models.CASCADE, null=True)
     cartao = models.IntegerField(null=True)
     valor_dolar_medio = models.FloatField(default=0)
 

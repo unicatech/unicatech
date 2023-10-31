@@ -46,7 +46,12 @@ class FazerVendasView(TemplateView):
         context['mensagem'] = ''
         #Popular template
         context['clientes'] = Cliente.objects.all()
-        context['produtos'] = Produto.objects.all().filter(estoque__gt = 0)
+
+        # Se a função for "Editar Venda" permita que apareça o produto com estoque zerado (afinal já está na venda) mas não negativo
+        if context['editarVenda'] == 1:
+            context['produtos'] = Produto.objects.all().filter(estoque__gte=0)
+        else:
+            context['produtos'] = Produto.objects.all().filter(estoque__gt = 0)
 
         return context
 
@@ -65,8 +70,6 @@ class FazerVendasView(TemplateView):
         quantidades = self.request.POST.getlist('qtde')
         precos = self.request.POST.getlist('preco')
         identificadorVenda = self.request.POST.getlist('identificadorVenda')
-
-
         descricao = self.request.POST.getlist('descricao')
 
         dataModificada = re.sub(r'(\d{1,2})-(\d{1,2})-(\d{4})', '\\3-\\2-\\1', dataVenda[0])
@@ -79,7 +82,8 @@ class FazerVendasView(TemplateView):
         if identificadorVenda[0] != "":
             for produto in produtos:
                 atualizarEstoque = Produto.objects.get(id=produto)
-                atualizarEstoque.estoque = atualizarEstoque.estoque + int(float(quantidades[contador]))
+                quantidadeOriginalEstoque = Venda.objects.get(identificadorVenda=identificadorVenda[0],produto_id=produto,ativo=True)
+                atualizarEstoque.estoque = atualizarEstoque.estoque + quantidadeOriginalEstoque.quantidadeProduto
                 atualizarEstoque.save()
                 contador = contador + 1
                 logging.warning(atualizarEstoque.NomeProduto)

@@ -37,7 +37,7 @@ class LocalizacaoCompra(Base):
 
 class Fornecedor(Base):
     nomeFornecedor = models.CharField('Descrição', max_length=200)
-
+    localizacaoCompra = models.ForeignKey('Compras.LocalizacaoCompra', verbose_name='Localização da Compra', on_delete=models.CASCADE)
     def __str__(self):
         return self.id
 

@@ -187,9 +187,9 @@ class ComprarDolarView(TemplateView):
 
         cartaoCreditoValorTotal = 0
         for cartaoCreditoValor in cartaoCredito:
-            cartaoCreditoValorTotal = (
-                cartaoCreditoValorTotal + cartaoCreditoValor.saldoInicial
-            )
+            #cartaoCreditoValorTotal = (
+            #    cartaoCreditoValorTotal + cartaoCreditoValor.saldoInicial
+            #)
 
             cartaoCreditoMovimento = MovimentacaoConta.objects.filter(
                 contaCredito=cartaoCreditoValor.id
@@ -205,7 +205,7 @@ class ComprarDolarView(TemplateView):
 
         especieValorTotal = 0
         for especieValor in especie:
-            especieValorTotal = especieValorTotal + especieValor.saldoInicial
+            #especieValorTotal = especieValorTotal + especieValor.saldoInicial
 
             especieMovimento = MovimentacaoConta.objects.filter(
                 contaCredito=especieValor.id
@@ -221,9 +221,9 @@ class ComprarDolarView(TemplateView):
 
         depositoRealValorTotal = 0
         for depositoRealValor in depositoReal:
-            depositoRealValorTotal = (
-                depositoRealValorTotal + depositoRealValor.saldoInicial
-            )
+            #depositoRealValorTotal = (
+            #    depositoRealValorTotal + depositoRealValor.saldoInicial
+            #)
 
             depositoRealMovimento = MovimentacaoConta.objects.filter(
                 contaCredito=depositoRealValor.id
@@ -239,9 +239,9 @@ class ComprarDolarView(TemplateView):
 
         depositoDolarValorTotal = 0
         for depositoDolarValor in depositoDolar:
-            depositoDolarValorTotal = (
-                depositoDolarValorTotal + depositoDolarValor.saldoInicial
-            )
+            #depositoDolarValorTotal = (
+            #    depositoDolarValorTotal + depositoDolarValor.saldoInicial
+            #)
 
             depositoDolarMovimento = MovimentacaoConta.objects.filter(
                 contaCredito=depositoDolarValor.id
@@ -257,9 +257,9 @@ class ComprarDolarView(TemplateView):
 
         depositoDolarPyValorTotal = 0
         for depositoDolarPyValor in depositoDolarPy:
-            depositoDolarPyValorTotal = (
-                depositoDolarPyValorTotal + depositoDolarPyValor.saldoInicial
-            )
+            #depositoDolarPyValorTotal = (
+            #    depositoDolarPyValorTotal + depositoDolarPyValor.saldoInicial
+            #)
 
             depositoDolarPyMovimento = MovimentacaoConta.objects.filter(
                 contaCredito=depositoDolarPyValor.id
@@ -286,8 +286,10 @@ class ComprarDolarView(TemplateView):
         contasDetalhadasTemplate = []
         contaOrigem = []
         contaDestino = []
+
         for conta in contasDetalhadas:
-            saldoConta = conta.saldoInicial
+            #saldoConta = conta.saldoInicial
+            saldoConta = 0
             entradas = MovimentacaoConta.objects.filter(contaCredito=conta.id)
 
             for entrada in entradas:
@@ -369,9 +371,9 @@ class ComprarDolarView(TemplateView):
 
         cartaoCreditoValorTotal = 0
         for cartaoCreditoValor in cartaoCredito:
-            cartaoCreditoValorTotal = (
-                cartaoCreditoValorTotal + cartaoCreditoValor.saldoInicial
-            )
+            #cartaoCreditoValorTotal = (
+            #    cartaoCreditoValorTotal + cartaoCreditoValor.saldoInicial
+            #)
 
             cartaoCreditoMovimento = MovimentacaoConta.objects.filter(
                 contaCredito=cartaoCreditoValor.id
@@ -387,7 +389,7 @@ class ComprarDolarView(TemplateView):
 
         especieValorTotal = 0
         for especieValor in especie:
-            especieValorTotal = especieValorTotal + especieValor.saldoInicial
+            #especieValorTotal = especieValorTotal + especieValor.saldoInicial
 
             especieMovimento = MovimentacaoConta.objects.filter(
                 contaCredito=especieValor.id
@@ -403,9 +405,9 @@ class ComprarDolarView(TemplateView):
 
         depositoRealValorTotal = 0
         for depositoRealValor in depositoReal:
-            depositoRealValorTotal = (
-                depositoRealValorTotal + depositoRealValor.saldoInicial
-            )
+            #depositoRealValorTotal = (
+            #    depositoRealValorTotal + depositoRealValor.saldoInicial
+            #)
 
             depositoRealMovimento = MovimentacaoConta.objects.filter(
                 contaCredito=depositoRealValor.id
@@ -421,9 +423,9 @@ class ComprarDolarView(TemplateView):
 
         depositoDolarValorTotal = 0
         for depositoDolarValor in depositoDolar:
-            depositoDolarValorTotal = (
-                depositoDolarValorTotal + depositoDolarValor.saldoInicial
-            )
+            #depositoDolarValorTotal = (
+            #   depositoDolarValorTotal + depositoDolarValor.saldoInicial
+            #)
 
             depositoDolarMovimento = MovimentacaoConta.objects.filter(
                 contaCredito=depositoDolarValor.id
@@ -439,9 +441,9 @@ class ComprarDolarView(TemplateView):
 
         depositoDolarPyValorTotal = 0
         for depositoDolarPyValor in depositoDolarPy:
-            depositoDolarPyValorTotal = (
-                depositoDolarPyValorTotal + depositoDolarPyValor.saldoInicial
-            )
+            #depositoDolarPyValorTotal = (
+            #    depositoDolarPyValorTotal + depositoDolarPyValor.saldoInicial
+            #)
 
             depositoDolarPyMovimento = MovimentacaoConta.objects.filter(
                 contaCredito=depositoDolarPyValor.id
@@ -469,7 +471,8 @@ class ComprarDolarView(TemplateView):
         contaOrigem = []
         contaDestino = []
         for conta in contasDetalhadas:
-            saldoConta = conta.saldoInicial
+            #saldoConta = conta.saldoInicial
+            saldoConta = 0
             entradas = MovimentacaoConta.objects.filter(contaCredito=conta.id)
 
             for entrada in entradas:

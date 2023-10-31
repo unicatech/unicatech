@@ -38,6 +38,18 @@
 									</div>
 								</div>
 
+								<div class="col-lg-3 col-sm-6 col-12">
+									<div class="form-group">
+										<label>Localidade do Fornecedor</label>
+										<select name="localidade" class="select">
+											<option>Escolha a Localidade</option>
+											{% for l in localidade %}
+											<option value="{{ l.id }}">{{ l.localizacaoCompra }}</option>
+											{% endfor %}
+										</select>
+									</div>
+								</div>
+
 								<div class="col-lg-12">
 									<input type="submit" value="Cadastrar" class="btn btn-submit me-2">
 									<a href="/cadastrocliente/" class="btn btn-cancel">Cancelar</a>

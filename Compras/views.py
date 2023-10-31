@@ -83,7 +83,7 @@ class FazerComprasView(TemplateView):
         contador = 0
         valorCompra = 0
         valorEstorno = 0
-        logging.warning("1")
+
         # Desabilitando registro de Compra Salva caso função seja editar
         if identificadorCompra[0] != "":
             logging.warning(identificadorCompra[0])
@@ -92,6 +92,7 @@ class FazerComprasView(TemplateView):
             for compra in compraDesabilitada:
                 valorEstorno = valorEstorno + compra.quantidadeProduto*compra.precoProduto
             valorEstorno = valorEstorno + compra.frete
+            proximaCompra = identificadorCompra[0]
             formMovimentacao = MovimentacaoConta(
                 criados=str(dataModificada),
                 contaCredito_id=contaOrigemOriginal[0],
@@ -109,7 +110,7 @@ class FazerComprasView(TemplateView):
                 atualizarEstoque.save()
                 contador = contador + 1
             Compra.objects.filter(identificadorCompra=identificadorCompra[0]).update(ativo=False)
-            proximaCompra = identificadorCompra[0]
+
 
         # Salvando Compra
         contador = 0

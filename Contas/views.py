@@ -318,27 +318,32 @@ class ComprarDolarView(TemplateView):
         # popular movimentações
 
         movimentacaoConta = MovimentacaoConta.objects.all()
-
         movimentacaoContasTemplate = []
-        for conta in movimentacaoConta:
+        for movimentacao in movimentacaoConta:
+            nome_conta_credito = "Conta não identificada"
+            nome_conta_debito = "Saldo Inicial"
             # Se for uma movimentação de compra ou venda não listar
             try:
-                contaCredito = Conta.objects.get(id=conta.contaCredito)
+                logging.warning(movimentacao.contaCredito_id)
+                contaCredito = Conta.objects.get(id=movimentacao.contaCredito_id)
+                nome_conta_credito = contaCredito.nomeConta
             except:
-                continue
+                pass
             try:
-                contaDebito = Conta.objects.get(id=conta.contaDebito)
+                contaDebito = Conta.objects.get(id=movimentacao.contaDebito)
+                nome_conta_debito = contaDebito.nomeConta
             except:
-                continue
-            if conta.contaDebito != 0 and conta.contaCredito != 0:
+                pass
+
+            if movimentacao.identificadorCompra == 0 and movimentacao.identificadorVenda == 0:
                 movimentacaoContasTemplate.append(
                     {
-                        "data": conta.criados,
-                        "contaOrigem": contaDebito.nomeConta,
-                        "contaDestino": contaCredito.nomeConta,
-                        "valorContaOrigem": conta.valorDebito,
-                        "valorContaDestino": conta.valorCredito,
-                        "idMovimento": conta.id,
+                        "data": movimentacao.criados,
+                        "contaOrigem": nome_conta_debito,
+                        "contaDestino": nome_conta_credito,
+                        "valorContaOrigem": movimentacao.valorDebito,
+                        "valorContaDestino": movimentacao.valorCredito,
+                        "idMovimento": movimentacao.id,
                     }
                 )
         context["movimentacaoContas"] = movimentacaoContasTemplate

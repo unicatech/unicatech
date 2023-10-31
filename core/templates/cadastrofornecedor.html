@@ -1,0 +1,68 @@
+{% load static %}
+<!DOCTYPE html>
+
+ 			<!-- Header -->
+			{% include 'head.html' %}
+			<!-- /header -->
+
+			<!-- Select2 CSS -->
+			<link rel="stylesheet" href="{% static 'plugins/select2/css/select2.min.css' %}">
+			<!-- Sidebar -->
+			{% include 'sidebar.html' %}
+			<!-- /Sidebar -->
+
+			<div class="page-wrapper">
+				<div class="content">
+					<div class="page-header">
+						<div class="page-title">
+							<h4>Cadastrar Fornecedor</h4>
+							<h6>Dados do Fornecedor</h6>
+						</div>
+				        {% if mensagem != "" %}
+						 <div class="closebtn">
+							 <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
+  							Fornecedor Cadastrado.
+						</div>
+						{% endif %}
+					</div>
+					<!-- /add -->
+					<form method="POST" action="{% url 'cadastrofornecedor' %}">
+						{% csrf_token %}
+					<div class="card">
+						<div class="card-body">
+							<div class="row">
+								<div class="col-lg-3 col-sm-6 col-12">
+									<div class="form-group">
+										<label>Nome do Fornecedor</label>
+										<input type="text" name="nomefornecedor">
+									</div>
+								</div>
+
+								<div class="col-lg-12">
+									<input type="submit" value="Cadastrar" class="btn btn-submit me-2">
+									<a href="/cadastrocliente/" class="btn btn-cancel">Cancelar</a>
+								</div>
+							</div>
+						</div>
+					</div>
+					</form>
+					<!-- /add -->
+				</div>
+			</div>
+        </div>
+		<!-- /Main Wrapper -->
+		 
+		<!-- jQuery -->
+ 			{% include 'footer.html' %}
+
+        <!-- Select2 JS -->
+		<script src="{% static 'plugins/select2/js/select2.min.js' %}"></script>
+
+		<!-- Sweetalert 2 -->
+		<script src="{% static 'plugins/sweetalert/sweetalert2.all.min.js' %}"></script>
+		<script src="{% static 'plugins/sweetalert/sweetalerts.min.js' %}"></script>
+
+
+		
+    </body>
+</html>

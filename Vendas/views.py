@@ -164,6 +164,13 @@ class ListarVendasView(TemplateView):
                 logging.warning(self.request.GET["idVenda"])
                 apagarvendas = Venda.objects.filter(identificadorVenda=self.request.GET["idVenda"])
                 for apagarvenda in apagarvendas:
+                    #Retorna aparelhos pro estoque
+                    quantidadeOriginalEstoque = Venda.objects.get(identificadorVenda=self.request.GET["idVenda"],
+                                                                  produto_id=apagarvenda.produto_id, ativo=True)
+                    atualizarEstoque = Produto.objects.get(id=apagarvenda.produto_id)
+                    atualizarEstoque.estoque = atualizarEstoque.estoque + quantidadeOriginalEstoque.quantidadeProduto
+                    atualizarEstoque.save()
+                    #Apaga venda
                     apagar = Venda(id=apagarvenda.id)
                     apagar.delete()
 

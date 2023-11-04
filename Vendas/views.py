@@ -4,6 +4,7 @@ from django.views import View
 from django.shortcuts import render
 from django.http import HttpResponseRedirect
 from django.contrib import messages
+from django.db.models import Sum
 
 from datetime import date, datetime
 import re
@@ -77,17 +78,30 @@ class FazerVendasView(TemplateView):
         contador = 0
         valorVenda = 0
         valorEstorno = 0
-
+        produtos_repetidos = []
         # Desabilitando registro de Venda Salva caso função seja editar
         if identificadorVenda[0] != "":
             for produto in produtos:
-                atualizarEstoque = Produto.objects.get(id=produto)
-                quantidadeOriginalEstoque = Venda.objects.get(identificadorVenda=identificadorVenda[0],produto_id=produto,ativo=True)
-                atualizarEstoque.estoque = atualizarEstoque.estoque + quantidadeOriginalEstoque.quantidadeProduto
-                atualizarEstoque.save()
-                contador = contador + 1
-                logging.warning(atualizarEstoque.NomeProduto)
-                logging.warning(atualizarEstoque.estoque)
+                try:
+                    quantidadeOriginalEstoque = Venda.objects.get(identificadorVenda=identificadorVenda[0],
+                                                              produto_id=produto,ativo=True)
+                    atualizarEstoque = Produto.objects.get(id=produto)
+                    atualizarEstoque.estoque = atualizarEstoque.estoque + quantidadeOriginalEstoque.quantidadeProduto
+                    atualizarEstoque.save()
+                except:
+                    logging.warning("Except")
+                    for produto_repetido in produtos_repetidos:
+                        if produto_repetido == produto:
+                            produto = -1
+                            continue
+                    if produto == -1:
+                        continue
+                    quantidadeOriginalEstoque = Venda.objects.filter(identificadorVenda=identificadorVenda[0],
+                                                              produto_id=produto,ativo=True).aggregate(Sum('quantidadeProduto'))
+                    atualizarEstoque = Produto.objects.get(id=produto)
+                    atualizarEstoque.estoque = atualizarEstoque.estoque + quantidadeOriginalEstoque["quantidadeProduto__sum"]
+                    atualizarEstoque.save()
+                    produtos_repetidos.append(produto)
             Venda.objects.filter(identificadorVenda=identificadorVenda[0]).update(ativo=False)
             proximaVenda = identificadorVenda[0]
 
@@ -96,8 +110,7 @@ class FazerVendasView(TemplateView):
         estoque_anterior = 0
         for produto in produtos:
            if precos[contador] != "" and quantidades[contador] != "":
-                #Atualizando o estoque
-                logging.warning("Removendo do Estoque")
+                #Removendo do estoque
                 atualizarEstoque = Produto.objects.get(id=produto)
                 estoque_anterior = atualizarEstoque.estoque
                 atualizarEstoque.estoque = atualizarEstoque.estoque - int(float(quantidades[contador]))
@@ -124,21 +137,19 @@ class FazerVendasView(TemplateView):
                         quantidade_produto = quantidade_produto + compra.quantidadeProduto
                 preco_medio = compra_total_produto / quantidade_produto
                 lucro = float(quantidades[contador]) * (float(precos[contador]) - preco_medio)
-                logging.warning(preco_medio)
-                logging.warning(lucro)
-                logging.warning(precos[contador])
 
                 #Cadastrando Venda
-                formVenda = Venda(
-                             criados=str(dataModificada),
-                             quantidadeProduto=quantidades[contador],
-                             precoProduto=precos[contador],
-                             identificadorVenda=str(proximaVenda),
-                             cliente_id=cliente[0],
-                             produto_id=produto,
-                             lucro=lucro,
-                )
-                formVenda.save()
+                if produto != 0:
+                    formVenda = Venda(
+                                 criados=str(dataModificada),
+                                 quantidadeProduto=quantidades[contador],
+                                 precoProduto=precos[contador],
+                                 identificadorVenda=str(proximaVenda),
+                                 cliente_id=cliente[0],
+                                 produto_id=produto,
+                                 lucro=lucro,
+                    )
+                    formVenda.save()
 
                 valorVenda = valorVenda + float(precos[contador])*float(quantidades[contador])
                 contador = contador + 1
@@ -157,22 +168,46 @@ class ListarVendasView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(ListarVendasView, self).get_context_data(**kwargs)
-
+        produtos_repetidos = []
         context['mensagem'] = ''
         if self.request.GET.__contains__("idVenda"):
             if self.request.GET["funcao"] == "apagar":
                 logging.warning(self.request.GET["idVenda"])
-                apagarvendas = Venda.objects.filter(identificadorVenda=self.request.GET["idVenda"])
+                apagarvendas = Venda.objects.filter(identificadorVenda=self.request.GET["idVenda"],ativo=True)
+                produto = 0
                 for apagarvenda in apagarvendas:
                     #Retorna aparelhos pro estoque
-                    quantidadeOriginalEstoque = Venda.objects.get(identificadorVenda=self.request.GET["idVenda"],
-                                                                  produto_id=apagarvenda.produto_id, ativo=True)
-                    atualizarEstoque = Produto.objects.get(id=apagarvenda.produto_id)
-                    atualizarEstoque.estoque = atualizarEstoque.estoque + quantidadeOriginalEstoque.quantidadeProduto
-                    atualizarEstoque.save()
-                    #Apaga venda
-                    apagar = Venda(id=apagarvenda.id)
-                    apagar.delete()
+                    try:
+                        logging.warning("Try")
+                        quantidadeOriginalEstoque = Venda.objects.get(identificadorVenda=self.request.GET["idVenda"],
+                                                                  produto_id=apagarvenda.produto_id,
+                                                                  ativo=True)
+                        atualizarEstoque = Produto.objects.get(id=apagarvenda.produto_id)
+                        atualizarEstoque.estoque = atualizarEstoque.estoque + quantidadeOriginalEstoque.quantidadeProduto
+                        atualizarEstoque.save()
+                    except:
+                        logging.warning("Except")
+                        for produto_repetido in produtos_repetidos:
+                             if produto_repetido == apagarvenda.produto_id:
+                                 produto = -1
+                                 continue
+                        if produto == -1:
+                            produto = 0
+                            continue
+                        quantidadeOriginalEstoque = Venda.objects.filter(identificadorVenda=self.request.GET["idVenda"],
+                                                              produto_id=apagarvenda.produto_id,
+                                                             ativo=True).aggregate(Sum('quantidadeProduto'))
+                        atualizarEstoque = Produto.objects.get(id=apagarvenda.produto_id)
+                        atualizarEstoque.estoque = (atualizarEstoque.estoque +
+                                                    quantidadeOriginalEstoque["quantidadeProduto__sum"])
+                        atualizarEstoque.save()
+                        produtos_repetidos.append(apagarvenda.produto_id)
+                    #Apaga venda (soft delete)
+            logging.warning("Soft Delete")
+            logging.warning(self.request.GET["idVenda"])
+            Venda.objects.filter(identificadorVenda=self.request.GET["idVenda"]).update(ativo=False)
+            #apagar = Venda(id=apagarvenda.id)
+            #apagar.delete()
 
         vendas = Venda.objects.order_by('identificadorVenda').filter(ativo=True)
 

@@ -78,16 +78,29 @@ class FazerVendasView(TemplateView):
         contador = 0
         valorVenda = 0
         valorEstorno = 0
+        #Caso a entrada nova possua mais de um registro
         produtos_repetidos = []
+        #Caso a entrada nova possua mais de 1 registro e a antiga possua apenas 1
+        produtos_repetidos_unicos = []
         # Desabilitando registro de Venda Salva caso função seja editar
         if identificadorVenda[0] != "":
             for produto in produtos:
                 try:
+                    logging.warning("Try")
+                    for produto_repetido_unico in produtos_repetidos_unicos:
+                        if produto_repetido_unico == produto:
+                            produto = -1
+                            continue
+                    if produto == -1:
+                        continue
                     quantidadeOriginalEstoque = Venda.objects.get(identificadorVenda=identificadorVenda[0],
                                                               produto_id=produto,ativo=True)
                     atualizarEstoque = Produto.objects.get(id=produto)
                     atualizarEstoque.estoque = atualizarEstoque.estoque + quantidadeOriginalEstoque.quantidadeProduto
+                    logging.warning(produto)
+                    logging.warning(atualizarEstoque.estoque)
                     atualizarEstoque.save()
+                    produtos_repetidos_unicos.append(produto)
                 except:
                     logging.warning("Except")
                     for produto_repetido in produtos_repetidos:

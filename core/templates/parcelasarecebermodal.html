@@ -46,7 +46,21 @@
 											<option value="{{ c.id }}">{{ c.nomeConta }}</option>
 											{% endfor %}
 										</select>
+										<label>Data do Recebimento </label>
+										<div class="input-groupicon">
+											<input type="text" placeholder="DD-MM-AAAA" class="datetimepicker" name="data_recebimento" value="{{dataCompra}}">
+											<div class="addonset">
+												<img src="{% static 'img/icons/calendars.svg' %}" alt="img">
+											</div>
+										</div>
 										<label>Valor a Receber: <input type="text" name="valorRecebido" value="{{listarVendas.total_receber}}"></label>
+										<label>Bandeira</label>
+										<select name="bandeira" class="select">
+											<option value="Mastercard">Mastercard</option>
+											<option value="Visa">Visa</option>
+											<option value="Elo">Elo</option>
+											<option value="Hipercard">Hipercard</option>
+										</select>
 										<label>Parcelas do Cartão: </label>
 										<select name="parcelaCartao" class="select">
 											<option value="1">1</option>

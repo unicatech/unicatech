@@ -27,7 +27,8 @@ class Conta(Base):
 
 class Cartao(Base):
     cartao = models.IntegerField(null=True)
-    bandeira_cartao = models.CharField('Bandeira do Cartão', max_length=20)
+    #bandeira_cartao = models.CharField('Bandeira do Cartão', max_length=20)
+    taxa_debito = models.FloatField(default=0)
     taxa_cartao1 = models.FloatField(default=0)
     taxa_cartao2 = models.FloatField(default=0)
     taxa_cartao3 = models.FloatField(default=0)
@@ -80,3 +81,16 @@ class MovimentacaoConta(Base):
     def __str__(self):
         return self.id
 
+
+class RecebimentoCartao(Base):
+    conta_cartao = models.ForeignKey('Contas.Conta', verbose_name='Conta', on_delete=models.CASCADE, null=True)
+    valor = models.FloatField(default=0)
+    parcelas = models.IntegerField()
+    bandeira = models.CharField('Descrição', max_length=200)
+    identificador_venda = models.IntegerField(default=0)
+    class Meta:
+        verbose_name = 'Conta'
+        verbose_name_plural = 'Contas'
+
+    def __str__(self):
+        return self.nomeConta

@@ -36,6 +36,7 @@ class CriarContaView(TemplateView):
         if self.request.POST.get("categoria") == "1":
             dataform_cartao = Cartao(
                 criados=hoje,
+                taxa_debito=self.request.POST.get("taxa_debito"),
                 taxa_cartao1=self.request.POST.get("taxa1"),
                 taxa_cartao2=self.request.POST.get("taxa2"),
                 taxa_cartao3=self.request.POST.get("taxa3"),
@@ -63,7 +64,7 @@ class CriarContaView(TemplateView):
                 criados=hoje,
                 categoria_id=self.request.POST.get("categoria"),
                 descricao=self.request.POST.get("descricao"),
-                taxas=self.request.POST.get("taxas"),
+                taxas=0,
                 cartao=proxima_conta,
             )
             dataform_conta.save()

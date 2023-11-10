@@ -12,7 +12,7 @@ import logging
 
 from .models import Venda
 from Produtos.models import Produto
-from Contas.models import MovimentacaoConta, Conta, Cartao
+from Contas.models import MovimentacaoConta, Conta, Cartao, RecebimentoCartao
 from Vendas.models import Cliente
 from Compras.models import Compra
 # Create your views here.
@@ -336,11 +336,11 @@ class ParcelasReceberModalView(TemplateView):
         agora = datetime.now()
         hoje = agora.strftime("%Y-%m-%d")
         conta_recebimento = Conta.objects.get(id=self.request.POST.get('contaCredito'), ativo=True)
-        conta_cartao = Cartao.objects.get(cartao=conta_recebimento.cartao)
         taxa = 0
         if conta_recebimento.categoria_id == 1:
             logging.warning("Cartão de crédito")
             logging.warning(f'Parcelas do Cartão:{self.request.POST.get("parcelaCartao")}')
+            conta_cartao = Cartao.objects.get(cartao=conta_recebimento.cartao)
             # Quando migrar para o Python 3.10 utilizar match(equivalente do switch em C)
             if self.request.POST.get("parcelaCartao") == "1":
                 taxa = float(conta_cartao.taxa_cartao1)
@@ -378,14 +378,18 @@ class ParcelasReceberModalView(TemplateView):
                 taxa = float(conta_cartao.taxa_cartao17)
             elif self.request.POST.get("parcelaCartao") == "18":
                 taxa = float(conta_cartao.taxa_cartao18)
+            valor_recebimento = (1 - taxa / 100) * float(self.request.POST.get('valorRecebido'))
         elif conta_recebimento.categoria_id == 2:
             logging.warning("Depósito em real")
+            valor_recebimento = float(self.request.POST.get('valorRecebido'))
         elif conta_recebimento.categoria_id == 3:
             logging.warning("Espécie")
-        valor_recebimento = (1-taxa/100) * float(self.request.POST.get('valorRecebido'))
+            valor_recebimento = float(self.request.POST.get('valorRecebido'))
 
+        data_recebimento = self.request.POST.getlist('data_recebimento')
+        data_modificada = re.sub(r'(\d{1,2})-(\d{1,2})-(\d{4})', '\\3-\\2-\\1', data_recebimento[0])
         dataform = MovimentacaoConta(contaCredito_id=self.request.POST.get('contaCredito'),
-                                     criados=hoje,
+                                     criados=data_modificada,
                                      contaDebito="0",
                                      valorCredito=valor_recebimento,
                                      identificadorVenda=self.request.POST.get('identificadorVenda'),
@@ -393,5 +397,15 @@ class ParcelasReceberModalView(TemplateView):
                                      identificadorDolar=False,
         )
         dataform.save()
+
+        dataform = RecebimentoCartao(conta_cartao_id=self.request.POST.get('contaCredito'),
+                                     criados=data_modificada,
+                                     valor=self.request.POST.get('valorRecebido'),
+                                     parcelas=self.request.POST.get('parcelaCartao'),
+                                     bandeira=self.request.POST.get('bandeira'),
+                                     identificador_venda=self.request.POST.get('identificadorVenda'),
+        )
+        dataform.save()
+
         context['mensagem'] = "Recebimento Efetuado"
         return super(TemplateView, self).render_to_response(context)

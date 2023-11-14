@@ -4,25 +4,24 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0003_alter_movimentacaoconta_identificadorcompra_and_more'),
+        ("core", "0003_alter_movimentacaoconta_identificadorcompra_and_more"),
     ]
 
     operations = [
         migrations.RenameField(
-            model_name='movimentacaoconta',
-            old_name='identificadorvenda',
-            new_name='identificadorVenda',
+            model_name="movimentacaoconta",
+            old_name="identificadorvenda",
+            new_name="identificadorVenda",
         ),
         migrations.AlterField(
-            model_name='movimentacaoconta',
-            name='contaCredito',
+            model_name="movimentacaoconta",
+            name="contaCredito",
             field=models.IntegerField(default=0),
         ),
         migrations.AlterField(
-            model_name='movimentacaoconta',
-            name='contaDebito',
+            model_name="movimentacaoconta",
+            name="contaDebito",
             field=models.IntegerField(default=0),
         ),
     ]

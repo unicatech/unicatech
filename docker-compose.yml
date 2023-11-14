@@ -1,9 +1,9 @@
-version: "3.9"
+version: "3.10"
 
 services:
   db:
     env_file: .env
-    image: postgres:14-alpine
+    image: postgres:13-alpine
     container_name: unicatech-db
     volumes:
       - data_db:/var/lib/postgresql/data
@@ -14,17 +14,27 @@ services:
     build: .
     env_file: .env
     container_name: unicatech-app
-    command: >
-      sh -c "python manage.py migrate
-             python manage.py collectstatic --noinput
-             python manage.py runserver 0:8000"
+    command: gunicorn -b :8000 unicatech.wsgi:application --workers 3 --timeout 1200
+    #>
+    #  sh -c "python manage.py migrate
+    #         python manage.py collectstatic --noinput
+    #         python manage.py runserver 0.0.0.0:8000"
     #gunicorn -b :8000 unicatech.wsgi:application --workers 3 --timeout 1200
     volumes:
       - .:/app
-    ports:
-      - "8000:8000"
+#    ports:
+#      - "8000:8000"
+    expose:
+      - 8000
     depends_on:
       - db
+
+  nginx:
+    build: ./nginx
+    ports:
+      - 1337:80
+    depends_on:
+      - app
 
 volumes:
   data_db:

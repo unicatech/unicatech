@@ -28,7 +28,7 @@
 					<!-- /add -->
 					<form method="POST" action="{% url 'parcelasarecebermodal' %}">
 						{% csrf_token %}
-						<input type="hidden" name="identificadorVenda" value="{{ listarVendas.idVenda }}"
+						<input type="hidden" name="identificadorVenda" value="{{ listarVendas.idVenda }}">
 					<div class="card">
 						<div class="card-body">
 							<div class="row">

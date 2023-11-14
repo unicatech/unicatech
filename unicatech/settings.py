@@ -16,7 +16,7 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 THOUSAND_SEPARATOR='.',
-USE_THOUSAND_SEPARATOR=True
+USE_THOUSAND_SEPARATOR=False
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
@@ -88,7 +88,7 @@ DATABASES = {
         'NAME': 'unicatech',
         'USER': 'unicatech',
         'PASSWORD': 'abelfera',
-        'HOST': 'localhost',
+        'HOST': 'db',
         'PORT': '5432',
     }
 }
@@ -112,7 +112,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
+CSRF_TRUSTED_ORIGINS = ['http://*.mydomain.com','http://localhost:1337']
 # Internationalization
 # https://docs.djangoproject.com/en/4.1/topics/i18n/
 

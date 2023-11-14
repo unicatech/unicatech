@@ -128,7 +128,6 @@
 											<th>Descrição</th>
 											<th>Categoria </th>
 											<th>Taxas</th>
-											<th>Saldo Inicial</th>
 											<th>Ações</th>
 										</tr>
 									</thead>
@@ -148,7 +147,6 @@
 											<td>{{ c.descricao }}</td>
 											<td>{{ c.categoria }}</td>
 											<td>{{ c.taxas }}</td>
-											<td>{{ c.saldoInicial }}</td>
 											<td>
 												<a class="me-3" href="{% url 'editarconta' %}?idConta={{ c.id }}">
 													<img src="{% static 'img/icons/edit.svg' %}" alt="img">

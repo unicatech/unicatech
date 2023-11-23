@@ -252,6 +252,12 @@ class ParcelasReceberView(TemplateView):
         context = super(ParcelasReceberView, self).get_context_data(**kwargs)
         context['mensagem'] = ''
 
+        if self.request.GET.__contains__("id"):
+            if self.request.GET["funcao"] == "apagar":
+                MovimentacaoConta.objects.filter(id=self.request.GET["id"]).delete()
+                context['mensagem'] = "Recebimento Apagado"
+
+
         vendas = Venda.objects.order_by('identificadorVenda').filter(ativo=True)
 
         listarVendasTemplate = []
@@ -268,7 +274,8 @@ class ParcelasReceberView(TemplateView):
                     recebimentos.append({
                             'valor_recebimento': recebimento_venda.valorCredito,
                             'data': recebimento_venda.criados,
-                            'Credito': recebimento_venda.contaCredito
+                            'Credito': recebimento_venda.contaCredito,
+                            'identificador_parcela': recebimento_venda.id,
                     }
                     )
                     logging.warning(recebimentos)
@@ -409,3 +416,5 @@ class ParcelasReceberModalView(TemplateView):
 
         context['mensagem'] = "Recebimento Efetuado"
         return super(TemplateView, self).render_to_response(context)
+
+

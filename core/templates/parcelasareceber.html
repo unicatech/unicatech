@@ -16,7 +16,12 @@
 								<h6>Gerencie seus Recebimentos</h6>
 							</div>
 							<div class="page-btn">
-
+				        	{% if mensagem != "" %}
+						 	<div class="closebtn">
+							 <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
+  							Recebimento Apagado.
+							</div>
+						{% endif %}
 							</div>
 						</div>
 
@@ -141,8 +146,14 @@
 													{{ recebimento.valor_recebimento}}
 										             {{ recebimento.data}}
 													 {{ recebimento.Credito}}
-												{% endfor %}
+													<a class="me-3" href="/parcelasareceber/?id={{recebimento.identificador_parcela}}&funcao=apagar">
+														<img src="{% static 'img/icons/delete.svg' %}" alt="img">
+													</a>
+										   {% endfor %}
+
+
 										{% endfor %}
+
 										</tbody>
 									</table>
 								</div>

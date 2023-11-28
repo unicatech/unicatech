@@ -129,6 +129,8 @@ class FazerVendasView(TemplateView):
                 atualizarEstoque.estoque = atualizarEstoque.estoque - int(float(quantidades[contador]))
                 atualizarEstoque.save()
                 #Calculando o lucro
+                logging.warning("Id estoque")
+                logging.warning(atualizarEstoque.id)
                 compras_produto = Compra.objects.filter(produto_id=atualizarEstoque.id, ativo=True).order_by('-id')
                 estoque_produto = int(atualizarEstoque.estoque)
                 #Calculando preço médio do estoque (média móvel)
@@ -148,7 +150,12 @@ class FazerVendasView(TemplateView):
                                                 compra.quantidadeProduto * compra.precoProduto * compra.valorDolarMedio)
                         estoque_preco_medio = estoque_preco_medio - compra.quantidadeProduto
                         quantidade_produto = quantidade_produto + compra.quantidadeProduto
-                preco_medio = compra_total_produto / quantidade_produto
+                logging.warning(quantidade_produto)
+                #Prevenir quando o estoque foi adicionado no cadastro do produto
+                if quantidade_produto > 0:
+                    preco_medio = compra_total_produto / quantidade_produto
+                else:
+                    preco_medio = 0
                 lucro = float(quantidades[contador]) * (float(precos[contador]) - preco_medio)
 
                 #Cadastrando Venda
@@ -263,6 +270,7 @@ class ParcelasReceberView(TemplateView):
         listarVendasTemplate = []
         recebimentos = []
         identificadorVenda = 0
+        valor_recebido_venda = 0
         for venda in vendas:
             if identificadorVenda != venda.identificadorVenda:
                 vendaIdentificada = Venda.objects.filter(identificadorVenda=venda.identificadorVenda,ativo=True)
@@ -276,10 +284,14 @@ class ParcelasReceberView(TemplateView):
                             'data': recebimento_venda.criados,
                             'Credito': recebimento_venda.contaCredito,
                             'identificador_parcela': recebimento_venda.id,
-                    }
-                    )
-                    logging.warning(recebimentos)
-
+                    })
+                    logging.warning("Valor Recebido")
+                    logging.warning(valor_recebido_venda)
+                    logging.warning(recebimento_venda.valorCredito)
+                    valor_recebido_venda = valor_recebido_venda + recebimento_venda.valorCredito
+                total_a_receber = valorVendaTotal - valor_recebido_venda
+                if total_a_receber < 0:
+                    total_a_receber = 0
                 listarVendasTemplate.append(
                     {
                      'idVenda': venda.identificadorVenda,
@@ -287,8 +299,11 @@ class ParcelasReceberView(TemplateView):
                      'dataVenda': venda.criados,
                      'valorVenda': valorVendaTotal,
                      'recebimentos': recebimentos,
+                     'total_a_receber': total_a_receber,
                      }
                 )
+                logging.warning("================================")
+                valor_recebido_venda = 0
                 recebimentos = []
                 logging.warning(type(listarVendasTemplate))
                 valorVendaTotal = 0

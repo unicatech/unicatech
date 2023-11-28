@@ -115,6 +115,7 @@
 												<th>Identificador de Venda</th>
 												<th>Data</th>
 												<th>Valor de Venda</th>
+												<th>Total a Receber</th>
 												<th>Ação</th>
 											</tr>
 										</thead>
@@ -131,6 +132,7 @@
 												<td>{{ venda.idVenda}}</td>
 												<td>{{ venda.dataVenda }}</td>
 												<td>{{ venda.valorVenda}}</td>
+												<td> {{venda.total_a_receber}}</td>
 												<td>
 													
 													<a class="me-3" href="/parcelasarecebermodal/?idVenda={{ venda.idVenda }}">

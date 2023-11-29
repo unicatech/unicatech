@@ -63,7 +63,30 @@
 			</div>
         </div>
 		<!-- /Main Wrapper -->
-		 
+<table class="table datatable ">
+									<thead>
+										<tr>
+											<th></th>
+											<th></th>
+											<th>Data de Cadastro</th>
+											<th>Nome do Cliente</th>
+											<th>Apagar</th>
+										</tr>
+									</thead>
+									<tbody>
+									{% for fornecedor in fornecedores %}
+										<tr>
+											<td></td>
+											<td></td>
+											<td>{{ fornecedor.data }}</td>
+											<td>{{ fornecedor.nome_fornecedor }}</td>
+											<td><a class="confirm-text"  href="{% url 'cadastrofornecedor' %}?id_fornecedor={{ fornecedor.id_fornecedor }}&funcao=apagar" onclick="javascript:void(0);">
+												<img src="{% static 'img/icons/delete.svg' %}" alt="img">
+												</a></td>
+										</tr>
+									{% endfor %}
+									</tbody>
+								</table>
 		<!-- jQuery -->
  			{% include 'footer.html' %}
 

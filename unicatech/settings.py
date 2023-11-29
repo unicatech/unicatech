@@ -88,7 +88,7 @@ DATABASES = {
         'NAME': 'unicatech',
         'USER': 'unicatech',
         'PASSWORD': 'abelfera',
-        'HOST': 'db',
+        'HOST': 'localhost',
         'PORT': '5432',
     }
 }

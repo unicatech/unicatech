@@ -50,6 +50,35 @@
 				</div>
 			</div>
         </div>
+
+<div class="card mb-0">
+						<div class="card-body">
+							<h4 class="card-title">Lista de Clientes</h4>
+							<div class="table-responsive dataview">
+								<table class="table datatable ">
+									<thead>
+										<tr>
+											<th></th>
+											<th></th>
+											<th>Data de Cadastro</th>
+											<th>Nome do Cliente</th>
+											<th>Apagar</th>
+										</tr>
+									</thead>
+									<tbody>
+									{% for cliente in clientes %}
+										<tr>
+											<td></td>
+											<td></td>
+											<td>{{ cliente.data }}</td>
+											<td>{{ cliente.nome_cliente }}</td>
+											<td><a class="confirm-text"  href="{% url 'cadastrocliente' %}?id_cliente={{ cliente.id_cliente }}&funcao=apagar" onclick="javascript:void(0);">
+												<img src="{% static 'img/icons/delete.svg' %}" alt="img">
+												</a></td>
+										</tr>
+									{% endfor %}
+									</tbody>
+								</table>
 		<!-- /Main Wrapper -->
 		 
 		<!-- jQuery -->

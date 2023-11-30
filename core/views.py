@@ -28,8 +28,8 @@ class IndexView(TemplateView):
         else:
             mes_selecionado = str(timezone.now().month)
             ano_selecionado = timezone.now().year
-        #vendas = Venda.objects.filter(criados__month=mes_selecionado).filter(criados__year=ano_selecionado).filter(ativo=True).order_by('-id')
-        vendas = Venda.objects.filter(criados__month='11').filter(criados__year='2023').filter(ativo=True).order_by('-id')
+        vendas = Venda.objects.filter(criados__month=mes_selecionado).filter(criados__year=ano_selecionado).filter(ativo=True).order_by('-id')
+        #vendas = Venda.objects.filter(criados__month='11').filter(criados__year='2023').filter(ativo=True).order_by('-id')
         vendas_template = []
         venda_lucro = 0
         venda_lucro_total = 0
@@ -40,13 +40,17 @@ class IndexView(TemplateView):
         recebimentos = []
         identificadorVenda = 0
         lucro_venda = 0
+        valor_total_venda = 0
+        valor_recebido_venda = 0
+        total_a_receber = 0
         for venda in vendas:
             if identificadorVenda != venda.identificadorVenda:
+                #Faturamento e lucro mensal
                 vendaIdentificada = Venda.objects.filter(identificadorVenda=venda.identificadorVenda,ativo=True)
                 valorVendaTotal = 0
                 for venda in vendaIdentificada:
                     lucro_venda = lucro_venda + venda.lucro
-                recebimentos_venda = MovimentacaoConta.objects.filter(identificadorVenda=venda.identificadorVenda,ativo=True)
+                    valor_total_venda = valor_total_venda + venda.quantidadeProduto * venda.precoProduto
                 listarVendasTemplate.append(
                     {
                      'venda_id': venda.identificadorVenda,
@@ -55,7 +59,22 @@ class IndexView(TemplateView):
                      'lucro_venda': lucro_venda,
                      }
                 )
+                venda_lucro_total = venda_lucro_total + lucro_venda
                 lucro_venda = 0
                 identificadorVenda = venda.identificadorVenda
+
+                #Valor recebido e valor devido no período
+                recebimentos_venda = MovimentacaoConta.objects.filter(identificadorVenda=venda.identificadorVenda,
+                                                                      ativo=True)
+                for recebimento_venda in recebimentos_venda:
+                    valor_recebido_venda = valor_recebido_venda + recebimento_venda.valorCredito
+
+        total_a_receber = valor_total_venda - valor_recebido_venda
         context['vendas'] = listarVendasTemplate
+        context['venda_lucro_total'] = venda_lucro_total
+        context['valor_total_venda'] = valor_total_venda
+        context['valor_recebido_venda'] = valor_recebido_venda
+        context['total_a_receber'] = total_a_receber
+
+        #logging.warning(context)
         return context

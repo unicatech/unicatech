@@ -242,8 +242,11 @@ class ListarComprasView(TemplateView):
             if identificadorCompra != compra.identificadorCompra:
                 compraIdentificada = Compra.objects.filter(identificadorCompra=compra.identificadorCompra, ativo=True)
                 valorCompraTotal = 0
+                frete = 0
                 for compra in compraIdentificada:
+                    frete = compra.frete
                     valorCompraTotal = valorCompraTotal + compra.quantidadeProduto * compra.precoProduto
+                valorCompraTotal = valorCompraTotal + frete
                 listarComprasTemplate.append(
                     {
                         'idCompra': compra.identificadorCompra,

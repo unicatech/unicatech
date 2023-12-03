@@ -35,7 +35,6 @@ class IndexView(TemplateView):
         venda_lucro_total = 0
         venda_total = 0
         #Campo Resumo Lucro Líquido por Venda
-
         listarVendasTemplate = []
         recebimentos = []
         identificadorVenda = 0
@@ -46,8 +45,7 @@ class IndexView(TemplateView):
         for venda in vendas:
             if identificadorVenda != venda.identificadorVenda:
                 #Faturamento e lucro mensal
-                vendaIdentificada = Venda.objects.filter(identificadorVenda=venda.identificadorVenda,ativo=True)
-                valorVendaTotal = 0
+                vendaIdentificada = Venda.objects.filter(identificadorVenda=venda.identificadorVenda,ativo=True).order_by('identificadorVenda')
                 for venda in vendaIdentificada:
                     lucro_venda = lucro_venda + venda.lucro
                     valor_total_venda = valor_total_venda + venda.quantidadeProduto * venda.precoProduto
@@ -67,7 +65,10 @@ class IndexView(TemplateView):
                 recebimentos_venda = MovimentacaoConta.objects.filter(identificadorVenda=venda.identificadorVenda,
                                                                       ativo=True)
                 for recebimento_venda in recebimentos_venda:
-                    valor_recebido_venda = valor_recebido_venda + recebimento_venda.valorCredito
+                    if recebimento_venda.valorCredito <= 0:
+                        continue
+                    else:
+                        valor_recebido_venda = valor_recebido_venda + recebimento_venda.valorCredito
 
         total_a_receber = valor_total_venda - valor_recebido_venda
         context['vendas'] = listarVendasTemplate

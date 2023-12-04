@@ -42,6 +42,7 @@ class FazerVendasView(TemplateView):
                 context['idCliente'] = venda.cliente_id
                 context['identificadorVenda'] = venda.identificadorVenda
                 context['venda_identificada'] = listarProdutosTemplate
+                context['descricao'] = venda.descricao
 
         context['vendas'] = Venda.objects.all()
         context['mensagem'] = ''
@@ -72,7 +73,6 @@ class FazerVendasView(TemplateView):
         precos = self.request.POST.getlist('preco')
         identificadorVenda = self.request.POST.getlist('identificadorVenda')
         descricao = self.request.POST.getlist('descricao')
-
         dataModificada = re.sub(r'(\d{1,2})-(\d{1,2})-(\d{4})', '\\3-\\2-\\1', dataVenda[0])
 
         contador = 0
@@ -168,6 +168,7 @@ class FazerVendasView(TemplateView):
                                  cliente_id=cliente[0],
                                  produto_id=produto,
                                  lucro=lucro,
+                                 descricao=descricao[0],
                     )
                     formVenda.save()
 

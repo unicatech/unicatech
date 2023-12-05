@@ -69,13 +69,10 @@ class IndexView(TemplateView):
                         continue
                     else:
                         valor_recebido_venda = valor_recebido_venda + recebimento_venda.valorCredito
-
         total_a_receber = valor_total_venda - valor_recebido_venda
         context['vendas'] = listarVendasTemplate
         context['venda_lucro_total'] = venda_lucro_total
         context['valor_total_venda'] = valor_total_venda
         context['valor_recebido_venda'] = valor_recebido_venda
         context['total_a_receber'] = total_a_receber
-
-        #logging.warning(context)
         return context

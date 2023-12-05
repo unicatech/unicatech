@@ -97,8 +97,6 @@ class FazerVendasView(TemplateView):
                                                               produto_id=produto,ativo=True)
                     atualizarEstoque = Produto.objects.get(id=produto)
                     atualizarEstoque.estoque = atualizarEstoque.estoque + quantidadeOriginalEstoque.quantidadeProduto
-                    logging.warning(produto)
-                    logging.warning(atualizarEstoque.estoque)
                     atualizarEstoque.save()
                     produtos_repetidos_unicos.append(produto)
                 except:

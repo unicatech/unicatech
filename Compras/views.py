@@ -232,7 +232,13 @@ class ListarComprasView(TemplateView):
                 apagarcompras = Compra.objects.filter(identificadorCompra=self.request.GET["idCompra"])
                 for apagarcompra in apagarcompras:
                     apagar = Compra(id=apagarcompra.id)
+                    logging.warning(apagar.produto_id)
+                    atualizarEstoque = Produto.objects.get(id=apagarcompra.produto_id)
+                    atualizarEstoque.estoque = atualizarEstoque.estoque - apagarcompra.quantidadeProduto
+                    atualizarEstoque.save()
                     apagar.delete()
+                apagarmovimentacao = MovimentacaoConta.objects.get(identificadorCompra=self.request.GET["idCompra"])
+                apagarmovimentacao.delete()
 
         compras = Compra.objects.order_by('identificadorCompra').filter(ativo=True)
 

@@ -546,7 +546,7 @@ class AdicionarFundosView(TemplateView):
             if self.request.GET["funcao"] == "apagar":
                 apagarproduto = MovimentacaoConta(id=self.request.GET["idMovimento"])
                 apagarproduto.delete()
-                context["mensagem"] = "Conta Apagada"
+                context["mensagem"] = "Movimento Financeiro Apagado"
 
         # Popular template
         context["cartaoCreditoValorTotal"] = self.valores_cartao_credito
@@ -747,7 +747,8 @@ class AdicionarFundosView(TemplateView):
             else:
                 moeda = "US$"
 
-            contaOrigem.append({"id": conta.id, "nomeConta": conta.nomeConta})
+            if conta.categoria_id == 3 or conta.categoria_id == 2:
+                contaOrigem.append({"id": conta.id, "nomeConta": conta.nomeConta})
 
             contasDetalhadasTemplate.append(
                 {"nomeConta": conta.nomeConta, "saldo": saldoConta, "moeda": moeda}

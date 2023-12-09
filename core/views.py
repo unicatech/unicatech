@@ -76,14 +76,25 @@ class IndexView(TemplateView):
             valor_excedente_venda = valor_recebido_venda - valor_total_venda
             valor_recebido_venda = valor_total_venda
         total_a_receber = valor_total_venda - valor_recebido_venda
+
+        #Cálculo do valor em estoque
+        valor_total_estoque = 0
+        produtos = Produto.objects.filter(estoque__gt = 0)
+        for produto in produtos:
+            compras_produto = Compra.objects.filter(produto_id=produto.id, ativo=True).order_by('-id')
+            for compra in compras_produto:
+                logging.warning(compra.identificadorCompra)
+                logging.warning(compra.precoProduto)
+                logging.warning(produto.estoque)
+                logging.warning(compra.valorDolarMedio)
+                valor_total_estoque = (valor_total_estoque +
+                                            float(compra.precoProduto) * compra.valorDolarMedio * produto.estoque)
         context['vendas'] = listarVendasTemplate
         context['venda_lucro_total'] = venda_lucro_total
         context['valor_total_venda'] = valor_total_venda
         context['valor_recebido_venda'] = valor_recebido_venda
         context['total_a_receber'] = total_a_receber
         context['valor_excedente_venda'] = valor_excedente_venda
-        logging.warning(valor_total_venda)
-        logging.warning(quantidade_total_produtos)
         context['ticket_medio'] = valor_total_venda / quantidade_total_produtos
-
+        context['valor_total_estoque'] = valor_total_estoque
         return context

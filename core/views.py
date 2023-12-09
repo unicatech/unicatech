@@ -64,19 +64,19 @@ class IndexView(TemplateView):
                 identificadorVenda = venda.identificadorVenda
 
                 #Valor recebido e valor devido no período
-                recebimentos_venda = MovimentacaoConta.objects.filter(identificadorVenda=venda.identificadorVenda,
+                if venda.identificadorVenda > 0:
+                    logging.warning("Identificador Venda")
+                    logging.warning(venda.identificadorVenda)
+                    recebimentos_venda = MovimentacaoConta.objects.filter(identificadorVenda=venda.identificadorVenda,
                                                                       ativo=True)
-                for recebimento_venda in recebimentos_venda:
-                    if recebimento_venda.valorCredito <= 0:
-                        continue
-                    else:
+                    for recebimento_venda in recebimentos_venda:
                         valor_recebido_venda = valor_recebido_venda + recebimento_venda.valorCredito
-        valor_excedente_venda = 0
-        if (valor_total_venda - valor_recebido_venda) < 0:
-            valor_excedente_venda = valor_recebido_venda - valor_total_venda
-            valor_recebido_venda = valor_total_venda
-        total_a_receber = valor_total_venda - valor_recebido_venda
+                logging.warning("Valor Recebido")
+                logging.warning(valor_recebido_venda)
 
+        valor_excedente_venda = 0
+        logging.warning("Total a receber")
+        total_a_receber = valor_total_venda - valor_recebido_venda
         #Cálculo do valor em estoque
         valor_total_estoque = 0
         produtos = Produto.objects.filter(estoque__gt = 0)
@@ -89,6 +89,7 @@ class IndexView(TemplateView):
                 logging.warning(compra.valorDolarMedio)
                 valor_total_estoque = (valor_total_estoque +
                                             float(compra.precoProduto) * compra.valorDolarMedio * produto.estoque)
+
         context['vendas'] = listarVendasTemplate
         context['venda_lucro_total'] = venda_lucro_total
         context['valor_total_venda'] = valor_total_venda

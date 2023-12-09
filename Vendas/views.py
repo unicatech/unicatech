@@ -149,7 +149,7 @@ class FazerVendasView(TemplateView):
                         estoque_preco_medio = estoque_preco_medio - compra.quantidadeProduto
                         quantidade_produto = quantidade_produto + compra.quantidadeProduto
                 logging.warning(quantidade_produto)
-                #Prevenir quando o estoque foi adicionado no cadastro do produto
+                #Prevenir quando o estoque foi adicionado no cadastro do produto, pois o valor vai vir menor que zero
                 if quantidade_produto > 0:
                     preco_medio = compra_total_produto / quantidade_produto
                 else:

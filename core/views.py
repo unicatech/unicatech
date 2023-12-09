@@ -41,8 +41,10 @@ class IndexView(TemplateView):
         lucro_venda = 0
         valor_total_venda = 0
         valor_recebido_venda = 0
+        quantidade_total_produtos = 0
         total_a_receber = 0
         for venda in vendas:
+            quantidade_total_produtos = quantidade_total_produtos + venda.quantidadeProduto
             if identificadorVenda != venda.identificadorVenda:
                 #Faturamento e lucro mensal
                 vendaIdentificada = Venda.objects.filter(identificadorVenda=venda.identificadorVenda,ativo=True).order_by('identificadorVenda')
@@ -69,10 +71,19 @@ class IndexView(TemplateView):
                         continue
                     else:
                         valor_recebido_venda = valor_recebido_venda + recebimento_venda.valorCredito
+        valor_excedente_venda = 0
+        if (valor_total_venda - valor_recebido_venda) < 0:
+            valor_excedente_venda = valor_recebido_venda - valor_total_venda
+            valor_recebido_venda = valor_total_venda
         total_a_receber = valor_total_venda - valor_recebido_venda
         context['vendas'] = listarVendasTemplate
         context['venda_lucro_total'] = venda_lucro_total
         context['valor_total_venda'] = valor_total_venda
         context['valor_recebido_venda'] = valor_recebido_venda
         context['total_a_receber'] = total_a_receber
+        context['valor_excedente_venda'] = valor_excedente_venda
+        logging.warning(valor_total_venda)
+        logging.warning(quantidade_total_produtos)
+        context['ticket_medio'] = valor_total_venda / quantidade_total_produtos
+
         return context

@@ -289,18 +289,17 @@ class ParcelasReceberView(TemplateView):
                     logging.warning(recebimento_venda.valorCredito)
                     valor_recebido_venda = valor_recebido_venda + recebimento_venda.valorCredito
                 total_a_receber = valorVendaTotal - valor_recebido_venda
-                if total_a_receber < 0:
-                    total_a_receber = 0
-                listarVendasTemplate.append(
-                    {
-                     'idVenda': venda.identificadorVenda,
-                     'cliente': venda.cliente,
-                     'dataVenda': venda.criados,
-                     'valorVenda': valorVendaTotal,
-                     'recebimentos': recebimentos,
-                     'total_a_receber': total_a_receber,
-                     }
-                )
+                if total_a_receber > 0:
+                    listarVendasTemplate.append(
+                        {
+                        'idVenda': venda.identificadorVenda,
+                        'cliente': venda.cliente,
+                        'dataVenda': venda.criados,
+                        'valorVenda': valorVendaTotal,
+                        'recebimentos': recebimentos,
+                        'total_a_receber': total_a_receber,
+                        }
+                    )
                 logging.warning("================================")
                 valor_recebido_venda = 0
                 recebimentos = []

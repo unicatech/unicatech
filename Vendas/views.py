@@ -82,8 +82,28 @@ class FazerVendasView(TemplateView):
         produtos_repetidos = []
         #Caso a entrada nova possua mais de 1 registro e a antiga possua apenas 1
         produtos_repetidos_unicos = []
+        #Produtos removidos da venda
+        produtos_removidos_venda = []
+        quantidade_original_produto_vendido = 0
         # Desabilitando registro de Venda Salva caso função seja editar
         if identificadorVenda[0] != "":
+            #Verificando se há algum produto que foi vendido e foi removido
+            produtos_vendidos = Venda.objects.filter(identificadorVenda=identificadorVenda[0],
+                                                  ativo=True)
+            for produto_vendido in produtos_vendidos:
+                produto_encontrado = 0
+                for produto in produtos:
+                    logging.warning("Produto vendido e produto cadastrado")
+                    logging.warning(produto_vendido.produto_id)
+                    logging.warning(produto)
+                    if produto_vendido.produto_id == produto:
+                        logging.warning("Produto encontrado")
+                        produto_encontrado = 1
+                if produto_encontrado == 0:
+                    logging.warning("Produto removido")
+                    logging.warning(produto_vendido.produto_id)
+                    produtos_removidos_venda.append(produto_vendido.produto_id)
+
             for produto in produtos:
                 try:
                     logging.warning("Try")
@@ -107,12 +127,23 @@ class FazerVendasView(TemplateView):
                             continue
                     if produto == -1:
                         continue
-                    quantidadeOriginalEstoque = Venda.objects.filter(identificadorVenda=identificadorVenda[0],
-                                                              produto_id=produto,ativo=True).aggregate(Sum('quantidadeProduto'))
+
+                    try:
+                        venda_original = Venda.objects.filter(identificadorVenda=identificadorVenda[0],
+                                                              produto_id=produto, ativo=True).aggregate(Sum('quantidadeProduto'))
+                        quantidade_original_produto_vendido = int(venda_original["quantidadeProduto__sum"])
+                    except:
+                        quantidade_original_produto_vendido = 0
+
                     atualizarEstoque = Produto.objects.get(id=produto)
-                    atualizarEstoque.estoque = atualizarEstoque.estoque + quantidadeOriginalEstoque["quantidadeProduto__sum"]
+                    logging.warning("Quantidade Original")
+                    logging.warning(quantidade_original_produto_vendido)
+                    logging.warning("Estoque")
+                    logging.warning(atualizarEstoque.estoque)
+                    atualizarEstoque.estoque = atualizarEstoque.estoque + quantidade_original_produto_vendido
                     atualizarEstoque.save()
                     produtos_repetidos.append(produto)
+
             Venda.objects.filter(identificadorVenda=identificadorVenda[0]).update(ativo=False)
             proximaVenda = identificadorVenda[0]
 
@@ -127,8 +158,6 @@ class FazerVendasView(TemplateView):
                 atualizarEstoque.estoque = atualizarEstoque.estoque - int(float(quantidades[contador]))
                 atualizarEstoque.save()
                 #Calculando o lucro
-                logging.warning("Id estoque")
-                logging.warning(atualizarEstoque.id)
                 compras_produto = Compra.objects.filter(produto_id=atualizarEstoque.id, ativo=True).order_by('-id')
                 estoque_produto = int(atualizarEstoque.estoque)
                 #Calculando preço médio do estoque (média móvel)
@@ -225,10 +254,11 @@ class ListarVendasView(TemplateView):
             logging.warning("Soft Delete")
             logging.warning(self.request.GET["idVenda"])
             Venda.objects.filter(identificadorVenda=self.request.GET["idVenda"]).update(ativo=False)
+            MovimentacaoConta.objects.filter(identificadorVenda=self.request.GET["idVenda"]).update(ativo=False)
             #apagar = Venda(id=apagarvenda.id)
             #apagar.delete()
 
-        vendas = Venda.objects.order_by('identificadorVenda').filter(ativo=True)
+        vendas = Venda.objects.order_by('-identificadorVenda').filter(ativo=True)
 
         listarVendasTemplate = []
         identificadorVenda = 0
@@ -398,6 +428,8 @@ class ParcelasReceberModalView(TemplateView):
                 taxa = float(conta_cartao.taxa_cartao17)
             elif self.request.POST.get("parcelaCartao") == "18":
                 taxa = float(conta_cartao.taxa_cartao18)
+            elif self.request.POST.get("parcelaCartao") == "0":
+                taxa = float(conta_cartao.taxa_debito)
             valor_recebimento = (1 - taxa / 100) * float(self.request.POST.get('valorRecebido'))
         elif conta_recebimento.categoria_id == 2:
             logging.warning("Depósito em real")

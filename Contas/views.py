@@ -797,6 +797,7 @@ class RetiradaView(TemplateView):
             valorCredito="0",
             valorDebito=self.request.POST.get("valorReal"),
             criados=hoje,
+            descricao="Retirada",
         )
         dataform.save()
         context["mensagem"] = "Retirada Efetuada"

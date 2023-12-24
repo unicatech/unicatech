@@ -51,14 +51,10 @@ class IndexView(TemplateView):
             quantidade_total_produtos = quantidade_total_produtos + venda.quantidadeProduto
             if identificadorVenda != venda.identificadorVenda:
                 #Faturamento e lucro mensal
-                logging.warning("Identificador Venda")
-                logging.warning(venda.identificadorVenda)
-                vendaIdentificada = Venda.objects.filter(identificadorVenda=venda.identificadorVenda,ativo=True).order_by('identificadorVenda')
+                vendaIdentificada = Venda.objects.filter(identificadorVenda=venda.identificadorVenda,ativo=True)
                 for venda in vendaIdentificada:
                     lucro_venda = lucro_venda + venda.lucro
                     valor_total_venda = valor_total_venda + venda.quantidadeProduto * venda.precoProduto
-                logging.warning("Lucro Venda")
-                logging.warning(lucro_venda)
                 listarVendasTemplate.append(
                     {
                      'venda_id': venda.identificadorVenda,
@@ -91,15 +87,28 @@ class IndexView(TemplateView):
         #total_a_receber = valor_total_venda - valor_recebido_venda
         #Cálculo do valor em estoque
         valor_total_estoque = 0
+        compra_total_produto = 0
+        estoque = 0
         produtos = Produto.objects.filter(estoque__gt = 0)
         for produto in produtos:
             compras_produto = Compra.objects.filter(produto_id=produto.id, ativo=True).order_by('-id')
+            quantidade_produto_estoque = produto.estoque
+            logging.warning("Produto " + produto.NomeProduto)
             for compra in compras_produto:
-                valor_total_estoque = (valor_total_estoque +
-                                            float(compra.precoProduto) * compra.valorDolarMedio * produto.estoque)
+                if compra.quantidadeProduto >= quantidade_produto_estoque:
+                    logging.warning( str(compra.quantidadeProduto) + " " +
+                        str(produto.estoque) + " " + str(compra.valorDolarMedio) + " " + str(compra.precoProduto))
+                    valor_total_estoque = (valor_total_estoque +
+                                            float(compra.precoProduto) * compra.valorDolarMedio * quantidade_produto_estoque)
+                    break
+                else:
+                    valor_total_estoque = (valor_total_estoque +
+                                            float(compra.precoProduto) * compra.valorDolarMedio * compra.quantidadeProduto)
+                    quantidade_produto_estoque = quantidade_produto_estoque - compra.quantidadeProduto
 
         context['vendas'] = listarVendasTemplate
         context['venda_lucro_total'] = venda_lucro_consolidado
+
         context['valor_total_venda'] = valor_total_venda_consolidado
         context['valor_recebido_venda'] = valor_recebido_venda_consolidado
         context['total_a_receber'] = total_a_receber_consolidado

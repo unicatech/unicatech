@@ -250,9 +250,7 @@ class ListarVendasView(TemplateView):
                                                     quantidadeOriginalEstoque["quantidadeProduto__sum"])
                         atualizarEstoque.save()
                         produtos_repetidos.append(apagarvenda.produto_id)
-                    #Apaga venda (soft delete)
-            logging.warning("Soft Delete")
-            logging.warning(self.request.GET["idVenda"])
+            #Apaga venda (soft delete)
             Venda.objects.filter(identificadorVenda=self.request.GET["idVenda"]).update(ativo=False)
             MovimentacaoConta.objects.filter(identificadorVenda=self.request.GET["idVenda"]).update(ativo=False)
             #apagar = Venda(id=apagarvenda.id)
@@ -261,22 +259,39 @@ class ListarVendasView(TemplateView):
         vendas = Venda.objects.order_by('-identificadorVenda').filter(ativo=True)
 
         listarVendasTemplate = []
+        recebimentos = []
         identificadorVenda = 0
+        valor_recebido_venda = 0
         for venda in vendas:
             if identificadorVenda != venda.identificadorVenda:
-                vendaIdentificada = Venda.objects.filter(identificadorVenda=venda.identificadorVenda,ativo=True)
+                vendaIdentificada = Venda.objects.filter(identificadorVenda=venda.identificadorVenda,ativo=True).order_by('-identificadorVenda')
                 valorVendaTotal = 0
                 for venda in vendaIdentificada:
                     valorVendaTotal = valorVendaTotal + venda.quantidadeProduto * venda.precoProduto
+                recebimentos_venda = MovimentacaoConta.objects.filter(identificadorVenda=venda.identificadorVenda,ativo=True)
+                logging.warning("Identificador Venda:" +" "+str(venda.identificadorVenda))
+                for recebimento_venda in recebimentos_venda:
+                    recebimentos.append({
+                            'valor_recebimento': recebimento_venda.valorCredito,
+                            'data': recebimento_venda.criados,
+                            'Credito': recebimento_venda.contaCredito,
+                            'identificador_parcela': recebimento_venda.id,
+                    })
+                    valor_recebido_venda = valor_recebido_venda + recebimento_venda.valorCredito
+
+                total_a_receber = valorVendaTotal - valor_recebido_venda
                 listarVendasTemplate.append(
                     {
-                     'idVenda': venda.identificadorVenda,
-                     'cliente': venda.cliente,
-                     'dataVenda': venda.criados,
-                     'valorVenda': valorVendaTotal,
+                        'idVenda': venda.identificadorVenda,
+                        'cliente': venda.cliente,
+                        'dataVenda': venda.criados,
+                        'valorVenda': valorVendaTotal,
+                        'recebimentos': recebimentos,
+                        'total_a_receber': total_a_receber,
                      }
                 )
-                valorVendaTotal = 0
+                valor_recebido_venda = 0
+                recebimentos = []
                 identificadorVenda = venda.identificadorVenda
         context['listarVendas'] = listarVendasTemplate
         return(context)

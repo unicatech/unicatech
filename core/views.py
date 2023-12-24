@@ -30,19 +30,14 @@ class IndexView(TemplateView):
             ano_selecionado = timezone.now().year
         vendas = Venda.objects.filter(criados__month=mes_selecionado).filter(criados__year=ano_selecionado).filter(ativo=True).order_by('-id')
         #vendas = Venda.objects.filter(criados__month='11').filter(criados__year='2023').filter(ativo=True).order_by('-id')
-        vendas_template = []
-        venda_lucro = 0
         venda_lucro_consolidado = 0
-        venda_total = 0
         #Campo Resumo Lucro Líquido por Venda
         listarVendasTemplate = []
-        recebimentos = []
         identificadorVenda = 0
         lucro_venda = 0
         valor_total_venda = 0
         valor_recebido_venda = 0
         quantidade_total_produtos = 0
-        total_a_receber = 0
         valor_excedente_venda_consolidado = 0
         total_a_receber_consolidado = 0
         valor_total_venda_consolidado = 0
@@ -84,11 +79,8 @@ class IndexView(TemplateView):
                 valor_recebido_venda = 0
                 lucro_venda = 0
 
-        #total_a_receber = valor_total_venda - valor_recebido_venda
         #Cálculo do valor em estoque
         valor_total_estoque = 0
-        compra_total_produto = 0
-        estoque = 0
         produtos = Produto.objects.filter(estoque__gt = 0)
         for produto in produtos:
             compras_produto = Compra.objects.filter(produto_id=produto.id, ativo=True).order_by('-id')

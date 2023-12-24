@@ -105,29 +105,20 @@
 									<table class="table datanew">
 										<thead>
 											<tr>
-												<th>
-													<label class="checkboxs">
-														<input type="checkbox" id="select-all">
-														<span class="checkmarks"></span>
-													</label>
-												</th>
+
 												<th>Cliente</th>
 												<th>Identificador de Venda</th>
 												<th>Data</th>
 												<th>Valor de Venda</th>
 												<th>Total a Receber</th>
 												<th>Ação</th>
+												<th> Recebimentos </th>
 											</tr>
 										</thead>
 										<tbody>
 										{% for venda in listarVendas %}
 											<tr>
-												<td>
-													<label class="checkboxs">
-														<input type="checkbox">
-														<span class="checkmarks"></span>
-													</label>
-												</td>
+
 												<td class="text-bolds">{{ venda.cliente.nomeCliente}}</td>
 												<td>{{ venda.idVenda}}</td>
 												<td>{{ venda.dataVenda }}</td>
@@ -142,16 +133,26 @@
 														<img src="{% static 'img/icons/delete.svg' %}" alt="img">
 													</a>
 												</td>
+												<td>
+													<table>
+													{% for recebimento in venda.recebimentos %}
+														<tr>
+												<td></td>
+												<td></td>
+												<td></td>
+													<td>{{ recebimento.valor_recebimento}}</td>
+										             <td>{{ recebimento.data}}</td>
+													 <td>{{ recebimento.Credito}}</td>
+													<td><a class="me-3" href="/parcelasareceber/?id={{recebimento.identificador_parcela}}&funcao=apagar">
+														<img src="{% static 'img/icons/delete.svg' %}" alt="img">
+													</a></td>
+												</tr>
+										   {% endfor %}
+														</table>
+												</td>
 											</tr>
 
-										    {% for recebimento in venda.recebimentos %}
-													{{ recebimento.valor_recebimento}}
-										             {{ recebimento.data}}
-													 {{ recebimento.Credito}}
-													<a class="me-3" href="/parcelasareceber/?id={{recebimento.identificador_parcela}}&funcao=apagar">
-														<img src="{% static 'img/icons/delete.svg' %}" alt="img">
-													</a>
-										   {% endfor %}
+
 
 
 										{% endfor %}

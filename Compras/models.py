@@ -31,10 +31,16 @@ class Compra(Base):
 
 class LocalizacaoCompra(Base):
     localizacaoCompra = models.CharField('Localização', max_length=200)
-
     def __str__(self):
         return self.id
 
+class Deslocamento(Base):
+    origem = models.IntegerField()
+    destino = models.IntegerField()
+    frete = models.FloatField(default=0)
+    identificadorCompra = models.IntegerField()
+    def __str__(self):
+        return self.id
 class Fornecedor(Base):
     nomeFornecedor = models.CharField('Descrição', max_length=200)
     localizacaoCompra = models.ForeignKey('Compras.LocalizacaoCompra', verbose_name='Localização da Compra', on_delete=models.CASCADE)

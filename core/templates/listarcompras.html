@@ -131,11 +131,14 @@
 												<td><span class="badges bg-lightgreen">{{ compra.localizacaoCompra }}</span></td>
 												<td>
 													
-													<a class="me-3" href="/fazercompras/?idCompra={{ compra.idCompra }}">
+													<a alt="Editar Compra"  class="me-3" href="/fazercompras/?idCompra={{ compra.idCompra }}">
 														<img src="{% static 'img/icons/edit.svg' %}" alt="img">
 													</a>
-													<a class="me-3 confirm-text" href="/listarcompras/?idCompra={{ compra.idCompra }}&funcao=apagar">
+													<a alt="Apagar Conta"  class="me-3 confirm-text" href="/listarcompras/?idCompra={{ compra.idCompra }}&funcao=apagar">
 														<img src="{% static 'img/icons/delete.svg' %}" alt="img">
+													</a>
+														<a alt="Localização da Compra" class="me-3" href="/localizacaocompra/?idCompra={{ compra.idCompra }}">
+														<img src="{% static 'img/icons/places.svg' %}" alt="img">
 													</a>
 												</td>
 											</tr>

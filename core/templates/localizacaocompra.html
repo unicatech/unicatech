@@ -1,0 +1,101 @@
+{% load static %}
+<!DOCTYPE html>
+
+ 			<!-- Header -->
+			{% include 'head.html' %}
+			<!-- /header -->
+
+			<!-- Select2 CSS -->
+			<link rel="stylesheet" href="{% static 'plugins/select2/css/select2.min.css' %}">
+			<!-- Sidebar -->
+			{% include 'sidebar.html' %}
+			<!-- /Sidebar -->
+
+			<div class="page-wrapper">
+				<div class="content">
+					<div class="page-header">
+						<div class="page-title">
+							<h4>Localização da Compra</h4>
+							<h6>Adicionar Movimentação de Mercadorias</h6>
+						</div>
+				        {% if mensagem != "" %}
+						 <div class="closebtn">
+
+						</div>
+						{% endif %}
+					</div>
+					<!-- /add -->
+					<form method="POST" action="{% url 'localizacaocompra' %}">
+						{% csrf_token %}
+						<input type="hidden" name="id_compra" value="{{id_compra}}">
+					<div class="card">
+						<div class="card-body">
+							<div class="row">
+								<div class="col-lg-3 col-sm-6 col-12">
+									<div class="form-group">
+										<label>Origem</label>
+										<select name="origem" class="select">
+											{% for l in localizacao_compra %}
+											{%if l.id == origem_localizacao %}<option value="{{ l.id }}" SELECTED>{{ l.localizacaoCompra }}</option>{%endif%}
+											{% endfor %}
+										</select>
+									</div>
+								</div>
+								<div class="col-lg-3 col-sm-6 col-12">
+									<div class="form-group">
+										<label>Destino</label>
+										<select name="destino" class="select">
+											<option></option>
+											{% for l in localizacao_compra %}
+											<option value="{{ l.id }}">{{ l.localizacaoCompra }}</option>
+											{% endfor %}
+										</select>
+									</div>
+								</div>
+
+								<div class="col-lg-3 col-sm-6 col-12">
+									<div class="form-group">
+										<label>Valor</label>
+										<input type="text" name="valor_frete">
+									</div>
+								</div>
+								<div class="col-lg-3 col-sm-6 col-12">
+									<div class="form-group">
+										<label>Conta de Pagamento</label>
+										<select name="conta" class="select">
+										<option></option>
+										{% for c in contas_detalhadas %}
+										<option value="{{ c.id }}">{{ c.nomeConta }} {{ c.moeda }}{{ c.saldo|floatformat:2 }}</option>
+										{% endfor %}
+										</select>
+
+									</div>
+								</div>
+								<div class="col-lg-12">
+									<input type="submit" value="Cadastrar" class="btn btn-submit me-2">
+									<a href="/listarcompras/" class="btn btn-cancel">Cancelar</a>
+								</div>
+							</div>
+						</div>
+					</div>
+					</form>
+					<!-- /add -->
+				</div>
+			</div>
+        </div>
+		<!-- /Main Wrapper -->
+		 
+		<!-- jQuery -->
+ 			{% include 'footer.html' %}
+
+        <!-- Select2 JS -->
+		<script src="{% static 'plugins/select2/js/select2.min.js' %}"></script>
+
+		<!-- Sweetalert 2 -->
+		<script src="{% static 'plugins/sweetalert/sweetalert2.all.min.js' %}"></script>
+		<script src="{% static 'plugins/sweetalert/sweetalerts.min.js' %}"></script>
+
+
+		
+    </body>
+</html>

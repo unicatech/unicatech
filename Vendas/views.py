@@ -93,15 +93,10 @@ class FazerVendasView(TemplateView):
             for produto_vendido in produtos_vendidos:
                 produto_encontrado = 0
                 for produto in produtos:
-                    logging.warning("Produto vendido e produto cadastrado")
-                    logging.warning(produto_vendido.produto_id)
-                    logging.warning(produto)
                     if produto_vendido.produto_id == produto:
                         logging.warning("Produto encontrado")
                         produto_encontrado = 1
                 if produto_encontrado == 0:
-                    logging.warning("Produto removido")
-                    logging.warning(produto_vendido.produto_id)
                     produtos_removidos_venda.append(produto_vendido.produto_id)
 
             for produto in produtos:
@@ -155,7 +150,7 @@ class FazerVendasView(TemplateView):
                 #Removendo do estoque
                 atualizarEstoque = Produto.objects.get(id=produto)
                 estoque_anterior = atualizarEstoque.estoque
-                atualizarEstoque.estoque = atualizarEstoque.estoque - int(float(quantidades[contador]))
+                atualizarEstoque.estoque = atualizarEsqtoque.estoque - int(float(quantidades[contador]))
                 atualizarEstoque.save()
                 #Calculando o lucro
                 compras_produto = Compra.objects.filter(produto_id=atualizarEstoque.id, ativo=True).order_by('-id')

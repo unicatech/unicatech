@@ -4,7 +4,7 @@ from django.shortcuts import render
 from django.http import HttpResponseRedirect
 from django.contrib import messages
 
-from .models import Compra, LocalizacaoCompra, Fornecedor
+from .models import Compra, LocalizacaoCompra, Fornecedor, Deslocamento
 from Produtos.models import Produto, CategoriaProduto
 from Contas.models import Conta, MovimentacaoConta
 from datetime import date, datetime
@@ -21,8 +21,6 @@ class FazerComprasView(TemplateView):
         if self.request.GET.__contains__("idCompra"):
             compras = Compra.objects.filter(identificadorCompra=self.request.GET["idCompra"], ativo=True)
             listarProdutosTemplate = []
-            identificadorCompra = 0
-            valorCompraTotal = 0
             context['editarCompra'] = 1
 
             for compra in compras:
@@ -286,10 +284,79 @@ class ListarComprasView(TemplateView):
 
         return (context)
 
+class LocalizacaoCompraView(TemplateView):
+    template_name = 'localizacaocompra.html'
+    def get_context_data(self, **kwargs):
+        context = super(LocalizacaoCompraView, self).get_context_data(**kwargs)
+        logging.warning("Localizacao")
+        localizacao_compra = Deslocamento.objects.filter(identificadorCompra = self.request.GET["idCompra"]).order_by('-id')
+        logging.warning("Try " + self.request.GET["idCompra"])
+        compra_deslocada = 0
+        for localizacao in localizacao_compra:
+            logging.warning("Localizacao Origem " + str(localizacao.destino))
+            origem = localizacao.destino
+            compra_deslocada = 1
+            break
+        if compra_deslocada == 0:
+            logging.warning("Except")
+            localizacao_compra = Compra.objects.filter(identificadorCompra = self.request.GET["idCompra"]).order_by('-id')
+            for localizacao in localizacao_compra:
+                origem = localizacao.idLocalizacao_id
+                break
+        context['origem_localizacao'] = origem
+        context['localizacao_compra'] = LocalizacaoCompra.objects.all()
+        context['contas_detalhadas'] = self.saldo_conta
+        context['id_compra'] = self.request.GET["idCompra"]
+        return(context)
+    def post(self, request, *args, **kwargs):
+        context = super(LocalizacaoCompraView, self).get_context_data(**kwargs)
+        agora = datetime.now()
+        hoje = agora.strftime("%Y-%m-%d")
+        logging.warning("Identificador Compra")
+        logging.warning(self.request.POST.get('id_compra'))
+        logging.warning(self.request.POST.get('origem'))
+        logging.warning(self.request.POST.get('destino'))
+        formDeslocamento = Deslocamento(
+            criados=hoje,
+            origem=self.request.POST.get('origem'),
+            destino=self.request.POST.get('destino'),
+            frete=self.request.POST.get('valor_frete'),
+            identificadorCompra=self.request.POST.get('id_compra'),
+        )
+        formDeslocamento.save()
+        return HttpResponseRedirect('/listarcompras/', context)
+
+    def saldo_conta(self):
+        # Buscar saldo em contas
+        contasDetalhadas = Conta.objects.all()
+        contasDetalhadasTemplate = []
+
+        for conta in contasDetalhadas:
+            saldoConta = 0
+            entradas = MovimentacaoConta.objects.filter(contaCredito=conta.id)
+
+            for entrada in entradas:
+                saldoConta = saldoConta + entrada.valorCredito
+
+            saidas = MovimentacaoConta.objects.filter(contaDebito=conta.id)
+
+            for saida in saidas:
+                saldoConta = saldoConta - saida.valorDebito
+
+            if conta.categoria_id <= 3 and conta.categoria_id >= 1:
+                moeda = 'R$'
+            else:
+                moeda = 'US$'
+
+            contasDetalhadasTemplate.append(
+                {'nomeConta': conta.nomeConta, 'saldo': saldoConta, 'moeda': moeda, 'id': conta.id})
+
+        return(contasDetalhadasTemplate)
+
 class AdicionarLocalizacao(TemplateView):
     template_name = 'adicionarlocalizacao.html'
     def get_context_data(self, **kwargs):
         context = super(AdicionarLocalizacao, self).get_context_data(**kwargs)
 
     def post(self, request, *args, **kwargs):
-        context = super(FazerComprasView, self).get_context_data(**kwargs)
+        context = super(AdicionarLocalizacao, self).get_context_data(**kwargs)

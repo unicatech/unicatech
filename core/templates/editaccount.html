@@ -22,7 +22,8 @@
 					<!-- /add -->
 					<form method="POST" action="{% url 'editarconta' %}">
 						{% csrf_token %}
-						<input type="hidden" name="idConta" value="{{ contaselecionada.id }}"
+						<input type="hidden" name="idConta" value="{{ contaselecionada.id }}">
+						<input type="hidden" name="cartao" value="{{taxas_cartao.cartao}}">
 					<div class="card">
 						<div class="card-body">
 							<div class="row">
@@ -57,6 +58,121 @@
 										<input type="text" name="saldoinicial" value="{{ contaselecionada.saldoInicial }}">
 									</div>
 								</div>
+								<div class="col-lg-3 col-sm-6 col-12">
+									<div class="form-group">
+										<label>Taxa Débito</label>
+										<input type="text" name="taxa_debito" value={{taxas_cartao.taxa_debito}}>
+									</div>
+								</div>
+								<div class="col-lg-3 col-sm-6 col-12">
+									<div class="form-group">
+										<label>Taxa 1x</label>
+										<input type="text" name="taxa1" value="{{taxas_cartao.taxa_cartao1}}">
+									</div>
+								</div>
+								<div class="col-lg-3 col-sm-6 col-12">
+									<div class="form-group">
+										<label>Taxa 2x</label>
+										<input type="text" name="taxa2" value="{{taxas_cartao.taxa_cartao2}}">
+									</div>
+								</div>
+								<div class="col-lg-3 col-sm-6 col-12">
+									<div class="form-group">
+										<label>Taxa 3x</label>
+										<input type="text" name="taxa3" value="{{taxas_cartao.taxa_cartao3}}">
+									</div>
+								</div>
+<div class="col-lg-3 col-sm-6 col-12">
+									<div class="form-group">
+										<label>Taxa 4x</label>
+										<input type="text" name="taxa4" value="{{taxas_cartao.taxa_cartao4}}">
+									</div>
+								</div>
+<div class="col-lg-3 col-sm-6 col-12">
+									<div class="form-group">
+										<label>Taxa 5x</label>
+										<input type="text" name="taxa5" value="{{taxas_cartao.taxa_cartao5}}">
+									</div>
+								</div>
+<div class="col-lg-3 col-sm-6 col-12">
+									<div class="form-group">
+										<label>Taxa 6x</label>
+										<input type="text" name="taxa6" value="{{taxas_cartao.taxa_cartao6}}">
+									</div>
+								</div>
+<div class="col-lg-3 col-sm-6 col-12">
+									<div class="form-group">
+										<label>Taxa 7x</label>
+										<input type="text" name="taxa7" value="{{taxas_cartao.taxa_cartao7}}">
+									</div>
+								</div>
+<div class="col-lg-3 col-sm-6 col-12">
+									<div class="form-group">
+										<label>Taxa 8x</label>
+										<input type="text" name="taxa8" value="{{taxas_cartao.taxa_cartao8}}">
+									</div>
+								</div>
+<div class="col-lg-3 col-sm-6 col-12">
+									<div class="form-group">
+										<label>Taxa 9x</label>
+										<input type="text" name="taxa9" value="{{taxas_cartao.taxa_cartao9}}">
+									</div>
+								</div>
+<div class="col-lg-3 col-sm-6 col-12">
+									<div class="form-group">
+										<label>Taxa 10x</label>
+										<input type="text" name="taxa10" value="{{taxas_cartao.taxa_cartao10}}">
+									</div>
+								</div>
+<div class="col-lg-3 col-sm-6 col-12">
+									<div class="form-group">
+										<label>Taxa 11x</label>
+										<input type="text" name="taxa11" value="{{taxas_cartao.taxa_cartao11}}">
+									</div>
+								</div>
+<div class="col-lg-3 col-sm-6 col-12">
+									<div class="form-group">
+										<label>Taxa 12x</label>
+										<input type="text" name="taxa12" value="{{taxas_cartao.taxa_cartao12}}">
+									</div>
+								</div>
+<div class="col-lg-3 col-sm-6 col-12">
+									<div class="form-group">
+										<label>Taxa 13x</label>
+										<input type="text" name="taxa13" value="{{taxas_cartao.taxa_cartao13}}">
+									</div>
+								</div>
+<div class="col-lg-3 col-sm-6 col-12">
+									<div class="form-group">
+										<label>Taxa 14x</label>
+										<input type="text" name="taxa14" value="{{taxas_cartao.taxa_cartao14}}">
+									</div>
+								</div>
+<div class="col-lg-3 col-sm-6 col-12">
+									<div class="form-group">
+										<label>Taxa 15x</label>
+										<input type="text" name="taxa15" value="{{taxas_cartao.taxa_cartao15}}">
+									</div>
+								</div>
+<div class="col-lg-3 col-sm-6 col-12">
+									<div class="form-group">
+										<label>Taxa 16x</label>
+										<input type="text" name="taxa16" value="{{taxas_cartao.taxa_cartao16}}">
+									</div>
+								</div>
+<div class="col-lg-3 col-sm-6 col-12">
+									<div class="form-group">
+										<label>Taxa 17x</label>
+										<input type="text" name="taxa17" value="{{taxas_cartao.taxa_cartao17}}">
+									</div>
+								</div>
+<div class="col-lg-3 col-sm-6 col-12">
+									<div class="form-group">
+										<label>Taxa 18x</label>
+										<input type="text" name="taxa18" value="{{taxas_cartao.taxa_cartao18}}">
+									</div>
+								</div>
+
 								<div class="col-lg-3 col-sm-6 col-12">
 									<div class="form-group">
 										<label>Descrição</label>

@@ -140,6 +140,10 @@ class EditarContaView(TemplateView):
         context = super(EditarContaView, self).get_context_data(**kwargs)
         context["categoria"] = CategoriaConta.objects.all()
         context["contaselecionada"] = Conta.objects.get(id=self.request.GET["idConta"])
+        try:
+            context["taxas_cartao"] = Cartao.objects.get(cartao=context["contaselecionada"].cartao)
+        except:
+            pass
         context["contaselecionada"].taxas = str(
             float(context["contaselecionada"].taxas)
         )
@@ -160,6 +164,30 @@ class EditarContaView(TemplateView):
         dataform.descricao = self.request.POST.get("descricao")
         dataform.saldoInicial = self.request.POST.get("saldoinicial")
         dataform.save()
+
+        if self.request.POST.get("cartao") != "":
+            cartao = Cartao.objects.get(cartao=self.request.POST.get("cartao"))
+            cartao.taxa_debito = self.request.POST.get("taxa_debito")
+            cartao.taxa_cartao1 = self.request.POST.get("taxa1")
+            cartao.taxa_cartao2 = self.request.POST.get("taxa2")
+            cartao.taxa_cartao3 = self.request.POST.get("taxa3")
+            cartao.taxa_cartao4 = self.request.POST.get("taxa4")
+            cartao.taxa_cartao5 = self.request.POST.get("taxa5")
+            cartao.taxa_cartao6 = self.request.POST.get("taxa6")
+            cartao.taxa_cartao7 = self.request.POST.get("taxa7")
+            cartao.taxa_cartao8 = self.request.POST.get("taxa8")
+            cartao.taxa_cartao9 = self.request.POST.get("taxa9")
+            cartao.taxa_cartao10 = self.request.POST.get("taxa10")
+            cartao.taxa_cartao11 = self.request.POST.get("taxa11")
+            cartao.taxa_cartao12 = self.request.POST.get("taxa12")
+            cartao.taxa_cartao13 = self.request.POST.get("taxa13")
+            cartao.taxa_cartao14 = self.request.POST.get("taxa14")
+            cartao.taxa_cartao15 = self.request.POST.get("taxa15")
+            cartao.taxa_cartao16 = self.request.POST.get("taxa16")
+            cartao.taxa_cartao17 = self.request.POST.get("taxa17")
+            cartao.taxa_cartao18 = self.request.POST.get("taxa18")
+            cartao.save()
+
         context = super(EditarContaView, self).get_context_data(**kwargs)
         context["conta"] = Conta.objects.all()
         context["categoriaconta"] = CategoriaConta.objects.all()

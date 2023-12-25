@@ -163,9 +163,12 @@ class FazerVendasView(TemplateView):
                         for deslocamento in deslocamentos:
                             frete_deslocamento = frete_deslocamento + deslocamento.frete
                         frete_deslocamento = frete_deslocamento + compra.frete * compra.valorDolarMedio
-                        compra = Compra.objects.filter(identificadorVenda = compra.identificadorCompra,
+                        try:
+                            compra = Compra.objects.filter(identificadorVenda = compra.identificadorCompra,
                                                          ativo=True).aggregate(Sum('quantidadeProduto'))
-                        quantidade_produto_compra = int(venda_original["quantidadeProduto__sum"])
+                            quantidade_produto_compra = int(venda_original["quantidadeProduto__sum"])
+                        except:
+                            quantidade_produto_compra = 0
                         compra_total_produto = (compra_total_produto +
                                                 estoque_preco_medio *
                                                 float(compra.precoProduto) * compra.valorDolarMedio)
@@ -182,8 +185,10 @@ class FazerVendasView(TemplateView):
                     preco_medio = compra_total_produto / quantidade_produto
                 else:
                     preco_medio = 0
-                lucro = float(quantidades[contador]) * (float(precos[contador]) - preco_medio -
-                                                        (frete_deslocamento/quantidade_produto_compra))
+                lucro = float(quantidades[contador]) * (float(precos[contador]) - preco_medio)
+                # Prevenir quando a quantidade comprada não estiver cadastrada, pois o valor vai vir menor que zero
+                if quantidade_produto_compra > 0:
+                    lucro = lucro - (frete_deslocamento / quantidade_produto_compra)
 
                 #Cadastrando Venda
                 if produto != 0:

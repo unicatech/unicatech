@@ -131,10 +131,6 @@ class FazerVendasView(TemplateView):
                         quantidade_original_produto_vendido = 0
 
                     atualizarEstoque = Produto.objects.get(id=produto)
-                    logging.warning("Quantidade Original")
-                    logging.warning(quantidade_original_produto_vendido)
-                    logging.warning("Estoque")
-                    logging.warning(atualizarEstoque.estoque)
                     atualizarEstoque.estoque = atualizarEstoque.estoque + quantidade_original_produto_vendido
                     atualizarEstoque.save()
                     produtos_repetidos.append(produto)
@@ -154,14 +150,22 @@ class FazerVendasView(TemplateView):
                 atualizarEstoque.save()
                 #Calculando o lucro
                 compras_produto = Compra.objects.filter(produto_id=atualizarEstoque.id, ativo=True).order_by('-id')
-                estoque_produto = int(atualizarEstoque.estoque)
                 #Calculando preço médio do estoque (média móvel)
                 compra_total_produto = 0
                 estoque_preco_medio = estoque_anterior
                 quantidade_produto = 0
+                quantidade_produto_compra = 0
+                frete_deslocamento = 0
                 for compra in compras_produto:
                     logging.warning(compra.identificadorCompra)
                     if compra.quantidadeProduto >= estoque_preco_medio:
+                        deslocamentos = Deslocamento.objects.filter(identificadorCompra = compra.identificadorCompra)
+                        for deslocamento in deslocamentos:
+                            frete_deslocamento = frete_deslocamento + deslocamento.frete
+                        frete_deslocamento = frete_deslocamento + compra.frete * compra.valorDolarMedio
+                        compra = Compra.objects.filter(identificadorVenda = compra.identificadorCompra,
+                                                         ativo=True).aggregate(Sum('quantidadeProduto'))
+                        quantidade_produto_compra = int(venda_original["quantidadeProduto__sum"])
                         compra_total_produto = (compra_total_produto +
                                                 estoque_preco_medio *
                                                 float(compra.precoProduto) * compra.valorDolarMedio)
@@ -178,7 +182,8 @@ class FazerVendasView(TemplateView):
                     preco_medio = compra_total_produto / quantidade_produto
                 else:
                     preco_medio = 0
-                lucro = float(quantidades[contador]) * (float(precos[contador]) - preco_medio)
+                lucro = float(quantidades[contador]) * (float(precos[contador]) - preco_medio -
+                                                        (frete_deslocamento/quantidade_produto_compra))
 
                 #Cadastrando Venda
                 if produto != 0:

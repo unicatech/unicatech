@@ -324,6 +324,17 @@ class LocalizacaoCompraView(TemplateView):
             identificadorCompra=self.request.POST.get('id_compra'),
         )
         formDeslocamento.save()
+        # Debitando frete da conta
+        formMovimentacao = MovimentacaoConta(
+            criados=hoje,
+            contaDebito=self.request.POST.get('conta'),
+            valorDebito=self.request.POST.get('valor_frete'),
+            identificadorCompra=self.request.POST.get('id_compra'),
+            descricao="Frete",
+            #cotacaoDolar=float(cotacaoDolar),
+            #identificadorDolar=identificadorDolar,
+        )
+        formMovimentacao.save()
         return HttpResponseRedirect('/listarcompras/', context)
 
     def saldo_conta(self):

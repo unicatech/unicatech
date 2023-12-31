@@ -61,8 +61,12 @@ class FazerVendasView(TemplateView):
         context = super(FazerVendasView, self).get_context_data(**kwargs)
 
         try:
-            ultimaVenda = Venda.objects.last()
-            proximaVenda = ultimaVenda.identificadorVenda + 1
+            ultimaVenda = Venda.objects.order_by('-identificadorVenda')
+            id = 0
+            for identificador in ultimaVenda:
+                id = identificador.identificadorVenda
+                break
+            proximaVenda = id + 1
         except:
             proximaVenda = 1
 
@@ -146,7 +150,7 @@ class FazerVendasView(TemplateView):
                 #Removendo do estoque
                 atualizarEstoque = Produto.objects.get(id=produto)
                 estoque_anterior = atualizarEstoque.estoque
-                atualizarEstoque.estoque = atualizarEsqtoque.estoque - int(float(quantidades[contador]))
+                atualizarEstoque.estoque = atualizarEstoque.estoque - int(float(quantidades[contador]))
                 atualizarEstoque.save()
                 #Calculando o lucro
                 compras_produto = Compra.objects.filter(produto_id=atualizarEstoque.id, ativo=True).order_by('-id')
@@ -159,10 +163,13 @@ class FazerVendasView(TemplateView):
                 for compra in compras_produto:
                     logging.warning(compra.identificadorCompra)
                     if compra.quantidadeProduto >= estoque_preco_medio:
-                        deslocamentos = Deslocamento.objects.filter(identificadorCompra = compra.identificadorCompra)
-                        for deslocamento in deslocamentos:
-                            frete_deslocamento = frete_deslocamento + deslocamento.frete
-                        frete_deslocamento = frete_deslocamento + compra.frete * compra.valorDolarMedio
+                        try:
+                            deslocamentos = Deslocamento.objects.filter(identificadorCompra = compra.identificadorCompra)
+                            for deslocamento in deslocamentos:
+                                frete_deslocamento = frete_deslocamento + deslocamento.frete
+                            frete_deslocamento = frete_deslocamento + compra.frete * compra.valorDolarMedio
+                        except:
+                            pass
                         try:
                             compra = Compra.objects.filter(identificadorVenda = compra.identificadorCompra,
                                                          ativo=True).aggregate(Sum('quantidadeProduto'))

@@ -128,7 +128,7 @@ class ListarContaView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(ListarContaView, self).get_context_data(**kwargs)
-        context["contas"] = Conta.objects.all()
+        context["contas"] = Conta.objects.filter(id__gt = 0)
         context["categoriaconta"] = CategoriaConta.objects.all()
         return context
 
@@ -155,6 +155,7 @@ class EditarContaView(TemplateView):
         )
         context["mensagem"] = ""
         return context
+
 
     def post(self, request, *args, **kwargs):
         dataform = Conta.objects.get(id=self.request.POST.get("idConta"))
@@ -329,6 +330,8 @@ class ComprarDolarView(TemplateView):
             for saida in saidas:
                 saldoConta = saldoConta - saida.valorDebito
 
+            if conta.id == 0:
+                continue
             if conta.categoria_id <= 3 and conta.categoria_id >= 1:
                 moeda = "R$"
                 contaOrigem.append({"id": conta.id, "nomeConta": conta.nomeConta})
@@ -602,6 +605,7 @@ class AdicionarFundosView(TemplateView):
             valorCredito=self.request.POST.get("valorReal"),
             valorDebito="0",
             criados=hoje,
+            identificadorDolar="0",
         )
         dataform.save()
         context["mensagem"] = "Aporte Efetuado"
@@ -770,6 +774,9 @@ class AdicionarFundosView(TemplateView):
             for saida in saidas:
                 saldoConta = saldoConta - saida.valorDebito
 
+            if conta.id == 0:
+                continue
+
             if conta.categoria_id <= 3 and conta.categoria_id >= 1:
                 moeda = "R$"
             else:
@@ -826,6 +833,7 @@ class RetiradaView(TemplateView):
             valorDebito=self.request.POST.get("valorReal"),
             criados=hoje,
             descricao="Retirada",
+            identificadorDolar="0",
         )
         dataform.save()
         context["mensagem"] = "Retirada Efetuada"

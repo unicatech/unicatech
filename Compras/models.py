@@ -39,6 +39,7 @@ class Deslocamento(Base):
     destino = models.IntegerField()
     frete = models.FloatField(default=0)
     identificadorCompra = models.IntegerField()
+    idMovimentacaoConta = models.IntegerField()
     def __str__(self):
         return self.id
 class Fornecedor(Base):

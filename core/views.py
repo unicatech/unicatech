@@ -105,6 +105,9 @@ class IndexView(TemplateView):
         context['valor_recebido_venda'] = valor_recebido_venda_consolidado
         context['total_a_receber'] = total_a_receber_consolidado
         context['valor_excedente_venda'] = valor_excedente_venda_consolidado
-        context['ticket_medio'] = valor_total_venda_consolidado / quantidade_total_produtos
+        if quantidade_total_produtos > 0:
+            context['ticket_medio'] = valor_total_venda_consolidado / quantidade_total_produtos
+        else:
+            context['ticket_medio'] = 0
         context['valor_total_estoque'] = valor_total_estoque
         return context

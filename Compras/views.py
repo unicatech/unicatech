@@ -296,15 +296,36 @@ class LocalizacaoCompraView(TemplateView):
     template_name = 'localizacaocompra.html'
     def get_context_data(self, **kwargs):
         context = super(LocalizacaoCompraView, self).get_context_data(**kwargs)
-        logging.warning("Localizacao")
+        if self.request.GET.__contains__("idDeslocamento"):
+            if self.request.GET["funcao"] == "apagar":
+                apagarMovimentacao = MovimentacaoConta(id=self.request.GET["idMovimentacaoConta"])
+                apagarMovimentacao.delete()
+                apagarDeslocamento = Deslocamento(id=self.request.GET["idDeslocamento"])
+                apagarDeslocamento.delete()
         localizacao_compra = Deslocamento.objects.filter(identificadorCompra = self.request.GET["idCompra"]).order_by('-id')
-        logging.warning("Try " + self.request.GET["idCompra"])
         compra_deslocada = 0
+        apagar_apenas_ultimo = 1
+        localizacao_detalhada = []
         for localizacao in localizacao_compra:
             logging.warning("Localizacao Origem " + str(localizacao.destino))
-            origem = localizacao.destino
-            compra_deslocada = 1
-            break
+            if compra_deslocada == 0:
+                origem = localizacao.destino
+                compra_deslocada = 1
+            origem_itinerario = LocalizacaoCompra.objects.get(id=localizacao.origem)
+            destino_itinerario = LocalizacaoCompra.objects.get(id=localizacao.destino)
+            localizacao_detalhada.append(
+                {
+                 "id": localizacao.id,
+                 "origem": origem_itinerario.localizacaoCompra,
+                 "destino": destino_itinerario.localizacaoCompra,
+                 "frete": localizacao.frete,
+                 "data": localizacao.criados,
+                 "id_movimentacao_conta": localizacao.idMovimentacaoConta,
+                 "apagar_apenas_ultimo": apagar_apenas_ultimo,
+                }
+            )
+            apagar_apenas_ultimo = 0
+
         if compra_deslocada == 0:
             logging.warning("Except")
             localizacao_compra = Compra.objects.filter(identificadorCompra = self.request.GET["idCompra"]).order_by('-id')
@@ -313,25 +334,15 @@ class LocalizacaoCompraView(TemplateView):
                 break
         context['origem_localizacao'] = origem
         context['localizacao_compra'] = LocalizacaoCompra.objects.all()
+        context['itinerario'] = localizacao_detalhada
         context['contas_detalhadas'] = self.saldo_conta
         context['id_compra'] = self.request.GET["idCompra"]
+        context['apagar_ultimo'] = "1"
         return(context)
     def post(self, request, *args, **kwargs):
         context = super(LocalizacaoCompraView, self).get_context_data(**kwargs)
         agora = datetime.now()
         hoje = agora.strftime("%Y-%m-%d")
-        logging.warning("Identificador Compra")
-        logging.warning(self.request.POST.get('id_compra'))
-        logging.warning(self.request.POST.get('origem'))
-        logging.warning(self.request.POST.get('destino'))
-        formDeslocamento = Deslocamento(
-            criados=hoje,
-            origem=self.request.POST.get('origem'),
-            destino=self.request.POST.get('destino'),
-            frete=self.request.POST.get('valor_frete'),
-            identificadorCompra=self.request.POST.get('id_compra'),
-        )
-        formDeslocamento.save()
         # Debitando frete da conta
         conta_em_dolar = 0
         cotacao_dolar = 0
@@ -350,6 +361,17 @@ class LocalizacaoCompraView(TemplateView):
             identificadorDolar=conta_em_dolar,
         )
         formMovimentacao.save()
+        logging.warning("Movimentacao id")
+        logging.warning(formMovimentacao.id)
+        formDeslocamento = Deslocamento(
+            criados=hoje,
+            origem=self.request.POST.get('origem'),
+            destino=self.request.POST.get('destino'),
+            frete=self.request.POST.get('valor_frete'),
+            identificadorCompra=self.request.POST.get('id_compra'),
+            idMovimentacaoConta=formMovimentacao.id,
+        )
+        formDeslocamento.save()
         return HttpResponseRedirect('/listarcompras/', context)
 
     def saldo_conta(self):

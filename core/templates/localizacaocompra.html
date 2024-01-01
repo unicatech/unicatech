@@ -80,8 +80,42 @@
 					</div>
 					</form>
 					<!-- /add -->
-				</div>
-			</div>
+
+
+						<div class="card mb-0">
+						<div class="card-body">
+							<h4 class="card-title">Últimas Movimentações</h4>
+							<div class="table-responsive dataview">
+								<table class="table datatable ">
+									<thead>
+										<tr>
+											<th></th>
+											<th>Data</th>
+											<th>Origem</th>
+											<th>Destino</th>
+											<th>Valor do Frete</th>
+											<th>Apagar</th>
+										</tr>
+									</thead>
+									<tbody>
+									{% for localizacao in itinerario %}
+										<tr>
+											<td></td>
+											<td>{{ localizacao.data }}</td>
+											<td>{{ localizacao.origem }}</td>
+											<td>{{ localizacao.destino }}	</td>
+											<td>{{ localizacao.frete }}</td>
+											<td>{% if localizacao.apagar_apenas_ultimo == 1 %}<a class="confirm-text"  href="{% url 'localizacaocompra' %}?idDeslocamento={{ localizacao.id }}&idMovimentacaoConta={{localizacao.id_movimentacao_conta}}&idCompra={{id_compra}}&funcao=apagar" onclick="javascript:void(0);">
+												<img src="{% static 'img/icons/delete.svg' %}" alt="img">
+												</a></td>
+												{% endif %}
+										</tr>
+									{% endfor %}
+									</tbody>
+								</table>
+							</div>
+						</div>
+
         </div>
 		<!-- /Main Wrapper -->
 		 

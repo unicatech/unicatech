@@ -15,44 +15,32 @@
 				<div class="content">
 					<div class="page-header">
 						<div class="page-title">
-							<h4>Cadastrar Fornecedor</h4>
-							<h6>Dados do Fornecedor</h6>
+							<h4>Cadastrar Localizacao</h4>
+							<h6>Dados da Localizacao</h6>
 						</div>
 				        {% if mensagem != "" %}
 						 <div class="closebtn">
 							 <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
-  							Fornecedor Cadastrado.
+  							Localização Cadastrada.
 						</div>
 						{% endif %}
 					</div>
 					<!-- /add -->
-					<form method="POST" action="{% url 'cadastrofornecedor' %}">
+					<form method="POST" action="{% url 'cadastrolocalizacao' %}">
 						{% csrf_token %}
 					<div class="card">
 						<div class="card-body">
 							<div class="row">
 								<div class="col-lg-3 col-sm-6 col-12">
 									<div class="form-group">
-										<label>Nome do Fornecedor</label>
-										<input type="text" name="nomefornecedor">
-									</div>
-								</div>
-
-								<div class="col-lg-3 col-sm-6 col-12">
-									<div class="form-group">
-										<label>Localidade do Fornecedor</label>
-										<select name="localidade" class="select">
-											<option>Escolha a Localidade</option>
-											{% for l in localidade %}
-											<option value="{{ l.id }}">{{ l.localizacaoCompra }}</option>
-											{% endfor %}
-										</select>
+										<label>Nome da Localidade</label>
+										<input type="text" name="nome_localidade">
 									</div>
 								</div>
 
 								<div class="col-lg-12">
 									<input type="submit" value="Cadastrar" class="btn btn-submit me-2">
-									<a href="/cadastrocliente/" class="btn btn-cancel">Cancelar</a>
+									<a href="/cadastrolocalizacao/" class="btn btn-cancel">Cancelar</a>
 								</div>
 							</div>
 						</div>
@@ -69,18 +57,18 @@
 											<th></th>
 											<th></th>
 											<th>Data de Cadastro</th>
-											<th>Nome do Fornecedor</th>
+											<th>Nome da Localidade</th>
 											<th>Apagar</th>
 										</tr>
 									</thead>
 									<tbody>
-									{% for fornecedor in fornecedores %}
+									{% for localidade in localidades %}
 										<tr>
 											<td></td>
 											<td></td>
-											<td>{{ fornecedor.data }}</td>
-											<td>{{ fornecedor.nome_fornecedor }}</td>
-											<td><a class="confirm-text"  href="{% url 'cadastrofornecedor' %}?id_fornecedor={{ fornecedor.id_fornecedor }}&funcao=apagar" onclick="javascript:void(0);">
+											<td>{{ localidade.data }}</td>
+											<td>{{ localidade.nome_localidade }}</td>
+											<td><a class="confirm-text"  href="{% url 'cadastrolocalizacao' %}?id_localidade={{ localidade.id_localidade }}&funcao=apagar" onclick="javascript:void(0);">
 												<img src="{% static 'img/icons/delete.svg' %}" alt="img">
 												</a></td>
 										</tr>

@@ -30,6 +30,7 @@ class Compra(Base):
 
 
 class LocalizacaoCompra(Base):
+    id = models.AutoField(primary_key=True)
     localizacaoCompra = models.CharField('Localização', max_length=200)
     def __str__(self):
         return self.id

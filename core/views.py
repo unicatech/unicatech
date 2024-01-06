@@ -14,7 +14,8 @@ from django.utils import timezone
 from Vendas.models import Venda
 from Compras.models import Compra
 from Produtos.models import Produto
-from Contas.models import MovimentacaoConta
+from Contas.models import MovimentacaoConta, Conta
+from Despesas.models import CadastroDespesa
 
 class IndexView(TemplateView):
     template_name = 'index.html'
@@ -28,7 +29,7 @@ class IndexView(TemplateView):
         else:
             mes_selecionado = str(timezone.now().month)
             ano_selecionado = timezone.now().year
-        vendas = Venda.objects.filter(criados__month=mes_selecionado).filter(criados__year=ano_selecionado).filter(ativo=True).order_by('-id')
+        vendas = Venda.objects.filter(criados__month=mes_selecionado).filter(criados__year=ano_selecionado).filter(ativo=True).order_by('-criados')
         #vendas = Venda.objects.filter(criados__month='11').filter(criados__year='2023').filter(ativo=True).order_by('-id')
         venda_lucro_consolidado = 0
         #Campo Resumo Lucro Líquido por Venda
@@ -42,6 +43,7 @@ class IndexView(TemplateView):
         total_a_receber_consolidado = 0
         valor_total_venda_consolidado = 0
         valor_recebido_venda_consolidado = 0
+        #Dados de receita
         for venda in vendas:
             quantidade_total_produtos = quantidade_total_produtos + venda.quantidadeProduto
             if identificadorVenda != venda.identificadorVenda:
@@ -79,6 +81,24 @@ class IndexView(TemplateView):
                 valor_recebido_venda = 0
                 lucro_venda = 0
 
+        #Dados de despesa
+        logging.warning("Nome da Despesa")
+        logging.warning(str(mes_selecionado) + " " + str(ano_selecionado))
+        despesas = CadastroDespesa.objects.filter(criados__month=mes_selecionado).filter(criados__year=ano_selecionado).filter(ativo=True).order_by('-criados')
+        despesas_template = []
+        for despesa in despesas:
+            conta = Conta.objects.get(id=despesa.conta_debito_id)
+            logging.warning(conta.nomeConta)
+            despesas_template.append(
+                {
+                    'id': despesa.id,
+                    'nome_despesa': despesa.nome_despesa,
+                    'data': despesa.criados,
+                    'valor': despesa.valor,
+                    'conta_debito': conta.nomeConta
+                }
+            )
+
         #Cálculo do valor em estoque
         valor_total_estoque = 0
         produtos = Produto.objects.filter(estoque__gt = 0)
@@ -100,7 +120,7 @@ class IndexView(TemplateView):
 
         context['vendas'] = listarVendasTemplate
         context['venda_lucro_total'] = venda_lucro_consolidado
-
+        context['despesas'] = despesas_template
         context['valor_total_venda'] = valor_total_venda_consolidado
         context['valor_recebido_venda'] = valor_recebido_venda_consolidado
         context['total_a_receber'] = total_a_receber_consolidado

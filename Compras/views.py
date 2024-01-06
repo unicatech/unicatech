@@ -258,6 +258,12 @@ class ListarComprasView(TemplateView):
                 for compra in compraIdentificada:
                     frete = compra.frete
                     valorCompraTotal = valorCompraTotal + compra.quantidadeProduto * compra.precoProduto
+                itinerario_compra = Deslocamento.objects.filter(identificadorCompra=compra.identificadorCompra).order_by('-id')
+                cidade_atual = ""
+                for cidade in itinerario_compra:
+                    localizacao = LocalizacaoCompra.objects.get(id=cidade.destino)
+                    cidade_atual = localizacao.localizacaoCompra
+                    break
                 valorCompraTotal = valorCompraTotal + frete
                 listarComprasTemplate.append(
                     {
@@ -265,7 +271,7 @@ class ListarComprasView(TemplateView):
                         'fornecedor': compra.fornecedor,
                         'dataCompra': compra.criados,
                         'valorCompra': valorCompraTotal,
-                        'localizacaoCompra': compra.idLocalizacao.localizacaoCompra,
+                        'localizacaoCompra': cidade_atual,
                     }
                 )
                 valorCompraTotal = 0
@@ -307,7 +313,6 @@ class LocalizacaoCompraView(TemplateView):
         apagar_apenas_ultimo = 1
         localizacao_detalhada = []
         for localizacao in localizacao_compra:
-            logging.warning("Localizacao Origem " + str(localizacao.destino))
             if compra_deslocada == 0:
                 origem = localizacao.destino
                 compra_deslocada = 1

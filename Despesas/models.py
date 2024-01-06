@@ -12,7 +12,6 @@ class Base(models.Model):
         abstract = True
 
 class CadastroDespesa(Base):
-    #    identificador_despesa = models.IntegerField()
     nome_despesa = models.CharField('Descrição', max_length=200)
     periodicidade = models.IntegerField()
     # categoria = models.ForeignKey('Despesas.CategoriaDespesa', verbose_name='Tipo', on_delete=models.CASCADE)

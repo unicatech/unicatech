@@ -113,10 +113,10 @@
 										</a>
 										<ul class="dropdown-menu" aria-labelledby="dropdownMenuButton" >
 											<li>
-												<a href="productlist.html" class="dropdown-item">Product List</a>
+												<a href="/listarvendas/" class="dropdown-item">Listar Vendas</a>
 											</li>
 											<li>
-												<a href="addproduct.html" class="dropdown-item">Product Add</a>
+												<a href="/fazervendas/" class="dropdown-item">Fazer Vendas</a>
 											</li>
 										</ul>
 									</div>
@@ -160,10 +160,10 @@
 										</a>
 										<ul class="dropdown-menu" aria-labelledby="dropdownMenuButton" >
 											<li>
-												<a href="productlist.html" class="dropdown-item">Product List</a>
+												<a href="/adicionardespesa/" class="dropdown-item">Adicionar Despesa</a>
 											</li>
 											<li>
-												<a href="addproduct.html" class="dropdown-item">Product Add</a>
+												<a href="/categoriadespesa" class="dropdown-item">Cadastrar Categoria de Despesa</a>
 											</li>
 										</ul>
 									</div>
@@ -173,53 +173,22 @@
 										<table class="table datatable ">
 											<thead>
 												<tr>
-													<th>Sno</th>
-													<th>Products</th>
-													<th>Price</th>
+													<th>Data</th>
+													<th>Despesa</th>
+													<th>Valor</th>
 												</tr>
 											</thead>
 											<tbody>
+											{% for despesa in despesas %}
 												<tr>
-													<td>1</td>
-													<td class="productimgname">
-														<a href="productlist.html" class="product-img">
-															<img src="{% static 'img/product/product22.jpg' %}" alt="product">
-														</a>
-														<a href="productlist.html">Apple Earpods</a>
+													<td>{{despesa.data}}</td>
+													<td>
+														{{despesa.nome_despesa}}
 													</td>
-													<td>$891.2</td>
+													<td>R$ {{despesa.valor}}</td>
 												</tr>
-												<tr>
-													<td>2</td>
-													<td class="productimgname">
-														<a href="productlist.html" class="product-img">
-															<img src="{% static 'img/product/product23.jpg' %}" alt="product">
-														</a>
-														<a href="productlist.html">iPhone 11</a>
-													</td>
-													<td>$668.51</td>
-												</tr>
-												<tr>
-													<td>3</td>
-													<td class="productimgname">
-														<a href="productlist.html" class="product-img">
-															<img src="{% static 'img/product/product24.jpg' %}" alt="product">
-														</a>
-														<a href="productlist.html">samsung</a>
-													</td>
-													<td>$522.29</td>
-												</tr>
-												<tr>
-													<td>4</td>
-													<td class="productimgname">
-														<a href="productlist.html" class="product-img">
-															<img src="{% static 'img/product/product6.jpg' %}" alt="product">
-														</a>
-														<a href="productlist.html">Macbook Pro</a>
-													</td>
-													<td>$291.01</td>
-												</tr>
-											</tbody>
+											{% endfor %}
+												</tbody>
 										</table>
 									</div>
 								</div>

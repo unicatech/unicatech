@@ -12,7 +12,7 @@ import re
 import logging
 from django.utils import timezone
 from Vendas.models import Venda
-from Compras.models import Compra
+from Compras.models import Compra, Deslocamento
 from Produtos.models import Produto
 from Contas.models import MovimentacaoConta, Conta
 from Despesas.models import CadastroDespesa
@@ -30,7 +30,10 @@ class IndexView(TemplateView):
             mes_selecionado = str(timezone.now().month)
             ano_selecionado = timezone.now().year
         vendas = Venda.objects.filter(criados__month=mes_selecionado).filter(criados__year=ano_selecionado).filter(ativo=True).order_by('-criados')
+        #compras = Compra.objects.filter(criados__month=mes_selecionado).filter(criados__year=ano_selecionado).filter(ativo=True).order_by('-criados')
         #vendas = Venda.objects.filter(criados__month='11').filter(criados__year='2023').filter(ativo=True).order_by('-id')
+        compras = Compra.objects.filter(criados__month='12').filter(criados__year='2023').filter(
+            ativo=True).order_by('-criados')
         venda_lucro_consolidado = 0
         #Campo Resumo Lucro Líquido por Venda
         listarVendasTemplate = []
@@ -38,11 +41,11 @@ class IndexView(TemplateView):
         lucro_venda = 0
         valor_total_venda = 0
         valor_recebido_venda = 0
-        quantidade_total_produtos = 0
         valor_excedente_venda_consolidado = 0
         total_a_receber_consolidado = 0
         valor_total_venda_consolidado = 0
         valor_recebido_venda_consolidado = 0
+        quantidade_total_produtos = 0
         #Dados de receita
         for venda in vendas:
             quantidade_total_produtos = quantidade_total_produtos + venda.quantidadeProduto
@@ -82,13 +85,10 @@ class IndexView(TemplateView):
                 lucro_venda = 0
 
         #Dados de despesa
-        logging.warning("Nome da Despesa")
-        logging.warning(str(mes_selecionado) + " " + str(ano_selecionado))
         despesas = CadastroDespesa.objects.filter(criados__month=mes_selecionado).filter(criados__year=ano_selecionado).filter(ativo=True).order_by('-criados')
         despesas_template = []
         for despesa in despesas:
             conta = Conta.objects.get(id=despesa.conta_debito_id)
-            logging.warning(conta.nomeConta)
             despesas_template.append(
                 {
                     'id': despesa.id,
@@ -105,11 +105,8 @@ class IndexView(TemplateView):
         for produto in produtos:
             compras_produto = Compra.objects.filter(produto_id=produto.id, ativo=True).order_by('-id')
             quantidade_produto_estoque = produto.estoque
-            logging.warning("Produto " + produto.NomeProduto)
             for compra in compras_produto:
                 if compra.quantidadeProduto >= quantidade_produto_estoque:
-                    logging.warning( str(compra.quantidadeProduto) + " " +
-                        str(produto.estoque) + " " + str(compra.valorDolarMedio) + " " + str(compra.precoProduto))
                     valor_total_estoque = (valor_total_estoque +
                                             float(compra.precoProduto) * compra.valorDolarMedio * quantidade_produto_estoque)
                     break
@@ -118,6 +115,39 @@ class IndexView(TemplateView):
                                             float(compra.precoProduto) * compra.valorDolarMedio * compra.quantidadeProduto)
                     quantidade_produto_estoque = quantidade_produto_estoque - compra.quantidadeProduto
 
+        #Total de compras no período
+        listarComprasTemplate = []
+        identificadorCompra = 0
+        valor_total_compra = 0
+        for compra in compras:
+            if identificadorCompra != compra.identificadorCompra:
+                #Valor total das compras
+                compra_identificada = Compra.objects.filter(identificadorCompra=compra.identificadorCompra,ativo=True)
+                for compra in compra_identificada:
+                    valor_total_compra = valor_total_compra + compra.quantidadeProduto * compra.precoProduto * compra.valorDolarMedio
+                #Calculando os fretes
+                itinerario = Deslocamento.objects.filter(identificadorCompra=compra.identificadorCompra,ativo=True)
+                valor_frete = 0
+                for cidade in itinerario:
+                    frete_deslocamento = MovimentacaoConta.objects.filter(id=cidade.idMovimentacaoConta, ativo=True)
+                    for valor_deslocamento in frete_deslocamento:
+                        if valor_deslocamento.identificadorDolar == True:
+                            valor_frete = valor_frete + valor_deslocamento.valorDebito * valor_deslocamento.cotacaoDolar
+                        else:
+                            valor_frete = valor_frete + valor_deslocamento.valorDebito
+                valor_total_compra = valor_total_compra + valor_frete
+                listarComprasTemplate.append(
+                    {
+                     'compra_id': compra.identificadorCompra,
+                     'nome_fornecedor': compra.fornecedor.nomeFornecedor,
+                     'data_compra': compra.criados,
+                     'valor_total_compra': valor_total_compra,
+                     }
+                )
+                valor_total_compra = 0
+                valor_frete = 0
+                identificadorCompra = compra.identificadorCompra
+
         context['vendas'] = listarVendasTemplate
         context['venda_lucro_total'] = venda_lucro_consolidado
         context['despesas'] = despesas_template
@@ -125,6 +155,7 @@ class IndexView(TemplateView):
         context['valor_recebido_venda'] = valor_recebido_venda_consolidado
         context['total_a_receber'] = total_a_receber_consolidado
         context['valor_excedente_venda'] = valor_excedente_venda_consolidado
+        context['compras'] = listarComprasTemplate
         if quantidade_total_produtos > 0:
             context['ticket_medio'] = valor_total_venda_consolidado / quantidade_total_produtos
         else:

@@ -18,7 +18,7 @@
 								</div>
 								<div class="dash-widgetcontent">
 									<h5 >R$ {{venda_lucro_total}}</h5>
-									<h6>Lucro EBITDA Total no Período</h6>
+									<h6>Lucro Total no Período</h6>
 								</div>
 							</div>
 						</div>
@@ -50,7 +50,7 @@
 									<span><img src="{% static 'img/icons/dash4.svg' %}" alt="img"></span>
 								</div>
 								<div class="dash-widgetcontent">
-									<h5 >R$<span class="counters" data-count="{{valor_total_estoque}}">{{valor_total_estoque}}</span></h5>
+									<h5 >R$ <span class="counters" data-count="{{valor_total_estoque}}">{{valor_total_estoque}}</span></h5>
 									<h6>Valor Total do Estoque</h6>
 								</div>
 							</div>
@@ -58,7 +58,7 @@
 						<div class="col-lg-3 col-sm-6 col-12 d-flex">
 							<div class="dash-count">
 								<div class="dash-counts">
-									<h4>R${{valor_recebido_venda}}</h4>
+									<h4>R$ {{valor_recebido_venda}}</h4>
 									<h5>Valor Recebido no Período</h5>
 								</div>
 								<div class="dash-imgs">
@@ -69,7 +69,7 @@
 						<div class="col-lg-3 col-sm-6 col-12 d-flex">
 							<div class="dash-count">
 								<div class="dash-counts">
-									<h4>R${{total_a_receber}}</h4>
+									<h4>R$ {{total_a_receber}}</h4>
 									<h5>Total a Receber no Período</h5>
 								</div>
 								<div class="dash-imgs">
@@ -80,7 +80,7 @@
 						<div class="col-lg-3 col-sm-6 col-12 d-flex">
 							<div class="dash-count das2">
 								<div class="dash-counts">
-									<h4>R${{valor_excedente_venda}}</h4>
+									<h4>R$ {{valor_excedente_venda}}</h4>
 									<h5>Valor Excedente das Vendas no Período</h5>
 								</div>
 								<div class="dash-imgs">
@@ -91,7 +91,7 @@
 						<div class="col-lg-3 col-sm-6 col-12 d-flex">
 							<div class="dash-count das3">
 								<div class="dash-counts">
-									<h4>R${{ticket_medio}}</h4>
+									<h4>R$ {{ticket_medio}}</h4>
 									<h5>Ticket Médio das Vendas no Período</h5>
 								</div>
 								<div class="dash-imgs">
@@ -194,7 +194,57 @@
 								</div>
 							</div>
 						</div>
-					    <div class="col-lg-7 col-sm-12 col-12 d-flex">
+					    <div class="row">
+						<div class="col-lg-5 col-sm-12 col-12 d-flex">
+							<div class="card flex-fill">
+								<div class="card-header pb-0 d-flex justify-content-between align-items-center">
+									<h4 class="card-title mb-0">Compras</h4>
+									<div class="dropdown">
+										<a href="javascript:void(0);" data-bs-toggle="dropdown" aria-expanded="false" class="dropset">
+											<i class="fa fa-ellipsis-v"></i>
+										</a>
+										<ul class="dropdown-menu" aria-labelledby="dropdownMenuButton" >
+											<li>
+												<a href="/fazercompras/" class="dropdown-item">Fazer Compra</a>
+											</li>
+											<li>
+												<a href="/listarcompras/" class="dropdown-item">Listar Compras</a>
+											</li>
+										</ul>
+									</div>
+								</div>
+								<div class="card-body">
+									<div class="table-responsive dataview">
+										<table class="table datatable ">
+											<thead>
+												<tr>
+													<th>Nota</th>
+													<th>Fornecedor</th>
+													<th>Valor</th>
+													<th>Data</th>
+												</tr>
+											</thead>
+											<tbody>
+											{% for compra in compras %}
+												<tr>
+													<td>{{compra.compra_id}}</td>
+													<td class="productimgname">
+													{{compra.nome_fornecedor}}
+													</td>
+													<td>{{compra.valor_total_compra}}</td>
+													<td>{{compra.data_compra}}</td>
+												</tr>
+											{% endfor %}
+											</tbody>
+										</table>
+									</div>
+								</div>
+							</div>
+						</div>
+
+
+
+						<div class="col-lg-7 col-sm-12 col-12 d-flex">
 							<div class="card flex-fill">
 								<div class="card-header pb-0 d-flex justify-content-between align-items-center">
 									<h5 class="card-title mb-0">Purchase & Sales</h5>

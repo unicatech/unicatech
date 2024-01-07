@@ -17,6 +17,7 @@ class Conta(Base):
     descricao = models.CharField('Descrição', max_length=200)
     cartao = models.IntegerField(null=True)
     valor_dolar_medio = models.FloatField(default=0)
+    taxa_wire = models.FloatField(default=0)
 
     class Meta:
         verbose_name = 'Conta'

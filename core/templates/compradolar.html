@@ -161,41 +161,6 @@
 						{% endfor %}
 
 
-						<div class="card mb-0">
-						<div class="card-body">
-							<h4 class="card-title">Últimas Movimentações</h4>
-							<div class="table-responsive dataview">
-								<table class="table datatable ">
-									<thead>
-										<tr>
-											<th>Data</th>
-											<th>Conta de Origem</th>
-											<th>Conta de Destino</th>
-											<th>Valor na Conta de Origem</th>
-											<th>Valor na Conta de Destino</th>
-											<th>Apagar</th>
-										</tr>
-									</thead>
-									<tbody>
-									{% for movimentacao in movimentacaoContas %}
-										<tr>
-											<td>{{ movimentacao.data }}</td>
-											<td>{{ movimentacao.contaOrigem }}</td>
-											<td>{{ movimentacao.contaDestino }}	</td>
-											<td>{{ movimentacao.valorContaOrigem|floatformat:2 }}</td>
-											<td>{{ movimentacao.valorContaDestino|floatformat:2 }}</td>
-											<td><a class="confirm-text"  href="{% url 'comprardolar' %}?idMovimento={{ movimentacao.idMovimento }}&funcao=apagar" onclick="javascript:void(0);">
-												<img src="{% static 'img/icons/delete.svg' %}" alt="img">
-												</a></td>
-										</tr>
-									{% endfor %}
-									</tbody>
-								</table>
-							</div>
-						</div>
-					</div>
-		<!-- /Main Wrapper -->
-		 
 		<!-- jQuery -->
  			{% include 'footer.html' %}
 

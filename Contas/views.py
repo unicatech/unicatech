@@ -982,7 +982,8 @@ class RetiradaView(TemplateView):
                         "idMovimento": conta.id,
                     }
                 )
-
+        # popular movimentações
+        #context["movimentacaoContas"] = self.movimentacoes_contas
         return movimentacaoContasTemplate
 
     def contas_origem_e_detalhadas(self):
@@ -1019,3 +1020,46 @@ class RetiradaView(TemplateView):
 
         return {"contaOrigem" : contaOrigem, "contasDetalhadasTemplate": contasDetalhadasTemplate}
 
+class ListarMovimentacoesView(TemplateView):
+    template_name = "listarmovimentacoes.html"
+    def get_context_data(self, **kwargs):
+        context = super(ListarMovimentacoesView, self).get_context_data(**kwargs)
+        context["mensagem"] = ""
+        if self.request.GET.__contains__("idMovimento"):
+            if self.request.GET["funcao"] == "apagar":
+                apagarmovimentacao = MovimentacaoConta(id=self.request.GET["idMovimento"])
+                apagarmovimentacao.delete()
+                context["mensagem"] = "Movimentação Apagada"
+        # popular movimentações
+        context["movimentacaoContas"] = self.movimentacoes_contas
+        return context
+    def movimentacoes_contas(self):
+        movimentacaoConta = MovimentacaoConta.objects.all().order_by('-id')
+        movimentacaoContasTemplate = []
+        for movimentacao in movimentacaoConta:
+            nome_conta_credito = "Conta não identificada"
+            nome_conta_debito = "Saldo Inicial"
+            # Se for uma movimentação de compra ou venda não listar
+            try:
+                contaCredito = Conta.objects.get(id=movimentacao.contaCredito_id)
+                nome_conta_credito = contaCredito.nomeConta
+            except:
+                pass
+            try:
+                contaDebito = Conta.objects.get(id=movimentacao.contaDebito)
+                nome_conta_debito = contaDebito.nomeConta
+            except:
+                pass
+            logging.warning(movimentacao.id)
+            if movimentacao.identificadorCompra == 0 and movimentacao.identificadorVenda == 0:
+                movimentacaoContasTemplate.append(
+                {
+                    "data": movimentacao.criados,
+                    "contaOrigem": nome_conta_debito,
+                    "contaDestino": nome_conta_credito,
+                    "valorContaOrigem": movimentacao.valorDebito,
+                    "valorContaDestino": movimentacao.valorCredito,
+                    "idMovimento": movimentacao.id,
+                }
+                )
+        return movimentacaoContasTemplate

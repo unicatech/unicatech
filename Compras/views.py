@@ -67,14 +67,9 @@ class FazerComprasView(TemplateView):
         contaOrigem = self.request.POST.getlist('contaOrigem')
         #Se a função for "Editar Compra" o valor será estornado para a conta de origem original da compra
         contaOrigemOriginal = self.request.POST.getlist('idConta')
-        frete = self.request.POST.getlist('frete')
         localizacaoCompra = self.request.POST.getlist('localizacaoCompra')
         identificadorCompra = self.request.POST.getlist('identificadorCompra')
         cotacaoDolar = self.request.POST.getlist('dolarMedio')
-        if frete[0] == "":
-            frete[0] = 0
-        else:
-            frete = self.request.POST.getlist('frete')
         descricao = self.request.POST.getlist('descricao')
 
         dataModificada = re.sub(r'(\d{1,2})-(\d{1,2})-(\d{4})', '\\3-\\2-\\1', dataCompra[0])
@@ -122,7 +117,6 @@ class FazerComprasView(TemplateView):
                     identificadorCompra=str(proximaCompra),
                     fornecedor_id=fornecedor[0],
                     produto_id=produto,
-#                    frete=frete[0],
                     descricao=descricao,
                     idLocalizacao_id=localizacaoCompra[0],
                     conta_id=contaOrigem[0],
@@ -137,7 +131,6 @@ class FazerComprasView(TemplateView):
                 atualizarEstoque.save()
 
                 contador = contador + 1
-        valorCompra = valorCompra + float(frete[0])
 
         tipoConta = Conta.objects.get(id=contaOrigem[0])
         identificadorDolar = False
@@ -254,9 +247,7 @@ class ListarComprasView(TemplateView):
             if identificadorCompra != compra.identificadorCompra:
                 compraIdentificada = Compra.objects.filter(identificadorCompra=compra.identificadorCompra, ativo=True)
                 valorCompraTotal = 0
-                frete = 0
                 for compra in compraIdentificada:
-                    frete = compra.frete
                     valorCompraTotal = valorCompraTotal + compra.quantidadeProduto * compra.precoProduto
                 itinerario_compra = Deslocamento.objects.filter(identificadorCompra=compra.identificadorCompra).order_by('-id')
                 cidade_atual = ""
@@ -264,7 +255,7 @@ class ListarComprasView(TemplateView):
                     localizacao = LocalizacaoCompra.objects.get(id=cidade.destino)
                     cidade_atual = localizacao.localizacaoCompra
                     break
-                valorCompraTotal = valorCompraTotal + frete
+                #valorCompraTotal = valorCompraTotal + frete
                 listarComprasTemplate.append(
                     {
                         'idCompra': compra.identificadorCompra,
@@ -277,24 +268,6 @@ class ListarComprasView(TemplateView):
                 valorCompraTotal = 0
                 identificadorCompra = compra.identificadorCompra
         context['listarCompras'] = listarComprasTemplate
-
-        # from django.db.models import F
-        # lista_identificadores = compras.distinct().values_list('identificadorCompra', flat=True)
-        # for identificador in lista_identificadores:
-        #     compra = Compra.objects.filter(
-        #         identificadorCompra=identificador, ativo=True).annotate(
-        #         valorCompraTotal=Sum(F('quantidadeProduto') * F('precoProduto')
-        #                              )
-        #     )
-        #     listarComprasTemplate.append(
-        #         {
-        #             'idCompra': compra.identificadorCompra,
-        #             'fornecedor': compra.fornecedor,
-        #             'dataCompra': compra.criados,
-        #             'valorCompra': compra.valorCompraTotal,
-        #             'localizacaoCompra': compra.idLocalizacao.localizacaoCompra,
-        #         }
-        #     )
 
         return (context)
 

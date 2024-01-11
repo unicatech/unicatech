@@ -75,7 +75,7 @@ class FazerComprasView(TemplateView):
         dataModificada = re.sub(r'(\d{1,2})-(\d{1,2})-(\d{4})', '\\3-\\2-\\1', dataCompra[0])
         contador = 0
         valorCompra = 0
-        valorEstorno = 0
+        valorEstornoCompra = 0
 
         # Desabilitando registro de Compra Salva caso função seja editar
         if identificadorCompra[0] != "":
@@ -83,9 +83,20 @@ class FazerComprasView(TemplateView):
             compraDesabilitada = Compra.objects.filter(identificadorCompra=identificadorCompra[0],ativo=True)
             #Devolvendo o dinheiro da Compra para a conta especifica
             for compra in compraDesabilitada:
-                valorEstorno = valorEstorno + compra.quantidadeProduto*compra.precoProduto
-            valorEstorno = valorEstorno + compra.frete
+                valorEstornoCompra = valorEstornoCompra + compra.quantidadeProduto*compra.precoProduto
+            itinerario_compra = Deslocamento.objects.filter(identificadorCompra=identificadorCompra[0],ativo=True)
             proximaCompra = identificadorCompra[0]
+            for cidade in itinerario_compra:
+                estorno_frete = MovimentacaoConta.objects.filter(id=cidade.idMovimentacaoConta)
+                estorno_frete_movimentacao_conta = MovimentacaoConta (
+                    criados=str(dataModificada),
+                    contaCredito_id=estorno_frete.contaDebito,
+                    valorCredito=estorno_frete.valorDebito,
+                    identificadorCompra=str(proximaCompra),
+                    descricao=descricao,
+                )
+                estorno_frete_movimentacao_conta.save()
+                estorno_frete.delete()
             formMovimentacao = MovimentacaoConta(
                 criados=str(dataModificada),
                 contaCredito_id=contaOrigemOriginal[0],
@@ -108,6 +119,14 @@ class FazerComprasView(TemplateView):
         # Salvando Compra
         contador = 0
         cotacaoDolar = cotacaoDolar[0].replace(',','.')
+        tipoConta = Conta.objects.get(id=contaOrigem[0])
+        identificadorDolar = False
+        if tipoConta.categoria_id == 4 or tipoConta.categoria_id == 5:
+            identificadorDolar = True
+        else:
+            #Compra em real
+            cotacaoDolar = 1
+
         for produto in produtos:
             if precos[contador] != "" and quantidades[contador] != "":
                 formCompra = Compra(
@@ -129,13 +148,8 @@ class FazerComprasView(TemplateView):
                 atualizarEstoque = Produto.objects.get(id=produto)
                 atualizarEstoque.estoque = atualizarEstoque.estoque + int(float(quantidades[contador]))
                 atualizarEstoque.save()
-
                 contador = contador + 1
 
-        tipoConta = Conta.objects.get(id=contaOrigem[0])
-        identificadorDolar = False
-        if tipoConta.categoria_id == 4 or tipoConta.categoria_id == 5:
-            identificadorDolar = True
         # Debitando da conta
         formMovimentacao = MovimentacaoConta(
             criados=str(dataModificada),

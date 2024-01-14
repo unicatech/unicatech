@@ -31,7 +31,7 @@ class FazerComprasView(TemplateView):
                         'precoProduto': compra.precoProduto,
                     }
                 )
-                context['frete'] = compra.frete
+                #context['frete'] = compra.frete
                 context['idLocalizacao'] = compra.idLocalizacao_id
                 context['dataCompra'] = compra.criados.strftime('%d-%m-%Y')
                 context['idFornecedor'] = compra.fornecedor_id
@@ -162,6 +162,15 @@ class FazerComprasView(TemplateView):
         )
         formMovimentacao.save()
 
+        # Colocando o local inicial
+        formDeslocamento = Deslocamento(
+            criados=str(dataModificada),
+            destino=localizacaoCompra[0],
+            frete="0",
+            identificadorCompra=str(proximaCompra),
+        )
+        formDeslocamento.save()
+
         context['mensagem'] = 'Compra Salva'
 
         # Popular template
@@ -176,7 +185,6 @@ class FazerComprasView(TemplateView):
         comprasDolar = MovimentacaoConta.objects.filter(identificadorDolar=True, identificadorCompra=0)
         #Compras efetuadas em dólar
         movimentacoesCompra = MovimentacaoConta.objects.filter(identificadorDolar=True, identificadorCompra__gt=0)
-
         #total em dólares de compras de produtos feitas em dólar
         totalCompraDolar = 0
         for movimentacao in movimentacoesCompra:
@@ -195,11 +203,6 @@ class FazerComprasView(TemplateView):
                 somaValorReal = somaValorReal + (-1) * totalCompraDolar * compra.cotacaoDolar
                 totalCompraDolar = 0
 
-        logging.warning("Soma Valor REal x Credito Remanescente")
-        logging.warning(somaValorReal)
-        logging.warning(creditoRemanescente)
-        logging.warning("===================")
-
         if creditoRemanescente > 0:
             valorDolarMedio = somaValorReal / creditoRemanescente
         else:
@@ -208,7 +211,7 @@ class FazerComprasView(TemplateView):
 
     def saldoConta(self):
         # Buscar saldo em contas
-        contasDetalhadas = Conta.objects.all()
+        contasDetalhadas = Conta.objects.all().filter(id__gt = 0)
         contasDetalhadasTemplate = []
 
         for conta in contasDetalhadas:
@@ -252,6 +255,8 @@ class ListarComprasView(TemplateView):
                     apagar.delete()
                 apagarmovimentacao = MovimentacaoConta.objects.filter(identificadorCompra=self.request.GET["idCompra"])
                 apagarmovimentacao.delete()
+                apagardeslocamento = Deslocamento.objects.filter(identificadorCompra=self.request.GET["idCompra"])
+                apagardeslocamento.delete()
 
         compras = Compra.objects.order_by('identificadorCompra').filter(ativo=True)
 
@@ -303,9 +308,10 @@ class LocalizacaoCompraView(TemplateView):
             if compra_deslocada == 0:
                 origem = localizacao.destino
                 compra_deslocada = 1
-            origem_itinerario = LocalizacaoCompra.objects.get(id=localizacao.origem)
-            destino_itinerario = LocalizacaoCompra.objects.get(id=localizacao.destino)
-            localizacao_detalhada.append(
+            try:
+                origem_itinerario = LocalizacaoCompra.objects.get(id=localizacao.origem)
+                destino_itinerario = LocalizacaoCompra.objects.get(id=localizacao.destino)
+                localizacao_detalhada.append(
                 {
                  "id": localizacao.id,
                  "origem": origem_itinerario.localizacaoCompra,
@@ -315,7 +321,10 @@ class LocalizacaoCompraView(TemplateView):
                  "id_movimentacao_conta": localizacao.idMovimentacaoConta,
                  "apagar_apenas_ultimo": apagar_apenas_ultimo,
                 }
-            )
+                )
+            except:
+                pass
+
             apagar_apenas_ultimo = 0
 
         if compra_deslocada == 0:
@@ -337,9 +346,10 @@ class LocalizacaoCompraView(TemplateView):
         hoje = agora.strftime("%Y-%m-%d")
         # Debitando frete da conta
         conta_em_dolar = 0
-        cotacao_dolar = 0
+        #cotacao_dolar = 1 indica pagamento em real
+        cotacao_dolar = 1
         conta_debito = Conta.objects.get(id=self.request.POST.get('conta'))
-        if conta_debito.categoria_id > 3:
+        if conta_debito.categoria_id == 4 or conta_debito.categoria_id == 5:
             conta_em_dolar = 1
             cotacao_dolar = self.dolarMedio()
 

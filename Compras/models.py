@@ -36,11 +36,11 @@ class LocalizacaoCompra(Base):
         return self.id
 
 class Deslocamento(Base):
-    origem = models.IntegerField()
-    destino = models.IntegerField()
+    origem = models.IntegerField(null=True)
+    destino = models.IntegerField(null=True)
     frete = models.FloatField(default=0)
     identificadorCompra = models.IntegerField()
-    idMovimentacaoConta = models.IntegerField()
+    idMovimentacaoConta = models.IntegerField(null=True)
     def __str__(self):
         return self.id
 class Fornecedor(Base):

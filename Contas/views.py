@@ -208,178 +208,21 @@ class ComprarDolarView(TemplateView):
                 apagarproduto.delete()
                 context["mensagem"] = "Conta Apagada"
 
+        # Popular template
+        informacoes_financeiras = MovimentacaoFinanceira()
+        context["cartaoCreditoValorTotal"] = informacoes_financeiras.valores_cartao_credito
+        context["especieValorTotal"] = informacoes_financeiras.valores_especie
+        context["depositoRealValorTotal"] = informacoes_financeiras.valores_conta_real
+        context["depositoDolarValorTotal"] = informacoes_financeiras.valores_dolar
+        context["depositoDolarPyValorTotal"] = informacoes_financeiras.valores_dolar_paraguai
+
         # Popular template com dados de conta
-        cartaoCredito = Conta.objects.filter(categoria_id=1)
-        especie = Conta.objects.filter(categoria_id=3)
-        depositoReal = Conta.objects.filter(categoria_id=2)
-        depositoDolar = Conta.objects.filter(categoria_id=4)
-        depositoDolarPy = Conta.objects.filter(categoria_id=5)
-        contasDetalhadas = Conta.objects.all()
-
-        cartaoCreditoValorTotal = 0
-        for cartaoCreditoValor in cartaoCredito:
-            #cartaoCreditoValorTotal = (
-            #    cartaoCreditoValorTotal + cartaoCreditoValor.saldoInicial
-            #)
-
-            cartaoCreditoMovimento = MovimentacaoConta.objects.filter(
-                contaCredito=cartaoCreditoValor.id
-            )
-            for conta in cartaoCreditoMovimento:
-                cartaoCreditoValorTotal = cartaoCreditoValorTotal + conta.valorCredito
-
-            cartaoCreditoMovimento = MovimentacaoConta.objects.filter(
-                contaDebito=cartaoCreditoValor.id
-            )
-            for conta in cartaoCreditoMovimento:
-                cartaoCreditoValorTotal = cartaoCreditoValorTotal - conta.valorDebito
-
-        especieValorTotal = 0
-        for especieValor in especie:
-            #especieValorTotal = especieValorTotal + especieValor.saldoInicial
-
-            especieMovimento = MovimentacaoConta.objects.filter(
-                contaCredito=especieValor.id
-            )
-            for conta in especieMovimento:
-                especieValorTotal = especieValorTotal + conta.valorCredito
-
-            especieMovimento = MovimentacaoConta.objects.filter(
-                contaDebito=especieValor.id
-            )
-            for conta in especieMovimento:
-                especieValorTotal = especieValorTotal - conta.valorDebito
-
-        depositoRealValorTotal = 0
-        for depositoRealValor in depositoReal:
-            #depositoRealValorTotal = (
-            #    depositoRealValorTotal + depositoRealValor.saldoInicial
-            #)
-
-            depositoRealMovimento = MovimentacaoConta.objects.filter(
-                contaCredito=depositoRealValor.id
-            )
-            for conta in depositoRealMovimento:
-                depositoRealValorTotal = depositoRealValorTotal + conta.valorCredito
-
-            depositoRealMovimento = MovimentacaoConta.objects.filter(
-                contaDebito=depositoRealValor.id
-            )
-            for conta in depositoRealMovimento:
-                depositoRealValorTotal = depositoRealValorTotal - conta.valorDebito
-
-        depositoDolarValorTotal = 0
-        for depositoDolarValor in depositoDolar:
-            #depositoDolarValorTotal = (
-            #    depositoDolarValorTotal + depositoDolarValor.saldoInicial
-            #)
-
-            depositoDolarMovimento = MovimentacaoConta.objects.filter(
-                contaCredito=depositoDolarValor.id
-            )
-            for conta in depositoDolarMovimento:
-                depositoDolarValorTotal = depositoDolarValorTotal + conta.valorCredito
-
-            depositoDolarMovimento = MovimentacaoConta.objects.filter(
-                contaDebito=depositoDolarValor.id
-            )
-            for conta in depositoDolarMovimento:
-                depositoDolarValorTotal = depositoDolarValorTotal - conta.valorDebito
-
-        depositoDolarPyValorTotal = 0
-        for depositoDolarPyValor in depositoDolarPy:
-            #depositoDolarPyValorTotal = (
-            #    depositoDolarPyValorTotal + depositoDolarPyValor.saldoInicial
-            #)
-
-            depositoDolarPyMovimento = MovimentacaoConta.objects.filter(
-                contaCredito=depositoDolarPyValor.id
-            )
-            for conta in depositoDolarPyMovimento:
-                depositoDolarPyValorTotal = (
-                    depositoDolarPyValorTotal + conta.valorCredito
-                )
-
-            depositoDolarPyMovimento = MovimentacaoConta.objects.filter(
-                contaDebito=depositoDolarPyValor.id
-            )
-            for conta in depositoDolarPyMovimento:
-                depositoDolarPyValorTotal = (
-                    depositoDolarPyValorTotal - conta.valorDebito
-                )
-
-        context["cartaoCreditoValorTotal"] = cartaoCreditoValorTotal
-        context["especieValorTotal"] = especieValorTotal
-        context["depositoRealValorTotal"] = depositoRealValorTotal
-        context["depositoDolarValorTotal"] = depositoDolarValorTotal
-        context["depositoDolarPyValorTotal"] = depositoDolarPyValorTotal
-
-        contasDetalhadasTemplate = []
-        contaOrigem = []
-        contaDestino = []
-
-        for conta in contasDetalhadas:
-            #saldoConta = conta.saldoInicial
-            saldoConta = 0
-            entradas = MovimentacaoConta.objects.filter(contaCredito=conta.id)
-
-            for entrada in entradas:
-                saldoConta = saldoConta + entrada.valorCredito
-
-            saidas = MovimentacaoConta.objects.filter(contaDebito=conta.id)
-
-            for saida in saidas:
-                saldoConta = saldoConta - saida.valorDebito
-
-            if conta.id == 0:
-                continue
-            if conta.categoria_id <= 3 and conta.categoria_id >= 1:
-                moeda = "R$"
-                contaOrigem.append({"id": conta.id, "nomeConta": conta.nomeConta})
-            else:
-                moeda = "US$"
-                contaDestino.append({"id": conta.id, "nomeConta": conta.nomeConta})
-
-            contasDetalhadasTemplate.append(
-                {"nomeConta": conta.nomeConta, "saldo": saldoConta, "moeda": moeda}
-            )
-
-        context["contasDetalhadas"] = contasDetalhadasTemplate
-        context["contaOrigem"] = contaOrigem
-        context["contaDestino"] = contaDestino
+        contas = informacoes_financeiras.contas_origem_e_detalhadas()
+        context["contasDetalhadas"] = contas["contasDetalhadasTemplate"]
+        context["contaOrigem"] = contas["contaOrigem"]
 
         # popular movimentações
-
-        movimentacaoConta = MovimentacaoConta.objects.all()
-        movimentacaoContasTemplate = []
-        for movimentacao in movimentacaoConta:
-            nome_conta_credito = "Conta não identificada"
-            nome_conta_debito = "Saldo Inicial"
-            # Se for uma movimentação de compra ou venda não listar
-            try:
-                logging.warning(movimentacao.contaCredito_id)
-                contaCredito = Conta.objects.get(id=movimentacao.contaCredito_id)
-                nome_conta_credito = contaCredito.nomeConta
-            except:
-                pass
-            try:
-                contaDebito = Conta.objects.get(id=movimentacao.contaDebito)
-                nome_conta_debito = contaDebito.nomeConta
-            except:
-                pass
-
-            if movimentacao.identificadorCompra == 0 and movimentacao.identificadorVenda == 0:
-                movimentacaoContasTemplate.append(
-                    {
-                        "data": movimentacao.criados,
-                        "contaOrigem": nome_conta_debito,
-                        "contaDestino": nome_conta_credito,
-                        "valorContaOrigem": movimentacao.valorDebito,
-                        "valorContaDestino": movimentacao.valorCredito,
-                        "idMovimento": movimentacao.id,
-                    }
-                )
-        context["movimentacaoContas"] = movimentacaoContasTemplate
+        context["movimentacaoContas"] = informacoes_financeiras.movimentacoes_contas
 
         return context
 
@@ -479,10 +322,6 @@ class ComprarDolarView(TemplateView):
 
         depositoDolarPyValorTotal = 0
         for depositoDolarPyValor in depositoDolarPy:
-            #depositoDolarPyValorTotal = (
-            #    depositoDolarPyValorTotal + depositoDolarPyValor.saldoInicial
-            #)
-
             depositoDolarPyMovimento = MovimentacaoConta.objects.filter(
                 contaCredito=depositoDolarPyValor.id
             )
@@ -581,18 +420,21 @@ class AdicionarFundosView(TemplateView):
                 context["mensagem"] = "Movimento Financeiro Apagado"
 
         # Popular template
-        context["cartaoCreditoValorTotal"] = self.valores_cartao_credito
-        context["especieValorTotal"] = self.valores_especie
-        context["depositoRealValorTotal"] = self.valores_conta_real
-        context["depositoDolarValorTotal"] = self.valores_dolar
-        context["depositoDolarPyValorTotal"] = self.valores_dolar_paraguai
+        # Popular template
+        informacoes_financeiras = MovimentacaoFinanceira()
+        context["cartaoCreditoValorTotal"] = informacoes_financeiras.valores_cartao_credito
+        context["especieValorTotal"] = informacoes_financeiras.valores_especie
+        context["depositoRealValorTotal"] = informacoes_financeiras.valores_conta_real
+        context["depositoDolarValorTotal"] = informacoes_financeiras.valores_dolar
+        context["depositoDolarPyValorTotal"] = informacoes_financeiras.valores_dolar_paraguai
 
         # Popular template com dados de conta
-        contas = self.contas_origem_e_detalhadas()
+        contas = informacoes_financeiras.contas_origem_e_detalhadas()
         context["contasDetalhadas"] = contas["contasDetalhadasTemplate"]
         context["contaOrigem"] = contas["contaOrigem"]
+
         # popular movimentações
-        context["movimentacaoContas"] = self.movimentacoes_contas
+        context["movimentacaoContas"] = informacoes_financeiras.movimentacoes_contas
 
         return context
 
@@ -612,189 +454,22 @@ class AdicionarFundosView(TemplateView):
         context["mensagem"] = "Aporte Efetuado"
 
         # Popular template
-        context["especieValorTotal"] = self.valores_especie
-        context["depositoRealValorTotal"] = self.valores_conta_real
-        context["depositoDolarValorTotal"] = self.valores_dolar
-        context["depositoDolarPyValorTotal"] = self.valores_dolar_paraguai
-        context["cartaoCreditoValorTotal"] = self.valores_cartao_credito
+        informacoes_financeiras = MovimentacaoFinanceira()
+        context["cartaoCreditoValorTotal"] = informacoes_financeiras.valores_cartao_credito
+        context["especieValorTotal"] = informacoes_financeiras.valores_especie
+        context["depositoRealValorTotal"] = informacoes_financeiras.valores_conta_real
+        context["depositoDolarValorTotal"] = informacoes_financeiras.valores_dolar
+        context["depositoDolarPyValorTotal"] = informacoes_financeiras.valores_dolar_paraguai
 
         # Popular template com dados de conta
-        contas = self.contas_origem_e_detalhadas()
+        contas = informacoes_financeiras.contas_origem_e_detalhadas()
         context["contasDetalhadas"] = contas["contasDetalhadasTemplate"]
         context["contaOrigem"] = contas["contaOrigem"]
 
         # popular movimentações
-        context["movimentacaoContas"] = self.movimentacoes_contas
+        context["movimentacaoContas"] = informacoes_financeiras.movimentacoes_contas
 
         return super(TemplateView, self).render_to_response(context)
-
-    def valores_cartao_credito(self):
-        cartaoCredito = Conta.objects.filter(categoria_id=1)
-        cartaoCreditoValorTotal = 0
-        for cartaoCreditoValor in cartaoCredito:
-            #cartaoCreditoValorTotal = (
-            #    cartaoCreditoValorTotal + cartaoCreditoValor.saldoInicial
-            #)
-            cartaoCreditoMovimento = MovimentacaoConta.objects.filter(
-                contaCredito=cartaoCreditoValor.id
-            )
-            for conta in cartaoCreditoMovimento:
-                cartaoCreditoValorTotal = cartaoCreditoValorTotal + conta.valorCredito
-
-            cartaoCreditoMovimento = MovimentacaoConta.objects.filter(
-                contaDebito=cartaoCreditoValor.id
-            )
-            for conta in cartaoCreditoMovimento:
-                cartaoCreditoValorTotal = cartaoCreditoValorTotal - conta.valorDebito
-
-        return cartaoCreditoValorTotal
-
-    def valores_especie(self):
-        especie = Conta.objects.filter(categoria_id=3)
-        especieValorTotal = 0
-        for especieValor in especie:
-            #especieValorTotal = especieValorTotal + especieValor.saldoInicial
-            especieMovimento = MovimentacaoConta.objects.filter(
-                contaCredito=especieValor.id
-            )
-            for conta in especieMovimento:
-                especieValorTotal = especieValorTotal + conta.valorCredito
-
-            especieMovimento = MovimentacaoConta.objects.filter(
-                contaDebito=especieValor.id
-            )
-            for conta in especieMovimento:
-                especieValorTotal = especieValorTotal - conta.valorDebito
-
-        return especieValorTotal
-
-    def valores_conta_real(self):
-        depositoReal = Conta.objects.filter(categoria_id=2)
-        depositoRealValorTotal = 0
-        for depositoRealValor in depositoReal:
-            #depositoRealValorTotal = (
-            #    depositoRealValorTotal + depositoRealValor.saldoInicial
-            #)
-
-            depositoRealMovimento = MovimentacaoConta.objects.filter(
-                contaCredito=depositoRealValor.id
-            )
-            for conta in depositoRealMovimento:
-                depositoRealValorTotal = depositoRealValorTotal + conta.valorCredito
-
-            depositoRealMovimento = MovimentacaoConta.objects.filter(
-                contaDebito=depositoRealValor.id
-            )
-            for conta in depositoRealMovimento:
-                depositoRealValorTotal = depositoRealValorTotal - conta.valorDebito
-
-        return depositoRealValorTotal
-
-    def valores_dolar(self):
-        depositoDolar = Conta.objects.filter(categoria_id=4)
-        depositoDolarValorTotal = 0
-        for depositoDolarValor in depositoDolar:
-            #depositoDolarValorTotal = (
-            #    depositoDolarValorTotal + depositoDolarValor.saldoInicial
-            #)
-
-            depositoDolarMovimento = MovimentacaoConta.objects.filter(
-                contaCredito=depositoDolarValor.id
-            )
-            for conta in depositoDolarMovimento:
-                depositoDolarValorTotal = depositoDolarValorTotal + conta.valorCredito
-
-            depositoDolarMovimento = MovimentacaoConta.objects.filter(
-                contaDebito=depositoDolarValor.id
-            )
-            for conta in depositoDolarMovimento:
-                depositoDolarValorTotal = depositoDolarValorTotal - conta.valorDebito
-
-        return depositoDolarValorTotal
-
-    def valores_dolar_paraguai(self):
-        depositoDolarPy = Conta.objects.filter(categoria_id=5)
-        depositoDolarPyValorTotal = 0
-        for depositoDolarPyValor in depositoDolarPy:
-            depositoDolarPyValorTotal = (
-                depositoDolarPyValorTotal + depositoDolarPyValor.saldoInicial
-            )
-
-            depositoDolarPyMovimento = MovimentacaoConta.objects.filter(
-                contaCredito=depositoDolarPyValor.id
-            )
-            for conta in depositoDolarPyMovimento:
-                depositoDolarPyValorTotal = (
-                    depositoDolarPyValorTotal + conta.valorCredito
-                )
-
-            depositoDolarPyMovimento = MovimentacaoConta.objects.filter(
-                contaDebito=depositoDolarPyValor.id
-            )
-            for conta in depositoDolarPyMovimento:
-                depositoDolarPyValorTotal = (
-                    depositoDolarPyValorTotal - conta.valorDebito
-                )
-
-        return depositoDolarPyValorTotal
-
-    def movimentacoes_contas(self):
-        movimentacaoConta = MovimentacaoConta.objects.all()[:10]
-        movimentacaoContasTemplate = []
-
-        for conta in movimentacaoConta:
-            # Se for uma movimentação de compra ou venda ou movimentação entre contas não listar
-            if conta.identificadorCompra == 0 and conta.identificadorVenda == 0:
-                contaCredito = Conta.objects.get(id=conta.contaCredito_id)
-                movimentacaoContasTemplate.append(
-                    {
-                        "data": conta.criados,
-                        "contaOrigem": contaCredito.nomeConta,
-                        "valorContaOrigem": conta.valorCredito,
-                        "idMovimento": conta.id,
-                    }
-                )
-
-        return movimentacaoContasTemplate
-
-    def contas_origem_e_detalhadas(self):
-        contasDetalhadas = Conta.objects.all()
-        contasDetalhadasTemplate = []
-        contaOrigem = []
-        contaDestino = []
-        saldoConta = 0
-        for conta in contasDetalhadas:
-            #saldoConta = conta.saldoInicial
-            entradas = MovimentacaoConta.objects.filter(contaCredito=conta.id)
-
-            for entrada in entradas:
-                saldoConta = saldoConta + entrada.valorCredito
-
-            saidas = MovimentacaoConta.objects.filter(contaDebito=conta.id)
-
-            for saida in saidas:
-                saldoConta = saldoConta - saida.valorDebito
-
-            if conta.id == 0:
-                continue
-
-            if conta.categoria_id <= 3 and conta.categoria_id >= 1:
-                moeda = "R$"
-            else:
-                moeda = "US$"
-
-            if conta.categoria_id == 3 or conta.categoria_id == 2:
-                contaOrigem.append({"id": conta.id, "nomeConta": conta.nomeConta})
-
-            contasDetalhadasTemplate.append(
-                {"nomeConta": conta.nomeConta, "saldo": saldoConta, "moeda": moeda}
-            )
-
-            saldoConta = 0
-
-
-        return {"contaOrigem" : contaOrigem, "contasDetalhadasTemplate": contasDetalhadasTemplate}
-
 class RetiradaView(TemplateView):
     template_name = "retirada.html"
 
@@ -808,18 +483,19 @@ class RetiradaView(TemplateView):
                 context["mensagem"] = "Conta Apagada"
 
         # Popular template
-        context["cartaoCreditoValorTotal"] = self.valores_cartao_credito
-        context["especieValorTotal"] = self.valores_especie
-        context["depositoRealValorTotal"] = self.valores_conta_real
-        context["depositoDolarValorTotal"] = self.valores_dolar
-        context["depositoDolarPyValorTotal"] = self.valores_dolar_paraguai
+        informacoes_financeiras = MovimentacaoFinanceira()
+        context["cartaoCreditoValorTotal"] = informacoes_financeiras.valores_cartao_credito
+        context["especieValorTotal"] = informacoes_financeiras.valores_especie
+        context["depositoRealValorTotal"] = informacoes_financeiras.valores_conta_real
+        context["depositoDolarValorTotal"] = informacoes_financeiras.valores_dolar
+        context["depositoDolarPyValorTotal"] = informacoes_financeiras.valores_dolar_paraguai
 
         # Popular template com dados de conta
-        contas = self.contas_origem_e_detalhadas()
+        contas = informacoes_financeiras.contas_origem_e_detalhadas()
         context["contasDetalhadas"] = contas["contasDetalhadasTemplate"]
         context["contaOrigem"] = contas["contaOrigem"]
         # popular movimentações
-        context["movimentacaoContas"] = self.movimentacoes_contas
+        context["movimentacaoContas"] = informacoes_financeiras.movimentacoes_contas
 
         return context
 
@@ -840,29 +516,71 @@ class RetiradaView(TemplateView):
         context["mensagem"] = "Retirada Efetuada"
 
         # Popular template
-        context["especieValorTotal"] = self.valores_especie
-        context["depositoRealValorTotal"] = self.valores_conta_real
-        context["depositoDolarValorTotal"] = self.valores_dolar
-        context["depositoDolarPyValorTotal"] = self.valores_dolar_paraguai
-        context["cartaoCreditoValorTotal"] = self.valores_cartao_credito
+        informacoes_financeiras = MovimentacaoFinanceira()
+        context["cartaoCreditoValorTotal"] = informacoes_financeiras.valores_cartao_credito
+        context["especieValorTotal"] = informacoes_financeiras.valores_especie
+        context["depositoRealValorTotal"] = informacoes_financeiras.valores_conta_real
+        context["depositoDolarValorTotal"] = informacoes_financeiras.valores_dolar
+        context["depositoDolarPyValorTotal"] = informacoes_financeiras.valores_dolar_paraguai
 
         # Popular template com dados de conta
-        contas = self.contas_origem_e_detalhadas()
+        contas = informacoes_financeiras.contas_origem_e_detalhadas()
         context["contasDetalhadas"] = contas["contasDetalhadasTemplate"]
         context["contaOrigem"] = contas["contaOrigem"]
 
         # popular movimentações
-        context["movimentacaoContas"] = self.movimentacoes_contas
+        context["movimentacaoContas"] = informacoes_financeiras.movimentacoes_contas
 
         return super(TemplateView, self).render_to_response(context)
+class ListarMovimentacoesView(TemplateView):
+    template_name = "listarmovimentacoes.html"
+    def get_context_data(self, **kwargs):
+        context = super(ListarMovimentacoesView, self).get_context_data(**kwargs)
+        context["mensagem"] = ""
+        if self.request.GET.__contains__("idMovimento"):
+            if self.request.GET["funcao"] == "apagar":
+                apagarmovimentacao = MovimentacaoConta(id=self.request.GET["idMovimento"])
+                apagarmovimentacao.delete()
+                context["mensagem"] = "Movimentação Apagada"
+        # popular movimentações
+        context["movimentacaoContas"] = self.movimentacoes_contas
+        return context
+    def movimentacoes_contas(self):
+        movimentacaoConta = MovimentacaoConta.objects.all().order_by('-id')
+        movimentacaoContasTemplate = []
+        for movimentacao in movimentacaoConta:
+            nome_conta_credito = "Conta não identificada"
+            nome_conta_debito = "Saldo Inicial"
+            # Se for uma movimentação de compra ou venda não listar
+            try:
+                contaCredito = Conta.objects.get(id=movimentacao.contaCredito_id)
+                nome_conta_credito = contaCredito.nomeConta
+            except:
+                pass
+            try:
+                contaDebito = Conta.objects.get(id=movimentacao.contaDebito)
+                nome_conta_debito = contaDebito.nomeConta
+            except:
+                pass
+            logging.warning(movimentacao.id)
+            if movimentacao.identificadorCompra == 0 and movimentacao.identificadorVenda == 0:
+                movimentacaoContasTemplate.append(
+                {
+                    "data": movimentacao.criados,
+                    "contaOrigem": nome_conta_debito,
+                    "contaDestino": nome_conta_credito,
+                    "valorContaOrigem": movimentacao.valorDebito,
+                    "valorContaDestino": movimentacao.valorCredito,
+                    "idMovimento": movimentacao.id,
+                }
+                )
+        return movimentacaoContasTemplate
 
+class MovimentacaoFinanceira:
     def valores_cartao_credito(self):
         cartaoCredito = Conta.objects.filter(categoria_id=1)
         cartaoCreditoValorTotal = 0
         for cartaoCreditoValor in cartaoCredito:
-            #cartaoCreditoValorTotal = (
-            #    cartaoCreditoValorTotal + cartaoCreditoValor.saldoInicial
-            #)
             cartaoCreditoMovimento = MovimentacaoConta.objects.filter(
                 contaCredito=cartaoCreditoValor.id
             )
@@ -878,7 +596,7 @@ class RetiradaView(TemplateView):
         return cartaoCreditoValorTotal
 
     def valores_especie(self):
-        especie = Conta.objects.filter(categoria_id=3)
+        especie = Conta.objects.filter(categoria_id=3).filter(id__gt=0)
         especieValorTotal = 0
         for especieValor in especie:
             #especieValorTotal = especieValorTotal + especieValor.saldoInicial
@@ -900,10 +618,6 @@ class RetiradaView(TemplateView):
         depositoReal = Conta.objects.filter(categoria_id=2)
         depositoRealValorTotal = 0
         for depositoRealValor in depositoReal:
-            #depositoRealValorTotal = (
-            #    depositoRealValorTotal + depositoRealValor.saldoInicial
-            #)
-
             depositoRealMovimento = MovimentacaoConta.objects.filter(
                 contaCredito=depositoRealValor.id
             )
@@ -987,7 +701,7 @@ class RetiradaView(TemplateView):
         return movimentacaoContasTemplate
 
     def contas_origem_e_detalhadas(self):
-        contasDetalhadas = Conta.objects.all()
+        contasDetalhadas = Conta.objects.all().filter(id__gt=0)
         contasDetalhadasTemplate = []
         contaOrigem = []
         contaDestino = []
@@ -1019,47 +733,3 @@ class RetiradaView(TemplateView):
 
 
         return {"contaOrigem" : contaOrigem, "contasDetalhadasTemplate": contasDetalhadasTemplate}
-
-class ListarMovimentacoesView(TemplateView):
-    template_name = "listarmovimentacoes.html"
-    def get_context_data(self, **kwargs):
-        context = super(ListarMovimentacoesView, self).get_context_data(**kwargs)
-        context["mensagem"] = ""
-        if self.request.GET.__contains__("idMovimento"):
-            if self.request.GET["funcao"] == "apagar":
-                apagarmovimentacao = MovimentacaoConta(id=self.request.GET["idMovimento"])
-                apagarmovimentacao.delete()
-                context["mensagem"] = "Movimentação Apagada"
-        # popular movimentações
-        context["movimentacaoContas"] = self.movimentacoes_contas
-        return context
-    def movimentacoes_contas(self):
-        movimentacaoConta = MovimentacaoConta.objects.all().order_by('-id')
-        movimentacaoContasTemplate = []
-        for movimentacao in movimentacaoConta:
-            nome_conta_credito = "Conta não identificada"
-            nome_conta_debito = "Saldo Inicial"
-            # Se for uma movimentação de compra ou venda não listar
-            try:
-                contaCredito = Conta.objects.get(id=movimentacao.contaCredito_id)
-                nome_conta_credito = contaCredito.nomeConta
-            except:
-                pass
-            try:
-                contaDebito = Conta.objects.get(id=movimentacao.contaDebito)
-                nome_conta_debito = contaDebito.nomeConta
-            except:
-                pass
-            logging.warning(movimentacao.id)
-            if movimentacao.identificadorCompra == 0 and movimentacao.identificadorVenda == 0:
-                movimentacaoContasTemplate.append(
-                {
-                    "data": movimentacao.criados,
-                    "contaOrigem": nome_conta_debito,
-                    "contaDestino": nome_conta_credito,
-                    "valorContaOrigem": movimentacao.valorDebito,
-                    "valorContaDestino": movimentacao.valorCredito,
-                    "idMovimento": movimentacao.id,
-                }
-                )
-        return movimentacaoContasTemplate

@@ -30,10 +30,10 @@ class IndexView(TemplateView):
             mes_selecionado = str(timezone.now().month)
             ano_selecionado = timezone.now().year
         vendas = Venda.objects.filter(criados__month=mes_selecionado).filter(criados__year=ano_selecionado).filter(ativo=True).order_by('-criados')
-        #compras = Compra.objects.filter(criados__month=mes_selecionado).filter(criados__year=ano_selecionado).filter(ativo=True).order_by('-criados')
+        compras = Compra.objects.filter(criados__month=mes_selecionado).filter(criados__year=ano_selecionado).filter(ativo=True).order_by('-criados')
         #vendas = Venda.objects.filter(criados__month='11').filter(criados__year='2023').filter(ativo=True).order_by('-id')
-        compras = Compra.objects.filter(criados__month='12').filter(criados__year='2023').filter(
-            ativo=True).order_by('-criados')
+        #compras = Compra.objects.filter(criados__month='12').filter(criados__year='2023').filter(
+        #    ativo=True).order_by('-criados')
         venda_lucro_consolidado = 0
         #Campo Resumo Lucro Líquido por Venda
         listarVendasTemplate = []
@@ -119,6 +119,7 @@ class IndexView(TemplateView):
         listarComprasTemplate = []
         identificadorCompra = 0
         valor_total_compra = 0
+        consolidado_compras_mensal = 0
         for compra in compras:
             if identificadorCompra != compra.identificadorCompra:
                 #Valor total das compras
@@ -144,6 +145,7 @@ class IndexView(TemplateView):
                      'valor_total_compra': valor_total_compra,
                      }
                 )
+                consolidado_compras_mensal = consolidado_compras_mensal + valor_total_compra
                 valor_total_compra = 0
                 valor_frete = 0
                 identificadorCompra = compra.identificadorCompra
@@ -156,6 +158,7 @@ class IndexView(TemplateView):
         context['total_a_receber'] = total_a_receber_consolidado
         context['valor_excedente_venda'] = valor_excedente_venda_consolidado
         context['compras'] = listarComprasTemplate
+        context['consolidado_compras'] = consolidado_compras_mensal
         if quantidade_total_produtos > 0:
             context['ticket_medio'] = valor_total_venda_consolidado / quantidade_total_produtos
         else:

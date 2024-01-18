@@ -17,8 +17,8 @@
 									<span><img src="{% static 'img/icons/dash2.svg' %}" alt="img"></span>
 								</div>
 								<div class="dash-widgetcontent">
-									<h5 >R$ {{venda_lucro_total}}</h5>
-									<h6>Lucro Total no Período</h6>
+									<h5 >R$ {{valor_total_venda}}</h5>
+									<h6>Faturamento Total no Período</h6>
 								</div>
 							</div>
 						</div>
@@ -28,8 +28,8 @@
 									<span><img src="{% static 'img/icons/dash1.svg' %}" alt="img"></span>
 								</div>
 								<div class="dash-widgetcontent">
-									<h5 >R$ {{valor_total_venda}}</h5>
-									<h6>Faturamento Total no Período</h6>
+									<h5 >R$ {{valor_recebido_venda}}</h5>
+									<h6>Valor Recebido no Período</h6>
 								</div>
 							</div>
 						</div>
@@ -39,8 +39,19 @@
 									<span><img src="{% static 'img/icons/dash3.svg' %}" alt="img"></span>
 								</div>
 								<div class="dash-widgetcontent">
-									<h5 >$<span class="counters" data-count="385656.50">385,656.50</span></h5>
-									<h6>Total em Compras no Período</h6>
+									<h5 >R$ {{total_a_receber}}</h5>
+									<h6>Total a Receber no Período</h6>
+								</div>
+							</div>
+						</div>
+						<div class="col-lg-3 col-sm-6 col-12">
+							<div class="dash-widget dash2">
+								<div class="dash-widgetimg">
+									<span><img src="{% static 'img/icons/dash3.svg' %}" alt="img"></span>
+								</div>
+								<div class="dash-widgetcontent">
+									<h5 >R$ {{valor_excedente_venda}}</h5>
+									<h6>Valor Excedente das Vendas no Período</h6>
 								</div>
 							</div>
 						</div>
@@ -55,11 +66,46 @@
 								</div>
 							</div>
 						</div>
+
+						<div class="col-lg-3 col-sm-6 col-12">
+							<div class="dash-widget dash3">
+								<div class="dash-widgetimg">
+									<span><img src="{% static 'img/icons/dash4.svg' %}" alt="img"></span>
+								</div>
+								<div class="dash-widgetcontent">
+									<h5>R$ {{ticket_medio}}</h5>
+									<h6>Ticket Médio das Vendas no Período</h6>
+								</div>
+							</div>
+						</div>
+						<div class="col-lg-3 col-sm-6 col-12">
+							<div class="dash-widget dash3">
+								<div class="dash-widgetimg">
+									<span><img src="{% static 'img/icons/dash4.svg' %}" alt="img"></span>
+								</div>
+								<div class="dash-widgetcontent">
+									<h5>R$ {{ticket_medio}}</h5>
+									<h6>Para preencher</h6>
+								</div>
+							</div>
+						</div>
+						<div class="col-lg-3 col-sm-6 col-12">
+							<div class="dash-widget dash3">
+								<div class="dash-widgetimg">
+									<span><img src="{% static 'img/icons/dash4.svg' %}" alt="img"></span>
+								</div>
+								<div class="dash-widgetcontent">
+									<h5>R$ {{ticket_medio}}</h5>
+									<h6>Para preencher</h6>
+								</div>
+							</div>
+						</div>
+
 						<div class="col-lg-3 col-sm-6 col-12 d-flex">
 							<div class="dash-count">
 								<div class="dash-counts">
-									<h4>R$ {{valor_recebido_venda}}</h4>
-									<h5>Valor Recebido no Período</h5>
+									<h4>R$ {{venda_lucro_total}}</h4>
+									<h5>Lucro Total no Período</h5>
 								</div>
 								<div class="dash-imgs">
 									<i data-feather="user"></i>
@@ -69,8 +115,8 @@
 						<div class="col-lg-3 col-sm-6 col-12 d-flex">
 							<div class="dash-count">
 								<div class="dash-counts">
-									<h4>R$ {{total_a_receber}}</h4>
-									<h5>Total a Receber no Período</h5>
+									<h4>R$ {{consolidado_compras}}</h4>
+									<h5>Total em Compras no Período</h5>
 								</div>
 								<div class="dash-imgs">
 									<i data-feather="user-check"></i>
@@ -81,7 +127,7 @@
 							<div class="dash-count das2">
 								<div class="dash-counts">
 									<h4>R$ {{valor_excedente_venda}}</h4>
-									<h5>Valor Excedente das Vendas no Período</h5>
+									<h5>Despesas Totais no Período</h5>
 								</div>
 								<div class="dash-imgs">
 									<i data-feather="file-text"></i>
@@ -92,7 +138,7 @@
 							<div class="dash-count das3">
 								<div class="dash-counts">
 									<h4>R$ {{ticket_medio}}</h4>
-									<h5>Ticket Médio das Vendas no Período</h5>
+									<h5>Saldo Líquido Mensal</h5>
 								</div>
 								<div class="dash-imgs">
 									<i data-feather="file"></i>

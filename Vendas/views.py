@@ -341,9 +341,6 @@ class ParcelasReceberView(TemplateView):
                             'Credito': recebimento_venda.contaCredito,
                             'identificador_parcela': recebimento_venda.id,
                     })
-                    logging.warning("Valor Recebido")
-                    logging.warning(valor_recebido_venda)
-                    logging.warning(recebimento_venda.valorCredito)
                     valor_recebido_venda = valor_recebido_venda + recebimento_venda.valorCredito
                 total_a_receber = valorVendaTotal - valor_recebido_venda
                 if total_a_receber > 0:
@@ -357,10 +354,8 @@ class ParcelasReceberView(TemplateView):
                         'total_a_receber': total_a_receber,
                         }
                     )
-                logging.warning("================================")
                 valor_recebido_venda = 0
                 recebimentos = []
-                logging.warning(type(listarVendasTemplate))
                 valorVendaTotal = 0
                 identificadorVenda = venda.identificadorVenda
         context['listarVendas'] = listarVendasTemplate
@@ -397,7 +392,7 @@ class ParcelasReceberModalView(TemplateView):
 
         context['listarVendas'] = listarVendasTemplate
 
-        contasDetalhadas = Conta.objects.all()
+        contasDetalhadas = Conta.objects.all().filter(id__gt=0)
         contaCredito = []
         for conta in contasDetalhadas:
             if conta.categoria_id <= 3 and conta.categoria_id >= 1:

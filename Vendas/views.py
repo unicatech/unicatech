@@ -171,7 +171,7 @@ class FazerVendasView(TemplateView):
                             pass
                         compra_total_produto = (compra_total_produto +
                                                 estoque_preco_medio *
-                                                float(compra.precoProduto) * compra.valorDolarMedio) + frete_deslocamento
+                                                float(compra.precoProduto) * compra.valorDolarMedio)
                         quantidade_produto = quantidade_produto + estoque_preco_medio
                         logging.warning("Preco de Compra/Valor Dolar Medio/Quantidade Comprada")
                         logging.warning(compra.precoProduto)

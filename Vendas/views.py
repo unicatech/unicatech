@@ -161,31 +161,36 @@ class FazerVendasView(TemplateView):
                 quantidade_produto_compra = 0
                 frete_deslocamento = 0
                 for compra in compras_produto:
-                    logging.warning(compra.identificadorCompra)
                     if compra.quantidadeProduto >= estoque_preco_medio:
                         try:
-                            deslocamentos = Deslocamento.objects.filter(identificadorCompra = compra.identificadorCompra)
+                            deslocamentos = Deslocamento.objects.filter(identificadorCompra=compra.identificadorCompra)
                             for deslocamento in deslocamentos:
                                 frete_deslocamento = frete_deslocamento + deslocamento.frete
                             frete_deslocamento = frete_deslocamento + compra.frete * compra.valorDolarMedio
                         except:
                             pass
-                        try:
-                            compra = Compra.objects.filter(identificadorVenda = compra.identificadorCompra,
-                                                         ativo=True).aggregate(Sum('quantidadeProduto'))
-                            quantidade_produto_compra = int(venda_original["quantidadeProduto__sum"])
-                        except:
-                            quantidade_produto_compra = 0
                         compra_total_produto = (compra_total_produto +
                                                 estoque_preco_medio *
-                                                float(compra.precoProduto) * compra.valorDolarMedio)
+                                                float(compra.precoProduto) * compra.valorDolarMedio) + frete_deslocamento
                         quantidade_produto = quantidade_produto + estoque_preco_medio
+                        logging.warning("Preco de Compra/Valor Dolar Medio/Quantidade Comprada")
+                        logging.warning(compra.precoProduto)
+                        logging.warning(compra.valorDolarMedio)
+                        logging.warning(estoque_preco_medio)
                         break
                     else:
                         compra_total_produto = (compra_total_produto +
                                                 compra.quantidadeProduto * compra.precoProduto * compra.valorDolarMedio)
                         estoque_preco_medio = estoque_preco_medio - compra.quantidadeProduto
                         quantidade_produto = quantidade_produto + compra.quantidadeProduto
+                        logging.warning("Compra Total Produto/Quantidade Produto/Preco Produto/Valor Dolar Medio/Estoque Remanescente")
+                        logging.warning(compra_total_produto)
+                        logging.warning(compra.quantidadeProduto)
+                        logging.warning(compra.precoProduto)
+                        logging.warning(compra.valorDolarMedio)
+                        logging.warning(estoque_preco_medio)
+                logging.warning("Compra total de Produto x Quantidade de PRoduto")
+                logging.warning(compra_total_produto)
                 logging.warning(quantidade_produto)
                 #Prevenir quando o estoque foi adicionado no cadastro do produto, pois o valor vai vir menor que zero
                 if quantidade_produto > 0:
@@ -193,6 +198,9 @@ class FazerVendasView(TemplateView):
                 else:
                     preco_medio = 0
                 lucro = float(quantidades[contador]) * (float(precos[contador]) - preco_medio)
+                logging.warning("Preco Medio x Lucro")
+                logging.warning(preco_medio)
+                logging.warning(lucro)
                 # Prevenir quando a quantidade comprada não estiver cadastrada, pois o valor vai vir menor que zero
                 if quantidade_produto_compra > 0:
                     lucro = lucro - (frete_deslocamento / quantidade_produto_compra)

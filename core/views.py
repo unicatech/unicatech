@@ -15,7 +15,8 @@ from Vendas.models import Venda
 from Compras.models import Compra, Deslocamento
 from Produtos.models import Produto
 from Contas.models import MovimentacaoConta, Conta
-from Despesas.models import CadastroDespesa
+from Despesas.models import CadastroDespesa, Despesa
+from Contas.views import MovimentacaoFinanceira
 
 class IndexView(TemplateView):
     template_name = 'index.html'
@@ -29,11 +30,7 @@ class IndexView(TemplateView):
         else:
             mes_selecionado = str(timezone.now().month)
             ano_selecionado = timezone.now().year
-        vendas = Venda.objects.filter(criados__month=mes_selecionado).filter(criados__year=ano_selecionado).filter(ativo=True).order_by('-criados')
-        compras = Compra.objects.filter(criados__month=mes_selecionado).filter(criados__year=ano_selecionado).filter(ativo=True).order_by('-criados')
-        #vendas = Venda.objects.filter(criados__month='11').filter(criados__year='2023').filter(ativo=True).order_by('-id')
-        #compras = Compra.objects.filter(criados__month='12').filter(criados__year='2023').filter(
-        #    ativo=True).order_by('-criados')
+        hoje = datetime.now().strftime("%Y-%m-%d")
         venda_lucro_consolidado = 0
         #Campo Resumo Lucro Líquido por Venda
         listarVendasTemplate = []
@@ -47,6 +44,7 @@ class IndexView(TemplateView):
         valor_recebido_venda_consolidado = 0
         quantidade_total_produtos = 0
         #Dados de receita
+        vendas = Venda.objects.filter(criados__month=mes_selecionado).filter(criados__year=ano_selecionado).filter(ativo=True).order_by('-criados')
         for venda in vendas:
             quantidade_total_produtos = quantidade_total_produtos + venda.quantidadeProduto
             if identificadorVenda != venda.identificadorVenda:
@@ -85,19 +83,80 @@ class IndexView(TemplateView):
                 lucro_venda = 0
 
         #Dados de despesa
-        despesas = CadastroDespesa.objects.filter(criados__month=mes_selecionado).filter(criados__year=ano_selecionado).filter(ativo=True).order_by('-criados')
+        cadastro_despesas = CadastroDespesa.objects.filter(ativo=True).order_by('-criados')
         despesas_template = []
-        for despesa in despesas:
-            conta = Conta.objects.get(id=despesa.conta_debito_id)
-            despesas_template.append(
-                {
-                    'id': despesa.id,
-                    'nome_despesa': despesa.nome_despesa,
-                    'data': despesa.criados,
-                    'valor': despesa.valor,
-                    'conta_debito': conta.nomeConta
-                }
-            )
+        mes_anterior = 0
+        ano_anterior = 0
+        for despesa in cadastro_despesas:
+            if despesa.periodicidade < 4:
+                mes_anterior = mes_selecionado
+                ano_anterior = ano_selecionado
+            if despesa.periodicidade == 4:
+                if mes_selecionado == "1":
+                    mes_anterior = 12
+                    ano_anterior = ano_selecionado - 1
+                else:
+                    mes_anterior = int(mes_selecionado) - 1
+                    ano_anterior = ano_selecionado
+            if despesa.periodicidade == 5:
+                if mes_selecionado <= "3":
+                    mes_anterior = 13 - (4 - int(mes_selecionado))
+                    ano_anterior = ano_selecionado - 1
+                else:
+                    mes_anterior = int(mes_selecionado) - 3
+                    ano_anterior = ano_selecionado
+            if despesa.periodicidade == 6:
+                if mes_selecionado <= "6":
+                    mes_anterior = 13 - (7 - int(mes_selecionado))
+                    ano_anterior = ano_selecionado - 1
+                else:
+                    mes_anterior = int(mes_selecionado) - 6
+                    ano_anterior = ano_selecionado
+            if despesa.periodicidade == 7:
+                mes_anterior = mes_selecionado
+                ano_anterior = ano_selecionado - 1
+            verificar_registro_despesa = Despesa.objects.filter(criados__month=mes_anterior).filter(criados__year=ano_anterior).filter(despesa_id=despesa.id).filter(ativo=True).count()
+            if verificar_registro_despesa == 0 and despesa.periodicidade > 0:
+                logging.warning("Entrei no except")
+                conta_em_dolar=0
+                cotacao_dolar=0
+                tipo_movimentacao = Conta.objects.get(id=despesa.conta_debito_id)
+                if tipo_movimentacao.categoria_id > 3:
+                    conta_em_dolar = 1
+                    valor_dolar = MovimentacaoFinanceira()
+                    cotacao_dolar = valor_dolar.dolarMedio()
+                else:
+                    conta_em_dolar = 0
+                    cotacao_dolar = 1
+                data_anterior = date(ano_anterior,mes_anterior,1)
+                registro_movimentacao = MovimentacaoConta(
+                    criados=data_anterior,
+                    contaDebito=despesa.conta_debito_id,
+                    valorDebito=despesa.valor,
+                    identificadorCompra=0,
+                    identificadorVenda=0,
+                    descricao=despesa.nome_despesa,
+                    cotacaoDolar=cotacao_dolar,
+                    identificadorDolar=conta_em_dolar,
+                )
+                registro_movimentacao.save()
+                conta = Conta.objects.get(id=despesa.conta_debito_id)
+                registro_despesa = Despesa(
+                    criados=data_anterior,
+                    ativo=1,
+                    despesa_id=despesa.id,
+                    movimentacao_id=registro_movimentacao.id,
+                )
+                registro_despesa.save()
+                despesas_template.append(
+                    {
+                        'id': despesa.id,
+                        'nome_despesa': despesa.nome_despesa,
+                        'data': despesa.criados,
+                        'valor': despesa.valor,
+                        'conta_debito': conta.nomeConta
+                    }
+                )
 
         #Cálculo do valor em estoque
         valor_total_estoque = 0
@@ -120,6 +179,7 @@ class IndexView(TemplateView):
         identificadorCompra = 0
         valor_total_compra = 0
         consolidado_compras_mensal = 0
+        compras = Compra.objects.filter(criados__month=mes_selecionado).filter(criados__year=ano_selecionado).filter(ativo=True).order_by('-criados')
         for compra in compras:
             if identificadorCompra != compra.identificadorCompra:
                 #Valor total das compras

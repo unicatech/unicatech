@@ -20,3 +20,8 @@ class CadastroDespesa(Base):
     def __str__(self):
         return self.id
 
+class Despesa(Base):
+    despesa = models.ForeignKey('Despesas.CadastroDespesa', verbose_name='Tipo', on_delete=models.CASCADE)
+    movimentacao = models.ForeignKey('Contas.MovimentacaoConta', verbose_name='Tipo', on_delete=models.CASCADE)
+    def __str__(self):
+        return self.id

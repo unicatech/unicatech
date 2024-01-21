@@ -587,3 +587,65 @@ class MovimentacaoFinanceira:
 
 
         return {"contaOrigem" : contaOrigem, "contasDetalhadasTemplate": contasDetalhadasTemplate}
+
+    def saldo_conta(self):
+        # Buscar saldo em contas
+        contasDetalhadas = Conta.objects.all()
+        contasDetalhadasTemplate = []
+
+        for conta in contasDetalhadas:
+            saldoConta = 0
+            entradas = MovimentacaoConta.objects.filter(contaCredito=conta.id)
+
+            for entrada in entradas:
+                saldoConta = saldoConta + entrada.valorCredito
+
+            saidas = MovimentacaoConta.objects.filter(contaDebito=conta.id)
+
+            for saida in saidas:
+                saldoConta = saldoConta - saida.valorDebito
+
+            if conta.categoria_id <= 3 and conta.categoria_id >= 1:
+                moeda = 'R$'
+            else:
+                moeda = 'US$'
+
+            contasDetalhadasTemplate.append(
+                {'nomeConta': conta.nomeConta, 'saldo': saldoConta, 'moeda': moeda, 'id': conta.id})
+
+        return(contasDetalhadasTemplate)
+
+    def dolarMedio(self):
+        #Compras em moeda de dólar
+        comprasDolar = MovimentacaoConta.objects.filter(identificadorDolar=True, identificadorCompra=0)
+        #Compras efetuadas em dólar
+        movimentacoesCompra = MovimentacaoConta.objects.filter(identificadorDolar=True, identificadorCompra__gt=0)
+
+        #total em dólares de compras de produtos feitas em dólar
+        totalCompraDolar = 0
+        for movimentacao in movimentacoesCompra:
+            totalCompraDolar = totalCompraDolar + movimentacao.valorDebito - movimentacao.valorCredito
+        #Diminuir o total da compra de moeda em dólares das compras de produtos feitas em dólar. A partir daí tirar o dólar médio
+        creditoRemanescente = 0
+        somaValorReal = 0
+        for compra in comprasDolar:
+            logging.warning("Total Compra Dólar x Valor Crédito")
+            logging.warning(totalCompraDolar)
+            logging.warning(compra.valorCredito)
+            logging.warning("===================")
+            totalCompraDolar = totalCompraDolar - compra.valorCredito
+            if totalCompraDolar < 0:
+                creditoRemanescente = creditoRemanescente + (-1) * totalCompraDolar
+                somaValorReal = somaValorReal + (-1) * totalCompraDolar * compra.cotacaoDolar
+                totalCompraDolar = 0
+
+        logging.warning("Soma Valor REal x Credito Remanescente")
+        logging.warning(somaValorReal)
+        logging.warning(creditoRemanescente)
+        logging.warning("===================")
+
+        if creditoRemanescente > 0:
+            valorDolarMedio = somaValorReal / creditoRemanescente
+        else:
+            valorDolarMedio = -1
+        return(valorDolarMedio)

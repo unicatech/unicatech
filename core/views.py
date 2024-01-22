@@ -28,6 +28,7 @@ class IndexView(TemplateView):
             mes_selecionado = self.request.GET["mes_selecionado"]
             ano_selecionado = self.request.GET["ano_selecionado"]
         else:
+            dia_selecionado = timezone.now().day
             mes_selecionado = str(timezone.now().month)
             ano_selecionado = timezone.now().year
         hoje = datetime.now().strftime("%Y-%m-%d")
@@ -83,7 +84,7 @@ class IndexView(TemplateView):
                 lucro_venda = 0
 
         #Dados de despesa
-        cadastro_despesas = CadastroDespesa.objects.filter(ativo=True).order_by('-criados')
+        cadastro_despesas = CadastroDespesa.objects.filter(ativo=True).filter(criados__year__lte=ano_selecionado).filter(criados__month__lte=mes_selecionado).filter(criados__day__lte=dia_selecionado)
         despesas_template = []
         mes_anterior = 0
         ano_anterior = 0
@@ -117,7 +118,6 @@ class IndexView(TemplateView):
                 ano_anterior = ano_selecionado - 1
             verificar_registro_despesa = Despesa.objects.filter(criados__month=mes_anterior).filter(criados__year=ano_anterior).filter(despesa_id=despesa.id).filter(ativo=True).count()
             if verificar_registro_despesa == 0 and despesa.periodicidade > 0:
-                logging.warning("Entrei no except")
                 conta_em_dolar=0
                 cotacao_dolar=0
                 tipo_movimentacao = Conta.objects.get(id=despesa.conta_debito_id)

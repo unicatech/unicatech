@@ -42,7 +42,6 @@ class AdicionarDespesa(TemplateView):
         else:
             conta_em_dolar = 0
             cotacao_dolar = 1
-
         dataform_despesa = CadastroDespesa(
             criados= data_modificada,
             nome_despesa=self.request.POST.get("nome_despesa"),

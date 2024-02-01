@@ -220,6 +220,7 @@ class ComprarDolarView(TemplateView):
         contas = informacoes_financeiras.contas_origem_e_detalhadas()
         context["contasDetalhadas"] = contas["contasDetalhadasTemplate"]
         context["contaOrigem"] = contas["contaOrigem"]
+        context["contaDestino"] = contas["contaDestino"]
 
         # popular movimentações
         context["movimentacaoContas"] = informacoes_financeiras.movimentacoes_contas
@@ -574,10 +575,12 @@ class MovimentacaoFinanceira:
 
             if conta.categoria_id <= 3 and conta.categoria_id >= 1:
                 moeda = "R$"
+                contaOrigem.append({"id": conta.id, "nomeConta": conta.nomeConta})
             else:
                 moeda = "US$"
+                contaDestino.append({"id": conta.id, "nomeConta": conta.nomeConta})
 
-            contaOrigem.append({"id": conta.id, "nomeConta": conta.nomeConta})
+
 
             contasDetalhadasTemplate.append(
                 {"nomeConta": conta.nomeConta, "saldo": saldoConta, "moeda": moeda}
@@ -586,7 +589,11 @@ class MovimentacaoFinanceira:
             saldoConta = 0
 
 
-        return {"contaOrigem" : contaOrigem, "contasDetalhadasTemplate": contasDetalhadasTemplate}
+        return {
+                "contaOrigem": contaOrigem,
+                "contasDetalhadasTemplate": contasDetalhadasTemplate,
+                "contaDestino": contaDestino
+        }
 
     def saldo_conta(self):
         # Buscar saldo em contas

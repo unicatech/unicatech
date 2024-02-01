@@ -83,6 +83,7 @@ class IndexView(TemplateView):
                 valor_recebido_venda = 0
                 lucro_venda = 0
 
+
         #Dados de despesa
         cadastro_despesas = CadastroDespesa.objects.filter(ativo=True).filter(criados__year__lte=ano_selecionado).filter(criados__month__lte=mes_selecionado).filter(criados__day__lte=dia_selecionado)
         despesas_template = []

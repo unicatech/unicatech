@@ -151,9 +151,11 @@ class IndexView(TemplateView):
                 registro_despesa.save()
 
         despesas = Despesa.objects.filter(ativo=True).filter(criados__year__lte=ano_selecionado).filter(criados__month__lte=mes_selecionado).filter(criados__day__lte=dia_selecionado)
+        valor_despesa_total = 0
         for despesa in despesas:
             conta_debito=0
             moeda=""
+            cotacao_dolar=1
             contas = Conta.objects.filter(ativo=True).filter(id=despesa.movimentacao.contaDebito)
             for conta in contas:
                 conta_debito = conta.nomeConta
@@ -161,6 +163,7 @@ class IndexView(TemplateView):
                 moeda="R$"
             else:
                 moeda="US$"
+                cotacao_dolar = despesa.movimentacao.cotacaoDolar
             despesas_template.append(
                 {
                 'id': despesa.id,
@@ -171,6 +174,7 @@ class IndexView(TemplateView):
                 'moeda': moeda
                 }
             )
+            valor_despesa_total = valor_despesa_total + despesa.movimentacao.valorDebito * cotacao_dolar
             logging.warning("id|Nome Despesa|Data|Valor|Conta")
             logging.warning(str(despesa.id)+"|"+str(despesa.despesa.nome_despesa)+
                             "|"+str(despesa.movimentacao.criados)+"|"+str(despesa.movimentacao.valorDebito)+"|"+
@@ -237,6 +241,8 @@ class IndexView(TemplateView):
         context['valor_excedente_venda'] = valor_excedente_venda_consolidado
         context['compras'] = listarComprasTemplate
         context['consolidado_compras'] = consolidado_compras_mensal
+        context['valor_despesa_total'] = valor_despesa_total
+        context['saldo_liquido_mensal'] = venda_lucro_consolidado - valor_despesa_total
         if quantidade_total_produtos > 0:
             context['ticket_medio'] = valor_total_venda_consolidado / quantidade_total_produtos
         else:

@@ -222,6 +222,7 @@
 													<th>Data</th>
 													<th>Despesa</th>
 													<th>Valor</th>
+													<th>Conta Débito</th>
 												</tr>
 											</thead>
 											<tbody>
@@ -231,7 +232,8 @@
 													<td>
 														{{despesa.nome_despesa}}
 													</td>
-													<td>R$ {{despesa.valor}}</td>
+													<td>{{despesa.moeda}} {{despesa.valor}}</td>
+													<td>{{despesa.conta}}</td>
 												</tr>
 											{% endfor %}
 												</tbody>

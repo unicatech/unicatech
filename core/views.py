@@ -149,15 +149,32 @@ class IndexView(TemplateView):
                     movimentacao_id=registro_movimentacao.id,
                 )
                 registro_despesa.save()
-                despesas_template.append(
-                    {
-                        'id': despesa.id,
-                        'nome_despesa': despesa.nome_despesa,
-                        'data': despesa.criados,
-                        'valor': despesa.valor,
-                        'conta_debito': conta.nomeConta
-                    }
-                )
+
+        despesas = Despesa.objects.filter(ativo=True).filter(criados__year__lte=ano_selecionado).filter(criados__month__lte=mes_selecionado).filter(criados__day__lte=dia_selecionado)
+        for despesa in despesas:
+            conta_debito=0
+            moeda=""
+            contas = Conta.objects.filter(ativo=True).filter(id=despesa.movimentacao.contaDebito)
+            for conta in contas:
+                conta_debito = conta.nomeConta
+            if despesa.movimentacao.identificadorDolar == 0:
+                moeda="R$"
+            else:
+                moeda="US$"
+            despesas_template.append(
+                {
+                'id': despesa.id,
+                'nome_despesa': despesa.despesa.nome_despesa,
+                'data': despesa.criados,
+                'valor': despesa.movimentacao.valorDebito,
+                'conta': conta_debito,
+                'moeda': moeda
+                }
+            )
+            logging.warning("id|Nome Despesa|Data|Valor|Conta")
+            logging.warning(str(despesa.id)+"|"+str(despesa.despesa.nome_despesa)+
+                            "|"+str(despesa.movimentacao.criados)+"|"+str(despesa.movimentacao.valorDebito)+"|"+
+                            str(conta_debito))
 
         #Cálculo do valor em estoque
         valor_total_estoque = 0

@@ -159,10 +159,10 @@ class IndexView(TemplateView):
             contas = Conta.objects.filter(ativo=True).filter(id=despesa.movimentacao.contaDebito)
             for conta in contas:
                 conta_debito = conta.nomeConta
-            if despesa.movimentacao.identificadorDolar == 0:
-                moeda="R$"
-            else:
-                moeda="US$"
+                if despesa.movimentacao.identificadorDolar == 0:
+                    moeda="R$"
+                else:
+                    moeda="US$"
                 cotacao_dolar = despesa.movimentacao.cotacaoDolar
             despesas_template.append(
                 {

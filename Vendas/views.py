@@ -308,11 +308,12 @@ class ParcelasReceberView(TemplateView):
         context = super(ParcelasReceberView, self).get_context_data(**kwargs)
         context['mensagem'] = ''
 
+        if self.request.GET.__contains__("parcelarecebida"):
+            context['mensagem'] = 'Parcela Recebida'
         if self.request.GET.__contains__("id"):
             if self.request.GET["funcao"] == "apagar":
                 MovimentacaoConta.objects.filter(id=self.request.GET["id"]).delete()
                 context['mensagem'] = "Recebimento Apagado"
-
 
         vendas = Venda.objects.order_by('identificadorVenda').filter(ativo=True)
 
@@ -358,10 +359,8 @@ class ParcelasReceberModalView(TemplateView):
 
     template_name = 'parcelasarecebermodal.html'
     def get_context_data(self, **kwargs):
-
         context = super(ParcelasReceberModalView, self).get_context_data(**kwargs)
         context['mensagem'] = ''
-
         venda_recebimento = Venda.objects.filter(identificadorVenda=self.request.GET["idVenda"],ativo=True)
         recebimentos_venda = MovimentacaoConta.objects.filter(identificadorVenda=self.request.GET["idVenda"], ativo=True)
         recebimento = 0
@@ -475,6 +474,7 @@ class ParcelasReceberModalView(TemplateView):
         dataform.save()
 
         context['mensagem'] = "Recebimento Efetuado"
-        return super(TemplateView, self).render_to_response(context)
+        #return super(TemplateView, self).render_to_response(context)
+        return HttpResponseRedirect("/parcelasareceber/?parcelarecebida=1")
 
 

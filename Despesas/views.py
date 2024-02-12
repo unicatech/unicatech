@@ -19,18 +19,24 @@ class AdicionarDespesa(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(AdicionarDespesa, self).get_context_data(**kwargs)
+        if self.request.GET.__contains__("idDespesa"):
+            if self.request.GET["funcao"] == "apagar":
+                apagar_despesa = CadastroDespesa(id=self.request.GET["idDespesa"])
+                apagar_despesa.delete()
+                context["mensagem"] = "Despesa Apagada"
         contasDetalhadas = Conta.objects.all()
         conta_despesa = []
         for conta in contasDetalhadas:
             conta_despesa.append({'id': conta.id, 'nomeConta': conta.nomeConta})
 
         context['conta_despesa'] = conta_despesa
-
+        context['despesas'] = self.despesas_cadastradas()
         #context["categoria"] = CategoriaConta.objects.all()
         #context["mensagem"] = ""
         return context
 
     def post(self, request, *args, **kwargs):
+        context = super(AdicionarDespesa, self).get_context_data(**kwargs)
         data_modificada = re.sub(r'(\d{1,2})-(\d{1,2})-(\d{4})', '\\3-\\2-\\1', self.request.POST.get("data_despesa"))
         conta_em_dolar = 0
         cotacao_dolar = 0
@@ -69,9 +75,35 @@ class AdicionarDespesa(TemplateView):
                 movimentacao_id=registro_movimentacao.id,
             )
             registro_despesa.save()
-        #context = super(EditarContaView, self).get_context_data(**kwargs)
-        #context["conta"] = Conta.objects.all()
-        #context["ategoriaconta"] = CategoriaConta.objects.all()
-        return HttpResponseRedirect("/adicionardespesa/?despesacadastrada=1")
+            context['despesas'] = self.despesas_cadastradas()
+            context['mensagem'] = "Despesa Salva"
+        return context
 
+    def despesas_cadastradas(self):
+        despesas_cadastradas = CadastroDespesa.objects.filter(ativo=True)
+        despesas_template = []
+        for despesa in despesas_cadastradas:
+            conta_debito = 0
+            moeda = ""
+            cotacao_dolar = 1
+            contas = Conta.objects.filter(ativo=True).filter(id=despesa.conta_debito_id)
+            for conta in contas:
+                conta_debito = conta.nomeConta
+                if conta.categoria_id >=1 and conta.categoria_id <= 3:
+                    moeda = "R$"
+                else:
+                    moeda = "US$"
+            logging.warning("Nome Conta")
+            logging.warning(conta_debito)
+            despesas_template.append(
+                {
+                    'id': despesa.id,
+                    'nome_despesa': despesa.nome_despesa,
+                    'data': despesa.criados,
+                    'valor': despesa.valor,
+                    'conta': conta_debito,
+                    'moeda': moeda
+                }
+            )
+        return(despesas_template)
 # Create your views here.

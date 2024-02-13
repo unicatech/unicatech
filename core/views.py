@@ -45,7 +45,7 @@ class IndexView(TemplateView):
         valor_recebido_venda_consolidado = 0
         quantidade_total_produtos = 0
         #Dados de receita
-        vendas = Venda.objects.filter(criados__month=mes_selecionado).filter(criados__year=ano_selecionado).filter(ativo=True).order_by('-criados')
+        vendas = Venda.objects.filter(criados__month=mes_selecionado).filter(criados__year=ano_selecionado).filter(ativo=True).order_by('-id')
         for venda in vendas:
             quantidade_total_produtos = quantidade_total_produtos + venda.quantidadeProduto
             if identificadorVenda != venda.identificadorVenda:
@@ -62,6 +62,7 @@ class IndexView(TemplateView):
                      'lucro_venda': lucro_venda,
                      }
                 )
+                logging.warning(venda.identificadorVenda)
                 #Valores totais a receber
                 recebimentos_venda = MovimentacaoConta.objects.filter(identificadorVenda=venda.identificadorVenda,ativo=True)
                 for recebimento_venda in recebimentos_venda:
@@ -175,10 +176,6 @@ class IndexView(TemplateView):
                 }
             )
             valor_despesa_total = valor_despesa_total + despesa.movimentacao.valorDebito * cotacao_dolar
-            logging.warning("id|Nome Despesa|Data|Valor|Conta")
-            logging.warning(str(despesa.id)+"|"+str(despesa.despesa.nome_despesa)+
-                            "|"+str(despesa.movimentacao.criados)+"|"+str(despesa.movimentacao.valorDebito)+"|"+
-                            str(conta_debito))
 
         #Cálculo do valor em estoque
         valor_total_estoque = 0

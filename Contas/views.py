@@ -190,9 +190,9 @@ class EditarContaView(TemplateView):
             cartao.taxa_cartao18 = self.request.POST.get("taxa18")
             cartao.save()
 
-        context = super(EditarContaView, self).get_context_data(**kwargs)
-        context["conta"] = Conta.objects.all()
-        context["categoriaconta"] = CategoriaConta.objects.all()
+        #context = super(EditarContaView, self).get_context_data(**kwargs)
+        #context["conta"] = Conta.objects.all()
+        #context["categoriaconta"] = CategoriaConta.objects.all()
         return HttpResponseRedirect("/listarconta/?contacadastrada=1")
 
 

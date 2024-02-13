@@ -77,7 +77,7 @@ class AdicionarDespesa(TemplateView):
             registro_despesa.save()
             context['despesas'] = self.despesas_cadastradas()
             context['mensagem'] = "Despesa Salva"
-        return context
+        return super(TemplateView, self).render_to_response(context)
 
     def despesas_cadastradas(self):
         despesas_cadastradas = CadastroDespesa.objects.filter(ativo=True)

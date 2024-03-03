@@ -53,7 +53,7 @@ class FazerVendasView(TemplateView):
         if context['editarVenda'] == 1:
             context['produtos'] = Produto.objects.all().filter(estoque__gte=0)
         else:
-            context['produtos'] = Produto.objects.all().filter(estoque__gt = 0)
+            context['produtos'] = Produto.objects.all().filter(estoque__gt=0)
 
         return context
 

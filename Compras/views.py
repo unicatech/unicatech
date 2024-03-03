@@ -7,6 +7,7 @@ from django.contrib import messages
 from .models import Compra, LocalizacaoCompra, Fornecedor, Deslocamento
 from Produtos.models import Produto, CategoriaProduto
 from Contas.models import Conta, MovimentacaoConta
+from Contas.views import MovimentacaoFinanceira
 from datetime import date, datetime
 import re
 import logging
@@ -17,7 +18,8 @@ class FazerComprasView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(FazerComprasView, self).get_context_data(**kwargs)
         context['editarCompra'] = 0
-        context['dolarMedio'] = self.dolarMedio
+        financeiro = MovimentacaoFinanceira()
+        context['dolarMedio'] = financeiro.dolarMedio
         if self.request.GET.__contains__("idCompra"):
             compras = Compra.objects.filter(identificadorCompra=self.request.GET["idCompra"], ativo=True)
             listarProdutosTemplate = []
@@ -46,12 +48,12 @@ class FazerComprasView(TemplateView):
         context['fornecedores'] = Fornecedor.objects.all()
         context['produtos'] = Produto.objects.all().order_by('NomeProduto')
         context['localizacaoCompra'] = LocalizacaoCompra.objects.all()
-        context['contasDetalhadas'] = self.saldoConta
+        context['contasDetalhadas'] = financeiro.saldo_conta
         return context
 
     def post(self, request, *args, **kwargs):
         context = super(FazerComprasView, self).get_context_data(**kwargs)
-
+        financeiro = MovimentacaoFinanceira()
         try:
             ultimaCompra = Compra.objects.last()
             proximaCompra = ultimaCompra.identificadorCompra + 1
@@ -177,64 +179,11 @@ class FazerComprasView(TemplateView):
         context['fornecedores'] = Fornecedor.objects.all()
         context['produtos'] = Produto.objects.all()
         context['localizacaoCompra'] = LocalizacaoCompra.objects.all()
-        context['contasDetalhadas'] = self.saldoConta
-        context['dolarMedio'] = self.dolarMedio
+        context['contasDetalhadas'] = financeiro.saldoConta
+        context['dolarMedio'] = financeiro.dolarMedio
         return super(TemplateView, self).render_to_response(context)
-    def dolarMedio(self):
-        #Compras em moeda de dólar
-        comprasDolar = MovimentacaoConta.objects.filter(identificadorDolar=True, identificadorCompra=0)
-        #Compras efetuadas em dólar
-        movimentacoesCompra = MovimentacaoConta.objects.filter(identificadorDolar=True, identificadorCompra__gt=0)
-        #total em dólares de compras de produtos feitas em dólar
-        totalCompraDolar = 0
-        for movimentacao in movimentacoesCompra:
-            totalCompraDolar = totalCompraDolar + movimentacao.valorDebito - movimentacao.valorCredito
-        #Diminuir o total da compra de moeda em dólares das compras de produtos feitas em dólar. A partir daí tirar o dólar médio
-        creditoRemanescente = 0
-        somaValorReal = 0
-        for compra in comprasDolar:
-            logging.warning("Total Compra Dólar x Valor Crédito")
-            logging.warning(totalCompraDolar)
-            logging.warning(compra.valorCredito)
-            logging.warning("===================")
-            totalCompraDolar = totalCompraDolar - compra.valorCredito
-            if totalCompraDolar < 0:
-                creditoRemanescente = creditoRemanescente + (-1) * totalCompraDolar
-                somaValorReal = somaValorReal + (-1) * totalCompraDolar * compra.cotacaoDolar
-                totalCompraDolar = 0
 
-        if creditoRemanescente > 0:
-            valorDolarMedio = somaValorReal / creditoRemanescente
-        else:
-            valorDolarMedio = -1
-        return(valorDolarMedio)
 
-    def saldoConta(self):
-        # Buscar saldo em contas
-        contasDetalhadas = Conta.objects.all().filter(id__gt = 0)
-        contasDetalhadasTemplate = []
-
-        for conta in contasDetalhadas:
-            saldoConta = 0
-            entradas = MovimentacaoConta.objects.filter(contaCredito=conta.id)
-
-            for entrada in entradas:
-                saldoConta = saldoConta + entrada.valorCredito
-
-            saidas = MovimentacaoConta.objects.filter(contaDebito=conta.id)
-
-            for saida in saidas:
-                saldoConta = saldoConta - saida.valorDebito
-
-            if conta.categoria_id <= 3 and conta.categoria_id >= 1:
-                moeda = 'R$'
-            else:
-                moeda = 'US$'
-
-            contasDetalhadasTemplate.append(
-                {'nomeConta': conta.nomeConta, 'saldo': saldoConta, 'moeda': moeda, 'id': conta.id})
-
-        return(contasDetalhadasTemplate)
 
 class ListarComprasView(TemplateView):
     template_name = 'listarcompras.html'
@@ -294,6 +243,7 @@ class LocalizacaoCompraView(TemplateView):
     template_name = 'localizacaocompra.html'
     def get_context_data(self, **kwargs):
         context = super(LocalizacaoCompraView, self).get_context_data(**kwargs)
+        financeiro = MovimentacaoFinanceira()
         if self.request.GET.__contains__("idDeslocamento"):
             if self.request.GET["funcao"] == "apagar":
                 apagarMovimentacao = MovimentacaoConta(id=self.request.GET["idMovimentacaoConta"])
@@ -336,12 +286,13 @@ class LocalizacaoCompraView(TemplateView):
         context['origem_localizacao'] = origem
         context['localizacao_compra'] = LocalizacaoCompra.objects.all()
         context['itinerario'] = localizacao_detalhada
-        context['contas_detalhadas'] = self.saldo_conta
+        context['contas_detalhadas'] = financeiro.saldo_conta
         context['id_compra'] = self.request.GET["idCompra"]
         context['apagar_ultimo'] = "1"
         return(context)
     def post(self, request, *args, **kwargs):
         context = super(LocalizacaoCompraView, self).get_context_data(**kwargs)
+        financeiro = MovimentacaoFinanceira()
         agora = datetime.now()
         hoje = agora.strftime("%Y-%m-%d")
         # Debitando frete da conta
@@ -351,7 +302,7 @@ class LocalizacaoCompraView(TemplateView):
         conta_debito = Conta.objects.get(id=self.request.POST.get('conta'))
         if conta_debito.categoria_id == 4 or conta_debito.categoria_id == 5:
             conta_em_dolar = 1
-            cotacao_dolar = self.dolarMedio()
+            cotacao_dolar = financeiro.dolarMedio()
 
         formMovimentacao = MovimentacaoConta(
             criados=hoje,
@@ -376,67 +327,6 @@ class LocalizacaoCompraView(TemplateView):
         formDeslocamento.save()
         return HttpResponseRedirect('/listarcompras/', context)
 
-    def saldo_conta(self):
-        # Buscar saldo em contas
-        contasDetalhadas = Conta.objects.all()
-        contasDetalhadasTemplate = []
-
-        for conta in contasDetalhadas:
-            saldoConta = 0
-            entradas = MovimentacaoConta.objects.filter(contaCredito=conta.id)
-
-            for entrada in entradas:
-                saldoConta = saldoConta + entrada.valorCredito
-
-            saidas = MovimentacaoConta.objects.filter(contaDebito=conta.id)
-
-            for saida in saidas:
-                saldoConta = saldoConta - saida.valorDebito
-
-            if conta.categoria_id <= 3 and conta.categoria_id >= 1:
-                moeda = 'R$'
-            else:
-                moeda = 'US$'
-
-            contasDetalhadasTemplate.append(
-                {'nomeConta': conta.nomeConta, 'saldo': saldoConta, 'moeda': moeda, 'id': conta.id})
-
-        return(contasDetalhadasTemplate)
-
-    def dolarMedio(self):
-        #Compras em moeda de dólar
-        comprasDolar = MovimentacaoConta.objects.filter(identificadorDolar=True, identificadorCompra=0)
-        #Compras efetuadas em dólar
-        movimentacoesCompra = MovimentacaoConta.objects.filter(identificadorDolar=True, identificadorCompra__gt=0)
-
-        #total em dólares de compras de produtos feitas em dólar
-        totalCompraDolar = 0
-        for movimentacao in movimentacoesCompra:
-            totalCompraDolar = totalCompraDolar + movimentacao.valorDebito - movimentacao.valorCredito
-        #Diminuir o total da compra de moeda em dólares das compras de produtos feitas em dólar. A partir daí tirar o dólar médio
-        creditoRemanescente = 0
-        somaValorReal = 0
-        for compra in comprasDolar:
-            logging.warning("Total Compra Dólar x Valor Crédito")
-            logging.warning(totalCompraDolar)
-            logging.warning(compra.valorCredito)
-            logging.warning("===================")
-            totalCompraDolar = totalCompraDolar - compra.valorCredito
-            if totalCompraDolar < 0:
-                creditoRemanescente = creditoRemanescente + (-1) * totalCompraDolar
-                somaValorReal = somaValorReal + (-1) * totalCompraDolar * compra.cotacaoDolar
-                totalCompraDolar = 0
-
-        logging.warning("Soma Valor REal x Credito Remanescente")
-        logging.warning(somaValorReal)
-        logging.warning(creditoRemanescente)
-        logging.warning("===================")
-
-        if creditoRemanescente > 0:
-            valorDolarMedio = somaValorReal / creditoRemanescente
-        else:
-            valorDolarMedio = -1
-        return(valorDolarMedio)
 class AdicionarLocalizacao(TemplateView):
     template_name = 'adicionarlocalizacao.html'
     def get_context_data(self, **kwargs):

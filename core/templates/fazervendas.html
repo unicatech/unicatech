@@ -20,10 +20,10 @@
 							<h4>Vendas</h4>
 							<h6>Adicione/Edite sua Venda</h6>
 						</div>
-						{% if mensagem != "" %}
+						{% if venda_realizada == 1 %}
 						 <div class="closebtn">
 							 <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
-							 {{ mensagem }}
+							 Venda Realizada
 						</div>
 						{% endif %}
 					</div>
@@ -195,8 +195,49 @@
                             <input type="button" name="add" id="add" value="Adicionar Linha" class="btn btn-success">
 
                         </div>
+						<div>
+						<input type="checkbox" name="gerar_compra"> Essa venda gerou compra?
+						</div>
 
+            <div class="input-field">
 
+                <div class="table-responsive">
+
+                    <table class="table table-bordered text-center" id="table_field">
+
+                        <tr>
+
+                            <th>Produto</th>
+
+                            <th>Quantidade</th>
+
+                            <th>Preço</th>
+
+							<th> Total </th>
+
+                        </tr>
+
+							<tr>
+								<div class="row">
+						        <td><select name="produto_compra" class="select">
+								<option value="0"> Selecione o Produto</option>
+								{% for p in produtos_compra %}
+											<option value="{{ p.id }}" >{{ p.NomeProduto }}</option>
+								{% endfor %}
+
+							</select></td>
+
+                            <td><input type="text" class="form-control" name="quantidade_compra" id="tab1" size="2" maxlength="3"></td>
+
+							<td><input type="text" class="form-control" name="preco_compra" id="tab1" size="2" maxlength="5"></td>
+
+							<td><input type="text" class="form-control" name="total_compra" id="tab1" size="2"></td>
+
+							<td><input class="btn btn-danger" name="remove" id="remove" value="Apagar" type="button">
+							</td>
+								</div>
+						</tr>
+						</table>
 						<div class="row">
 								<div class="col-lg-12">
 									<div class="form-group">

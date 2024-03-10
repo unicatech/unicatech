@@ -23,6 +23,11 @@ class FazerVendasView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(FazerVendasView, self).get_context_data(**kwargs)
         context['editarVenda'] = 0
+
+        if self.request.GET.__contains__("venda_realizada"):
+            logging.warning("Venda Realizada")
+            context['venda_realizada'] = 1
+
         if self.request.GET.__contains__("idVenda"):
             vendas = Venda.objects.filter(identificadorVenda=self.request.GET["idVenda"],ativo=True)
             listarProdutosTemplate = []
@@ -55,6 +60,7 @@ class FazerVendasView(TemplateView):
         else:
             context['produtos'] = Produto.objects.all().filter(estoque__gt=0)
 
+        context['produtos_compra'] = Produto.objects.all()
         return context
 
     def post(self, request, *args, **kwargs):
@@ -74,9 +80,13 @@ class FazerVendasView(TemplateView):
         dataVenda = self.request.POST.getlist('dataVenda')
         produtos = self.request.POST.getlist('produto')
         quantidades = self.request.POST.getlist('qtde')
+        quantidades_compra = self.request.POST.getlist('quantidade_compra')
         precos = self.request.POST.getlist('preco')
+        precos_compra = self.request.POST.getlist('preco_compra')
         identificadorVenda = self.request.POST.getlist('identificadorVenda')
         descricao = self.request.POST.getlist('descricao')
+        gerar_compra = self.request.POST.get('gerar_compra')
+        produtos_compra = self.request.POST.getlist('produto_compra')
         dataModificada = re.sub(r'(\d{1,2})-(\d{1,2})-(\d{4})', '\\3-\\2-\\1', dataVenda[0])
 
         contador = 0
@@ -209,11 +219,65 @@ class FazerVendasView(TemplateView):
 
         context['mensagem'] = 'Venda Salva'
 
-        #Popular template
-        context['clientes'] = Cliente.objects.all()
-        context['produtos'] = Produto.objects.all().filter(estoque__gt = 0)
+        if gerar_compra == "on":
+            logging.warning("Gerou")
+            try:
+                ultimaCompra = Compra.objects.last()
+                proximaCompra = ultimaCompra.identificadorCompra + 1
+            except:
+                proximaCompra = 1
+            contador = 0
+            identificadorDolar = False
+            cotacaoDolar = 1
+            valorCompra = 0
+            logging.warning(produtos_compra)
+            for produto in produtos_compra:
+                if precos_compra[contador] != "" and quantidades_compra[contador] != "":
+                    formCompra = Compra(
+                    criados=str(dataModificada),
+                    quantidadeProduto=quantidades_compra[contador],
+                    precoProduto=precos_compra[contador],
+                    identificadorCompra=str(proximaCompra),
+                    fornecedor_id=0,
+                    produto_id=produto,
+                    descricao="Recebimento de Aparelho",
+                    idLocalizacao_id=7,
+                    conta_id=-1, #recebimento de aparelho
+                    valorDolarMedio=float(cotacaoDolar)
+                    )
+                    valorCompra = valorCompra + float(precos_compra[contador]) * float(quantidades_compra[contador])
+                    formCompra.save()
+                    #Atualizando o estoque
+                    logging.warning("Adicionando")
+                    atualizarEstoque = Produto.objects.get(id=produto)
+                    atualizarEstoque.estoque = atualizarEstoque.estoque + int(float(quantidades[contador]))
+                    atualizarEstoque.save()
+                    contador = contador + 1
 
-        return super(TemplateView, self).render_to_response(context)
+            # Debitando da conta
+            formMovimentacao = MovimentacaoConta(
+                    criados=str(dataModificada),
+                    contaDebito=-1,
+                    valorDebito=valorCompra,
+                    identificadorCompra=str(proximaCompra),
+                    identificadorVenda=str(proximaVenda),
+                    descricao="Recebimento de Aparelho",
+                    cotacaoDolar=float(cotacaoDolar),
+                    identificadorDolar=identificadorDolar,
+            )
+            formMovimentacao.save()
+
+            #Creditando aparelho recebido
+            dataform = MovimentacaoConta(contaCredito_id=-1,
+                                         criados=dataModificada,
+                                         valorCredito=valorCompra,
+                                         identificadorVenda=str(proximaVenda),
+                                         descricao="Recebimento de Aparelho",
+                                         identificadorDolar=False,
+                                         )
+            dataform.save()
+
+        return HttpResponseRedirect('/fazervendas/?venda_realizada=1', context)
 
 class ListarVendasView(TemplateView):
 
@@ -255,11 +319,14 @@ class ListarVendasView(TemplateView):
                                                     quantidadeOriginalEstoque["quantidadeProduto__sum"])
                         atualizarEstoque.save()
                         produtos_repetidos.append(apagarvenda.produto_id)
-            #Apaga venda (soft delete)
-            Venda.objects.filter(identificadorVenda=self.request.GET["idVenda"]).update(ativo=False)
-            MovimentacaoConta.objects.filter(identificadorVenda=self.request.GET["idVenda"]).update(ativo=False)
-            #apagar = Venda(id=apagarvenda.id)
-            #apagar.delete()
+                #Apaga venda (soft delete)
+                Venda.objects.filter(identificadorVenda=self.request.GET["idVenda"]).update(ativo=False)
+                MovimentacaoConta.objects.filter(identificadorVenda=self.request.GET["idVenda"]).update(ativo=False)
+                #Se houver compra na venda a ser apagada também apagar compra (soft delete)
+                compras_em_venda = MovimentacaoConta.objects.filter(identificadorVenda=self.request.GET["idVenda"])
+                for compra in compras_em_venda:
+                    if compra.identificadorCompra != "0":
+                        Compra.objects.filter(identificadorCompra=compra.identificadorCompra).update(ativo=False)
 
         vendas = Venda.objects.order_by('-identificadorVenda').filter(ativo=True)
 
@@ -273,8 +340,11 @@ class ListarVendasView(TemplateView):
                 valorVendaTotal = 0
                 for venda in vendaIdentificada:
                     valorVendaTotal = valorVendaTotal + venda.quantidadeProduto * venda.precoProduto
-                recebimentos_venda = MovimentacaoConta.objects.filter(identificadorVenda=venda.identificadorVenda,ativo=True)
-                logging.warning("Identificador Venda:" +" "+str(venda.identificadorVenda))
+                recebimentos_venda = MovimentacaoConta.objects.filter(
+                    identificadorVenda=venda.identificadorVenda,
+                    identificadorCompra=0,
+                    ativo=True)
+                #logging.warning("Identificador Venda:" +" "+str(venda.identificadorVenda))
                 for recebimento_venda in recebimentos_venda:
                     recebimentos.append({
                             'valor_recebimento': recebimento_venda.valorCredito,
@@ -327,7 +397,10 @@ class ParcelasReceberView(TemplateView):
                 valorVendaTotal = 0
                 for venda in vendaIdentificada:
                     valorVendaTotal = valorVendaTotal + venda.quantidadeProduto * venda.precoProduto
-                recebimentos_venda = MovimentacaoConta.objects.filter(identificadorVenda=venda.identificadorVenda,ativo=True)
+                recebimentos_venda = MovimentacaoConta.objects.filter(
+                    identificadorVenda=venda.identificadorVenda,
+                    identificadorCompra=0,
+                    ativo=True)
                 for recebimento_venda in recebimentos_venda:
                     recebimentos.append({
                             'valor_recebimento': recebimento_venda.valorCredito,

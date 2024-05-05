@@ -17,7 +17,7 @@
 									<span><img src="{% static 'img/icons/dash2.svg' %}" alt="img"></span>
 								</div>
 								<div class="dash-widgetcontent">
-									<h5 >R$ {{valor_total_venda}}</h5>
+									<h5 >R${{valor_total_venda | floatformat:2}}</h5>
 									<h6>Faturamento Total no Período</h6>
 								</div>
 							</div>
@@ -28,7 +28,7 @@
 									<span><img src="{% static 'img/icons/dash1.svg' %}" alt="img"></span>
 								</div>
 								<div class="dash-widgetcontent">
-									<h5 >R$ {{valor_recebido_venda}}</h5>
+									<h5 >R${{valor_recebido_venda | floatformat:2}}</h5>
 									<h6>Valor Recebido no Período</h6>
 								</div>
 							</div>
@@ -39,7 +39,7 @@
 									<span><img src="{% static 'img/icons/dash3.svg' %}" alt="img"></span>
 								</div>
 								<div class="dash-widgetcontent">
-									<h5 >R$ {{total_a_receber}}</h5>
+									<h5 >R${{total_a_receber | floatformat:2}}</h5>
 									<h6>Total a Receber no Período</h6>
 								</div>
 							</div>
@@ -50,7 +50,7 @@
 									<span><img src="{% static 'img/icons/dash3.svg' %}" alt="img"></span>
 								</div>
 								<div class="dash-widgetcontent">
-									<h5 >R$ {{valor_excedente_venda}}</h5>
+									<h5 >R${{valor_excedente_venda | floatformat:2}}</h5>
 									<h6>Valor Excedente das Vendas no Período</h6>
 								</div>
 							</div>
@@ -61,7 +61,7 @@
 									<span><img src="{% static 'img/icons/dash4.svg' %}" alt="img"></span>
 								</div>
 								<div class="dash-widgetcontent">
-									<h5 >R$ <span class="counters" data-count="{{valor_total_estoque}}">{{valor_total_estoque}}</span></h5>
+									<h5 >R${{valor_total_estoque | floatformat:2}}</h5>
 									<h6>Valor Total do Estoque</h6>
 								</div>
 							</div>
@@ -73,7 +73,7 @@
 									<span><img src="{% static 'img/icons/dash4.svg' %}" alt="img"></span>
 								</div>
 								<div class="dash-widgetcontent">
-									<h5>R$ {{ticket_medio}}</h5>
+									<h5>R${{ticket_medio | floatformat:2}}</h5>
 									<h6>Ticket Médio das Vendas no Período</h6>
 								</div>
 							</div>
@@ -84,7 +84,7 @@
 									<span><img src="{% static 'img/icons/dash4.svg' %}" alt="img"></span>
 								</div>
 								<div class="dash-widgetcontent">
-									<h5>R$ {{ticket_medio}}</h5>
+									<h5>R${{ticket_medio | floatformat:2}}</h5>
 									<h6>Para preencher</h6>
 								</div>
 							</div>
@@ -95,7 +95,7 @@
 									<span><img src="{% static 'img/icons/dash4.svg' %}" alt="img"></span>
 								</div>
 								<div class="dash-widgetcontent">
-									<h5>R$ {{ticket_medio}}</h5>
+									<h5>R${{ticket_medio | floatformat:2}}</h5>
 									<h6>Para preencher</h6>
 								</div>
 							</div>
@@ -104,7 +104,7 @@
 						<div class="col-lg-3 col-sm-6 col-12 d-flex">
 							<div class="dash-count">
 								<div class="dash-counts">
-									<h4>R$ {{venda_lucro_total}}</h4>
+									<h4>R${{venda_lucro_total | floatformat:2}}</h4>
 									<h5>Lucro Total no Período</h5>
 								</div>
 								<div class="dash-imgs">
@@ -115,7 +115,7 @@
 						<div class="col-lg-3 col-sm-6 col-12 d-flex">
 							<div class="dash-count">
 								<div class="dash-counts">
-									<h4>R$ {{consolidado_compras}}</h4>
+									<h4>R${{consolidado_compras | floatformat:2}}</h4>
 									<h5>Total em Compras no Período</h5>
 								</div>
 								<div class="dash-imgs">
@@ -126,7 +126,7 @@
 						<div class="col-lg-3 col-sm-6 col-12 d-flex">
 							<div class="dash-count das2">
 								<div class="dash-counts">
-									<h4>R$ {{valor_despesa_total}}</h4>
+									<h4>R${{valor_despesa_total | floatformat:2}}</h4>
 									<h5>Despesas Totais no Período</h5>
 								</div>
 								<div class="dash-imgs">
@@ -137,7 +137,7 @@
 						<div class="col-lg-3 col-sm-6 col-12 d-flex">
 							<div class="dash-count das3">
 								<div class="dash-counts">
-									<h4>R$ {{saldo_liquido_mensal}}</h4>
+									<h4>R${{saldo_liquido_mensal | floatformat:2}}</h4>
 									<h5>Saldo Líquido Mensal</h5>
 								</div>
 								<div class="dash-imgs">
@@ -185,7 +185,7 @@
 													<td class="productimgname">
 													{{venda.nome_cliente}}
 													</td>
-													<td>{{venda.lucro_venda}}</td>
+													<td>R${{venda.lucro_venda | floatformat:2}}</td>
 													<td>{{venda.data_venda}}</td>
 												</tr>
 											{% endfor %}
@@ -232,7 +232,7 @@
 													<td>
 														{{despesa.nome_despesa}}
 													</td>
-													<td>{{despesa.moeda}} {{despesa.valor}}</td>
+													<td>{{despesa.moeda}}{{despesa.valor | floatformat:2}}</td>
 													<td>{{despesa.conta}}</td>
 												</tr>
 											{% endfor %}
@@ -246,7 +246,7 @@
 						<div class="col-lg-5 col-sm-12 col-12 d-flex">
 							<div class="card flex-fill">
 								<div class="card-header pb-0 d-flex justify-content-between align-items-center">
-									<h4 class="card-title mb-0">Compras</h4>
+									<h4 class="card-title mb-0">Compras (em Real)</h4>
 									<div class="dropdown">
 										<a href="javascript:void(0);" data-bs-toggle="dropdown" aria-expanded="false" class="dropset">
 											<i class="fa fa-ellipsis-v"></i>
@@ -279,7 +279,7 @@
 													<td class="productimgname">
 													{{compra.nome_fornecedor}}
 													</td>
-													<td>{{compra.valor_total_compra}}</td>
+													<td>R${{compra.valor_total_compra | floatformat:2}}</td>
 													<td>{{compra.data_compra}}</td>
 												</tr>
 											{% endfor %}

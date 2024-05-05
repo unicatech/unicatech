@@ -3,6 +3,7 @@ from django.views import View
 from django.shortcuts import render
 from django.http import HttpResponseRedirect
 from django.contrib import messages
+from decimal import Decimal
 
 
 from Vendas.models import Venda
@@ -90,6 +91,7 @@ class IndexView(TemplateView):
         despesas_template = []
         mes_anterior = 0
         ano_anterior = 0
+        #logging.warning(str(ano_selecionado) + " " + str(mes_selecionado) +" "+str(dia_selecionado))
         for despesa in cadastro_despesas:
             if despesa.periodicidade < 4:
                 mes_anterior = mes_selecionado
@@ -118,6 +120,7 @@ class IndexView(TemplateView):
             if despesa.periodicidade == 7:
                 mes_anterior = mes_selecionado
                 ano_anterior = ano_selecionado - 1
+            #logging.warning(str(ano_anterior) + " " + str(mes_anterior))
             verificar_registro_despesa = Despesa.objects.filter(criados__month=mes_anterior).filter(criados__year=ano_anterior).filter(despesa_id=despesa.id).filter(ativo=True).count()
             if verificar_registro_despesa == 0 and despesa.periodicidade > 0:
                 conta_em_dolar=0
@@ -151,7 +154,7 @@ class IndexView(TemplateView):
                 )
                 registro_despesa.save()
 
-        despesas = Despesa.objects.filter(ativo=True).filter(criados__year__lte=ano_selecionado).filter(criados__month__lte=mes_selecionado).filter(criados__day__lte=dia_selecionado)
+        despesas = Despesa.objects.filter(ativo=True).filter(modificado__year=ano_selecionado).filter(modificado__month=mes_selecionado)
         valor_despesa_total = 0
         for despesa in despesas:
             conta_debito=0
@@ -169,7 +172,7 @@ class IndexView(TemplateView):
                 {
                 'id': despesa.id,
                 'nome_despesa': despesa.despesa.nome_despesa,
-                'data': despesa.criados,
+                'data': despesa.modificado,
                 'valor': despesa.movimentacao.valorDebito,
                 'conta': conta_debito,
                 'moeda': moeda
@@ -222,6 +225,7 @@ class IndexView(TemplateView):
                      'nome_fornecedor': compra.fornecedor.nomeFornecedor,
                      'data_compra': compra.criados,
                      'valor_total_compra': valor_total_compra,
+                     'moeda': moeda
                      }
                 )
                 consolidado_compras_mensal = consolidado_compras_mensal + valor_total_compra

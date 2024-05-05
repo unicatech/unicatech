@@ -179,7 +179,7 @@ class FazerComprasView(TemplateView):
         context['fornecedores'] = Fornecedor.objects.all()
         context['produtos'] = Produto.objects.all()
         context['localizacaoCompra'] = LocalizacaoCompra.objects.all()
-        context['contasDetalhadas'] = financeiro.saldoConta
+        context['contasDetalhadas'] = financeiro.saldo_conta
         context['dolarMedio'] = financeiro.dolarMedio
         return super(TemplateView, self).render_to_response(context)
 

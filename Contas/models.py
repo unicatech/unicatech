@@ -89,6 +89,7 @@ class RecebimentoCartao(Base):
     parcelas = models.IntegerField()
     bandeira = models.CharField('Descrição', max_length=200)
     identificador_venda = models.IntegerField(default=0)
+    valor_liquido = models.FloatField(default=0)
     class Meta:
         verbose_name = 'Conta'
         verbose_name_plural = 'Contas'

@@ -122,8 +122,8 @@
 												<td class="text-bolds">{{ venda.cliente.nomeCliente}}</td>
 												<td>{{ venda.idVenda}}</td>
 												<td>{{ venda.dataVenda }}</td>
-												<td>{{ venda.valorVenda}}</td>
-												<td> {{venda.total_a_receber}}</td>
+												<td>{{ venda.valorVenda | floatformat:2}}</td>
+												<td> {{venda.total_a_receber | floatformat:2}}</td>
 												<td>
 													
 													<a class="me-3" href="/parcelasarecebermodal/?idVenda={{ venda.idVenda }}">

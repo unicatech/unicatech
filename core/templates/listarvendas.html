@@ -117,7 +117,7 @@
 												<td class="text-bolds">{{ venda.cliente.nomeCliente}}</td>
 												<td>{{ venda.idVenda}}</td>
 												<td>{{ venda.dataVenda }}</td>
-												<td>{{ venda.valorVenda}}</td>
+												<td>R${{ venda.valorVenda | floatformat:2}}</td>
 												<td>
 													
 													<a class="me-3" href="/fazervendas/?idVenda={{ venda.idVenda }}">
@@ -134,9 +134,9 @@
 														<td></td>
 														<td></td>
 														<td></td>
-														<td>{{ recebimento.valor_recebimento}}</td>
+														<td>R${{ recebimento.valor_recebimento | floatformat:2}}</td>
 										             	<td>{{ recebimento.data}}</td>
-													 	<td>{{ recebimento.Credito}}</td>
+													 	<td>{{ recebimento.Credito | floatformat:2}}</td>
 														<td><a class="me-3" href="/parcelasareceber/?id={{recebimento.identificador_parcela}}&funcao=apagar">
 														<img src="{% static 'img/icons/delete.svg' %}" alt="img">
 														</a></td>

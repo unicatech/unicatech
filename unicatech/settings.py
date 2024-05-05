@@ -16,7 +16,7 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 THOUSAND_SEPARATOR='.',
-USE_THOUSAND_SEPARATOR=False
+USE_THOUSAND_SEPARATOR=True
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/

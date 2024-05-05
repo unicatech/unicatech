@@ -326,7 +326,13 @@ class ListarVendasView(TemplateView):
                 compras_em_venda = MovimentacaoConta.objects.filter(identificadorVenda=self.request.GET["idVenda"])
                 for compra in compras_em_venda:
                     if compra.identificadorCompra != "0":
-                        Compra.objects.filter(identificadorCompra=compra.identificadorCompra).update(ativo=False)
+                        pass
+                        #remover_produto_compra = Compra.objects.filter(identificadorCompra=compra.identificadorCompra)
+                        #for produto_comprado in remover_produto_compra:
+                        #    atualizarEstoque = Produto.objects.get(id=produto_comprado.produto)
+                        #    atualizarEstoque.estoque = atualizarEstoque.estoque - produto_comprado.quantidadeProduto
+                        #    atualizarEstoque.save()
+                        #Compra.objects.filter(identificadorCompra=compra.identificadorCompra).update(ativo=False)
 
         vendas = Venda.objects.order_by('-identificadorVenda').filter(ativo=True)
 
@@ -401,6 +407,7 @@ class ParcelasReceberView(TemplateView):
                     identificadorVenda=venda.identificadorVenda,
                     identificadorCompra=0,
                     ativo=True)
+
                 for recebimento_venda in recebimentos_venda:
                     recebimentos.append({
                             'valor_recebimento': recebimento_venda.valorCredito,
@@ -472,6 +479,8 @@ class ParcelasReceberModalView(TemplateView):
         context = super(ParcelasReceberModalView, self).get_context_data(**kwargs)
         agora = datetime.now()
         hoje = agora.strftime("%Y-%m-%d")
+        data_recebimento = self.request.POST.getlist('data_recebimento')
+        data_modificada = re.sub(r'(\d{1,2})-(\d{1,2})-(\d{4})', '\\3-\\2-\\1', data_recebimento[0])
         conta_recebimento = Conta.objects.get(id=self.request.POST.get('contaCredito'), ativo=True)
         taxa = 0
         if conta_recebimento.categoria_id == 1:
@@ -518,6 +527,15 @@ class ParcelasReceberModalView(TemplateView):
             elif self.request.POST.get("parcelaCartao") == "0":
                 taxa = float(conta_cartao.taxa_debito)
             valor_recebimento = (1 - taxa / 100) * float(self.request.POST.get('valorRecebido'))
+            dataform = RecebimentoCartao(conta_cartao_id=self.request.POST.get('contaCredito'),
+                                     criados=data_modificada,
+                                     valor=self.request.POST.get('valorRecebido'),
+                                     parcelas=self.request.POST.get('parcelaCartao'),
+                                     bandeira=self.request.POST.get('bandeira'),
+                                     identificador_venda=self.request.POST.get('identificadorVenda'),
+                                     valor_liquido=valor_recebimento
+            )
+            dataform.save()
         elif conta_recebimento.categoria_id == 2:
             logging.warning("Depósito em real")
             valor_recebimento = float(self.request.POST.get('valorRecebido'))
@@ -525,8 +543,6 @@ class ParcelasReceberModalView(TemplateView):
             logging.warning("Espécie")
             valor_recebimento = float(self.request.POST.get('valorRecebido'))
 
-        data_recebimento = self.request.POST.getlist('data_recebimento')
-        data_modificada = re.sub(r'(\d{1,2})-(\d{1,2})-(\d{4})', '\\3-\\2-\\1', data_recebimento[0])
         dataform = MovimentacaoConta(contaCredito_id=self.request.POST.get('contaCredito'),
                                      criados=data_modificada,
                                      contaDebito="0",
@@ -534,15 +550,6 @@ class ParcelasReceberModalView(TemplateView):
                                      identificadorVenda=self.request.POST.get('identificadorVenda'),
                                      descricao=self.request.POST.get('descricao'),
                                      identificadorDolar=False,
-        )
-        dataform.save()
-
-        dataform = RecebimentoCartao(conta_cartao_id=self.request.POST.get('contaCredito'),
-                                     criados=data_modificada,
-                                     valor=self.request.POST.get('valorRecebido'),
-                                     parcelas=self.request.POST.get('parcelaCartao'),
-                                     bandeira=self.request.POST.get('bandeira'),
-                                     identificador_venda=self.request.POST.get('identificadorVenda'),
         )
         dataform.save()
 

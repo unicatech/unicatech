@@ -207,7 +207,7 @@ class ListarComprasView(TemplateView):
                 apagardeslocamento = Deslocamento.objects.filter(identificadorCompra=self.request.GET["idCompra"])
                 apagardeslocamento.delete()
 
-        compras = Compra.objects.order_by('identificadorCompra').filter(ativo=True)
+        compras = Compra.objects.order_by('-identificadorCompra').filter(ativo=True)
 
         listarComprasTemplate = []
         identificadorCompra = 0

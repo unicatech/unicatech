@@ -23,7 +23,7 @@ class FazerVendasView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(FazerVendasView, self).get_context_data(**kwargs)
         context['editarVenda'] = 0
-
+        context['dataVenda'] = datetime.now().strftime("%d-%m-%Y")
         if self.request.GET.__contains__("venda_realizada"):
             logging.warning("Venda Realizada")
             context['venda_realizada'] = 1
@@ -441,6 +441,7 @@ class ParcelasReceberModalView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(ParcelasReceberModalView, self).get_context_data(**kwargs)
         context['mensagem'] = ''
+        context['data_recebimento'] = datetime.now().strftime("%d-%m-%Y")
         venda_recebimento = Venda.objects.filter(identificadorVenda=self.request.GET["idVenda"],ativo=True)
         recebimentos_venda = MovimentacaoConta.objects.filter(identificadorVenda=self.request.GET["idVenda"], ativo=True)
         recebimento = 0

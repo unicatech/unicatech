@@ -211,19 +211,31 @@ class ListarComprasView(TemplateView):
 
         listarComprasTemplate = []
         identificadorCompra = 0
+        moeda = ""
         for compra in compras:
+            #Se a compra advir de uma venda de aparelho, não listar.
+            if compra.conta_id == -1:
+                continue
+
             if identificadorCompra != compra.identificadorCompra:
                 compraIdentificada = Compra.objects.filter(identificadorCompra=compra.identificadorCompra, ativo=True)
                 valorCompraTotal = 0
+
                 for compra in compraIdentificada:
                     valorCompraTotal = valorCompraTotal + compra.quantidadeProduto * compra.precoProduto
                 itinerario_compra = Deslocamento.objects.filter(identificadorCompra=compra.identificadorCompra).order_by('-id')
                 cidade_atual = ""
+
                 for cidade in itinerario_compra:
                     localizacao = LocalizacaoCompra.objects.get(id=cidade.destino)
                     cidade_atual = localizacao.localizacaoCompra
                     break
-                #valorCompraTotal = valorCompraTotal + frete
+
+                if compra.valorDolarMedio == 1:
+                    moeda="R$"
+                else:
+                    moeda="US$"
+
                 listarComprasTemplate.append(
                     {
                         'idCompra': compra.identificadorCompra,
@@ -231,6 +243,7 @@ class ListarComprasView(TemplateView):
                         'dataCompra': compra.criados,
                         'valorCompra': valorCompraTotal,
                         'localizacaoCompra': cidade_atual,
+                        'moeda': moeda,
                     }
                 )
                 valorCompraTotal = 0

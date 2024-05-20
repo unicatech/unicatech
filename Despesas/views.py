@@ -21,8 +21,7 @@ class AdicionarDespesa(TemplateView):
         context = super(AdicionarDespesa, self).get_context_data(**kwargs)
         if self.request.GET.__contains__("idDespesa"):
             if self.request.GET["funcao"] == "apagar":
-                apagar_despesa = CadastroDespesa(id=self.request.GET["idDespesa"])
-                apagar_despesa.delete()
+                CadastroDespesa.objects.filter(id=self.request.GET["idDespesa"]).update(ativo=False)
                 context["mensagem"] = "Despesa Apagada"
         contasDetalhadas = Conta.objects.all()
         conta_despesa = []

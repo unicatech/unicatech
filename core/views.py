@@ -26,6 +26,7 @@ class IndexView(TemplateView):
         mes_selecionado = 0
         ano_selecionado = 0
         if self.request.GET.__contains__("mes_selecionado"):
+            dia_selecionado = self.request.GET["dia_selecionado"]
             mes_selecionado = self.request.GET["mes_selecionado"]
             ano_selecionado = self.request.GET["ano_selecionado"]
         else:
@@ -125,6 +126,7 @@ class IndexView(TemplateView):
             if verificar_registro_despesa == 0 and despesa.periodicidade > 0:
                 conta_em_dolar=0
                 cotacao_dolar=0
+                data_anterior=""
                 tipo_movimentacao = Conta.objects.get(id=despesa.conta_debito_id)
                 if tipo_movimentacao.categoria_id > 3:
                     conta_em_dolar = 1
@@ -133,7 +135,8 @@ class IndexView(TemplateView):
                 else:
                     conta_em_dolar = 0
                     cotacao_dolar = 1
-                data_anterior = date(ano_anterior,mes_anterior,1)
+                logging.warning("Entrei")
+                data_anterior = datetime(ano_anterior,mes_anterior,1).strftime("%Y-%m-%d")
                 registro_movimentacao = MovimentacaoConta(
                     criados=data_anterior,
                     contaDebito=despesa.conta_debito_id,

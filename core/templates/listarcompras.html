@@ -127,7 +127,7 @@
 												<td class="text-bolds">{{ compra.fornecedor.nomeFornecedor}}</td>
 												<td>{{ compra.idCompra}}</td>
 												<td>{{ compra.dataCompra }}</td>
-												<td>US${{ compra.valorCompra| floatformat:2}}</td>
+												<td>{{compra.moeda}} {{ compra.valorCompra| floatformat:2}}</td>
 												<td><span class="badges bg-lightgreen">{{ compra.localizacaoCompra }}</span></td>
 												<td>
 													

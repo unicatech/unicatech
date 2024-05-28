@@ -52,15 +52,15 @@ class FazerVendasView(TemplateView):
         context['vendas'] = Venda.objects.all()
         context['mensagem'] = ''
         #Popular template
-        context['clientes'] = Cliente.objects.all()
+        context['clientes'] = Cliente.objects.filter().order_by('nomeCliente')
 
         # Se a função for "Editar Venda" permita que apareça o produto com estoque zerado (afinal já está na venda) mas não negativo
         if context['editarVenda'] == 1:
-            context['produtos'] = Produto.objects.all().filter(estoque__gte=0)
+            context['produtos'] = Produto.objects.all().filter(estoque__gte=0).order_by('NomeProduto')
         else:
-            context['produtos'] = Produto.objects.all().filter(estoque__gt=0)
+            context['produtos'] = Produto.objects.all().filter(estoque__gt=0).order_by('NomeProduto')
 
-        context['produtos_compra'] = Produto.objects.all()
+        context['produtos_compra'] = Produto.objects.all().order_by('NomeProduto')
         return context
 
     def post(self, request, *args, **kwargs):

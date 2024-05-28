@@ -38,12 +38,11 @@
 										<label>Cliente</label>
 										<div class="row">
 											<div class="col-lg-10 col-sm-10 col-10">
-											<select name="cliente" id="cliente" class="select">
+												<select name="cliente" class="select">
 												{% for c in clientes %}
-												<option value="{{ c.id }}" {% if c.id == idCliente %} SELECTED {% endif %}>{{ c.nomeCliente }}</option>
+												<option value="{{ c.id }}" {% if c.id == idCliente %} SELECTED {% endif %} >{{ c.nomeCliente }}</option>
 												{% endfor %}
-
-										</select>
+												</select>
 										</div>
 											<div class="col-lg-2 col-sm-2 col-2 ps-0">
 												<div class="add-icon">
@@ -219,13 +218,13 @@
 
 							<tr>
 								<div class="row">
-						        <td><select name="produto_compra" class="select">
-								<option value="0"> Selecione o Produto</option>
+						        <td>			<select name="produto_compra" class="select">
+
 								{% for p in produtos_compra %}
 											<option value="{{ p.id }}" >{{ p.NomeProduto }}</option>
 								{% endfor %}
-
-							</select></td>
+								</select>
+									</td>
 
                             <td><input type="text" class="form-control" name="quantidade_compra" id="tab1" size="2" maxlength="3"></td>
 
@@ -346,6 +345,9 @@
 
         </script>
 
-		
+		<script>
+			var shownVal = document.getElementById("cliente").value;
+			var value2send = document.querySelector("#cliente option[value='"+shownVal+"']").dataset.value;
+		</script>
     </body>
 </html>

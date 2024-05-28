@@ -157,7 +157,7 @@ class IndexView(TemplateView):
                 )
                 registro_despesa.save()
 
-        despesas = Despesa.objects.filter(ativo=True).filter(modificado__year=ano_selecionado).filter(modificado__month=mes_selecionado)
+        despesas = Despesa.objects.filter(ativo=True).filter(modificado__year=ano_selecionado).filter(modificado__month=mes_selecionado).order_by('-id')
         valor_despesa_total = 0
         for despesa in despesas:
             conta_debito=0

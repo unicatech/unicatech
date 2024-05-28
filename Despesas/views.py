@@ -74,12 +74,17 @@ class AdicionarDespesa(TemplateView):
                 movimentacao_id=registro_movimentacao.id,
             )
             registro_despesa.save()
+            contasDetalhadas = Conta.objects.all()
+            conta_despesa = []
+            for conta in contasDetalhadas:
+                conta_despesa.append({'id': conta.id, 'nomeConta': conta.nomeConta})
+            context['conta_despesa'] = conta_despesa
             context['despesas'] = self.despesas_cadastradas()
             context['mensagem'] = "Despesa Salva"
         return super(TemplateView, self).render_to_response(context)
 
     def despesas_cadastradas(self):
-        despesas_cadastradas = CadastroDespesa.objects.filter(ativo=True)
+        despesas_cadastradas = CadastroDespesa.objects.filter(ativo=True).order_by('-id')
         despesas_template = []
         for despesa in despesas_cadastradas:
             conta_debito = 0

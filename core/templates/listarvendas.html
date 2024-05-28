@@ -136,7 +136,7 @@
 														<td></td>
 														<td>R${{ recebimento.valor_recebimento | floatformat:2}}</td>
 										             	<td>{{ recebimento.data}}</td>
-													 	<td>{{ recebimento.Credito | floatformat:2}}</td>
+													 	<td>{{ recebimento.Credito}}</td>
 														<td><a class="me-3" href="/parcelasareceber/?id={{recebimento.identificador_parcela}}&funcao=apagar">
 														<img src="{% static 'img/icons/delete.svg' %}" alt="img">
 														</a></td>

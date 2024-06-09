@@ -636,20 +636,20 @@ class MovimentacaoFinanceira:
         creditoRemanescente = 0
         somaValorReal = 0
         for compra in comprasDolar:
-            logging.warning("Total Compra Dólar x Valor Crédito")
-            logging.warning(totalCompraDolar)
-            logging.warning(compra.valorCredito)
-            logging.warning("===================")
+            #logging.warning("Total Compra Dólar x Valor Crédito")
+            #logging.warning(totalCompraDolar)
+            #logging.warning(compra.valorCredito)
+            #logging.warning("===================")
             totalCompraDolar = totalCompraDolar - compra.valorCredito
             if totalCompraDolar < 0:
                 creditoRemanescente = creditoRemanescente + (-1) * totalCompraDolar
                 somaValorReal = somaValorReal + (-1) * totalCompraDolar * compra.cotacaoDolar
                 totalCompraDolar = 0
 
-        logging.warning("Soma Valor REal x Credito Remanescente")
-        logging.warning(somaValorReal)
-        logging.warning(creditoRemanescente)
-        logging.warning("===================")
+        #logging.warning("Soma Valor REal x Credito Remanescente")
+        #logging.warning(somaValorReal)
+        #logging.warning(creditoRemanescente)
+        #logging.warning("===================")
 
         if creditoRemanescente > 0:
             valorDolarMedio = somaValorReal / creditoRemanescente

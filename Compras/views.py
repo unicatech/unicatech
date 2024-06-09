@@ -18,13 +18,13 @@ class FazerComprasView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(FazerComprasView, self).get_context_data(**kwargs)
         context['editarCompra'] = 0
+        context['dataCompra'] = datetime.now().strftime("%d-%m-%Y")
         financeiro = MovimentacaoFinanceira()
         context['dolarMedio'] = financeiro.dolarMedio
         if self.request.GET.__contains__("idCompra"):
             compras = Compra.objects.filter(identificadorCompra=self.request.GET["idCompra"], ativo=True)
             listarProdutosTemplate = []
             context['editarCompra'] = 1
-
             for compra in compras:
                 listarProdutosTemplate.append(
                     {
@@ -69,10 +69,10 @@ class FazerComprasView(TemplateView):
         contaOrigem = self.request.POST.getlist('contaOrigem')
         #Se a função for "Editar Compra" o valor será estornado para a conta de origem original da compra
         contaOrigemOriginal = self.request.POST.getlist('idConta')
-        localizacaoCompra = self.request.POST.getlist('localizacaoCompra')
         identificadorCompra = self.request.POST.getlist('identificadorCompra')
         cotacaoDolar = self.request.POST.getlist('dolarMedio')
         descricao = self.request.POST.getlist('descricao')
+        localizacaoCompra = Fornecedor.objects.get(id=fornecedor[0])
 
         dataModificada = re.sub(r'(\d{1,2})-(\d{1,2})-(\d{4})', '\\3-\\2-\\1', dataCompra[0])
         contador = 0
@@ -139,7 +139,7 @@ class FazerComprasView(TemplateView):
                     fornecedor_id=fornecedor[0],
                     produto_id=produto,
                     descricao=descricao,
-                    idLocalizacao_id=localizacaoCompra[0],
+                    idLocalizacao_id=localizacaoCompra.localizacaoCompra_id,
                     conta_id=contaOrigem[0],
                     valorDolarMedio=float(cotacaoDolar)
                 )
@@ -167,7 +167,7 @@ class FazerComprasView(TemplateView):
         # Colocando o local inicial
         formDeslocamento = Deslocamento(
             criados=str(dataModificada),
-            destino=localizacaoCompra[0],
+            destino=localizacaoCompra.localizacaoCompra_id,
             frete="0",
             identificadorCompra=str(proximaCompra),
         )

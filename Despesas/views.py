@@ -29,7 +29,8 @@ class AdicionarDespesa(TemplateView):
             conta_despesa.append({'id': conta.id, 'nomeConta': conta.nomeConta})
 
         context['conta_despesa'] = conta_despesa
-        context['despesas'] = self.despesas_cadastradas()
+        lista_despesas = ListaDespesas()
+        context['despesas'] = lista_despesas.despesas_registradas()
         #context["categoria"] = CategoriaConta.objects.all()
         #context["mensagem"] = ""
         return context
@@ -79,12 +80,68 @@ class AdicionarDespesa(TemplateView):
             for conta in contasDetalhadas:
                 conta_despesa.append({'id': conta.id, 'nomeConta': conta.nomeConta})
             context['conta_despesa'] = conta_despesa
-            context['despesas'] = self.despesas_cadastradas()
+            lista_despesas = ListaDespesas()
+            context['despesas'] = lista_despesas.despesas_cadastradas()
             context['mensagem'] = "Despesa Salva"
         return super(TemplateView, self).render_to_response(context)
 
-    def despesas_cadastradas(self):
-        despesas_cadastradas = CadastroDespesa.objects.filter(ativo=True).order_by('-id')
+
+class DespesasPeriodicas(TemplateView):
+    template_name = "despesasperiodicas.html"
+    def get_context_data(self, **kwargs):
+        context = super(DespesasPeriodicas, self).get_context_data(**kwargs)
+        if self.request.GET.__contains__("idDespesa"):
+            if self.request.GET["funcao"] == "apagar":
+                CadastroDespesa.objects.filter(id=self.request.GET["idDespesa"]).update(ativo=False)
+                context["mensagem"] = "Despesa Apagada"
+        contasDetalhadas = Conta.objects.all()
+        conta_despesa = []
+        for conta in contasDetalhadas:
+            conta_despesa.append({'id': conta.id, 'nomeConta': conta.nomeConta})
+
+        context['conta_despesa'] = conta_despesa
+        lista_despesas = ListaDespesas()
+        context['despesas'] = lista_despesas.despesas_periodicas_cadastradas()
+        # context["categoria"] = CategoriaConta.objects.all()
+        # context["mensagem"] = ""
+        return context
+
+
+# Create your views here.
+
+class ListaDespesas:
+    def despesas_registradas(self):
+        despesas = Despesa.objects.filter(ativo=True).order_by('-id')
+        valor_despesa_total = 0
+        despesas_template = []
+        for despesa in despesas:
+            conta_debito=0
+            moeda=""
+            cotacao_dolar=1
+            contas = Conta.objects.filter(ativo=True).filter(id=despesa.movimentacao.contaDebito)
+            for conta in contas:
+                conta_debito = conta.nomeConta
+                if despesa.movimentacao.identificadorDolar == 0:
+                    moeda="R$"
+                else:
+                    moeda="US$"
+                cotacao_dolar = despesa.movimentacao.cotacaoDolar
+            logging.warning(despesa.id)
+            despesas_template.append(
+                {
+                'id': despesa.id,
+                'nome_despesa': despesa.despesa.nome_despesa,
+                'data': despesa.modificado,
+                'valor': despesa.movimentacao.valorDebito,
+                'conta': conta_debito,
+                'moeda': moeda
+                }
+            )
+            valor_despesa_total = valor_despesa_total + despesa.movimentacao.valorDebito * cotacao_dolar
+        return(despesas_template)
+
+    def despesas_periodicas_cadastradas(self):
+        despesas_cadastradas = CadastroDespesa.objects.filter(ativo=True).filter(periodicidade__gt=0).order_by('-id')
         despesas_template = []
         for despesa in despesas_cadastradas:
             conta_debito = 0
@@ -110,4 +167,3 @@ class AdicionarDespesa(TemplateView):
                 }
             )
         return(despesas_template)
-# Create your views here.

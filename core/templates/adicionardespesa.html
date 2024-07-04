@@ -192,7 +192,7 @@
 											<td>{{ despesa.nome_despesa }}</td>
 											<td>{{despesa.moeda}}{{ despesa.valor }}	</td>
 											<td>{{ despesa.conta }}</td>
-											<td><a class="confirm-text"  href="{% url 'adicionardespesa' %}?idDespesa={{ despesa.id }}&funcao=apagar" onclick="javascript:void(0);">
+											<td><a class="confirm-text"  href="{% url 'adicionardespesa' %}?idDespesa={{ despesa.id }}&idCadastroDespesa={{ despesa.id_cadastro }}&funcao=apagar" onclick="javascript:void(0);">
 												<img src="{% static 'img/icons/delete.svg' %}" alt="img">
 												</a>
 											</td>

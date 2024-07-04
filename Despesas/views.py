@@ -21,7 +21,8 @@ class AdicionarDespesa(TemplateView):
         context = super(AdicionarDespesa, self).get_context_data(**kwargs)
         if self.request.GET.__contains__("idDespesa"):
             if self.request.GET["funcao"] == "apagar":
-                CadastroDespesa.objects.filter(id=self.request.GET["idDespesa"]).update(ativo=False)
+                Despesa.objects.filter(id=self.request.GET["idDespesa"]).update(ativo=False)
+                CadastroDespesa.objects.filter(id=self.request.GET["idCadastroDespesa"]).update(ativo=False)
                 context["mensagem"] = "Despesa Apagada"
         contasDetalhadas = Conta.objects.all()
         conta_despesa = []
@@ -81,7 +82,7 @@ class AdicionarDespesa(TemplateView):
                 conta_despesa.append({'id': conta.id, 'nomeConta': conta.nomeConta})
             context['conta_despesa'] = conta_despesa
             lista_despesas = ListaDespesas()
-            context['despesas'] = lista_despesas.despesas_cadastradas()
+            context['despesas'] = lista_despesas.despesas_registradas()
             context['mensagem'] = "Despesa Salva"
         return super(TemplateView, self).render_to_response(context)
 
@@ -93,6 +94,7 @@ class DespesasPeriodicas(TemplateView):
         if self.request.GET.__contains__("idDespesa"):
             if self.request.GET["funcao"] == "apagar":
                 CadastroDespesa.objects.filter(id=self.request.GET["idDespesa"]).update(ativo=False)
+                Despesa.objects.filter(despesa_id=self.request.GET["idDespesa"]).update(ativo=False)
                 context["mensagem"] = "Despesa Apagada"
         contasDetalhadas = Conta.objects.all()
         conta_despesa = []
@@ -134,7 +136,8 @@ class ListaDespesas:
                 'data': despesa.modificado,
                 'valor': despesa.movimentacao.valorDebito,
                 'conta': conta_debito,
-                'moeda': moeda
+                'moeda': moeda,
+                'id_cadastro': despesa.despesa_id,
                 }
             )
             valor_despesa_total = valor_despesa_total + despesa.movimentacao.valorDebito * cotacao_dolar
@@ -154,8 +157,6 @@ class ListaDespesas:
                     moeda = "R$"
                 else:
                     moeda = "US$"
-            logging.warning("Nome Conta")
-            logging.warning(conta_debito)
             despesas_template.append(
                 {
                     'id': despesa.id,

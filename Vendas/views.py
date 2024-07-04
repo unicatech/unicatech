@@ -14,7 +14,7 @@ from .models import Venda
 from Produtos.models import Produto
 from Contas.models import MovimentacaoConta, Conta, Cartao, RecebimentoCartao
 from Vendas.models import Cliente
-from Compras.models import Compra
+from Compras.models import Compra, Deslocamento
 # Create your views here.
 
 class FazerVendasView(TemplateView):
@@ -170,6 +170,8 @@ class FazerVendasView(TemplateView):
                 quantidade_produto = 0
                 frete_deslocamento = 0
                 frete_medio_produto = 0
+                quantidade_produto_total_compra = []
+
                 for compra in compras_produto:
                     try:
                         deslocamentos = Deslocamento.objects.filter(identificadorCompra=compra.identificadorCompra)
@@ -178,18 +180,23 @@ class FazerVendasView(TemplateView):
                         frete_deslocamento = frete_deslocamento + compra.frete * compra.valorDolarMedio
                     except:
                         pass
+                    quantidade_produto_total_compra = Compra.objects.filter(
+                        identificadorCompra=compra.identificadorCompra).aggregate(Sum('quantidadeProduto'))
+                    frete_medio_produto = frete_deslocamento / quantidade_produto_total_compra["quantidadeProduto__sum"]
+
                     if compra.quantidadeProduto >= estoque_preco_medio:
                         compra_total_produto = (compra_total_produto +
                                                 estoque_preco_medio *
                                                 float(compra.precoProduto) * compra.valorDolarMedio)
                         quantidade_produto = quantidade_produto + estoque_preco_medio
-                        frete_medio_produto = frete_deslocamento / quantidade_produto
                         break
                     else:
                         compra_total_produto = (compra_total_produto +
                                                 compra.quantidadeProduto * compra.precoProduto * compra.valorDolarMedio)
                         estoque_preco_medio = estoque_preco_medio - compra.quantidadeProduto
                         quantidade_produto = quantidade_produto + compra.quantidadeProduto
+
+
                 #Prevenir quando o estoque foi adicionado no cadastro do produto, pois o valor vai vir menor que zero
                 if quantidade_produto > 0:
                     preco_medio = compra_total_produto / quantidade_produto
@@ -198,7 +205,7 @@ class FazerVendasView(TemplateView):
                 lucro = float(quantidades[contador]) * (float(precos[contador]) - preco_medio)
                 # Prevenir quando a quantidade comprada não estiver cadastrada, pois o valor vai vir menor que zero
                 if quantidade_produto > 0:
-                    lucro = lucro - frete_medio_produto
+                    lucro = lucro - frete_medio_produto * float(quantidades[contador])
 
                 #Cadastrando Venda
                 if produto != 0:

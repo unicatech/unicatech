@@ -176,14 +176,14 @@ class FazerVendasView(TemplateView):
                     try:
                         deslocamentos = Deslocamento.objects.filter(identificadorCompra=compra.identificadorCompra)
                         for deslocamento in deslocamentos:
-                            frete_deslocamento = frete_deslocamento + deslocamento.frete
-                        frete_deslocamento = frete_deslocamento + compra.frete * compra.valorDolarMedio
+                            if deslocamento.idMovimentacaoConta != None:
+                                trecho_frete = MovimentacaoConta.objects.get(id=deslocamento.idMovimentacaoConta)
+                                frete_deslocamento = frete_deslocamento + trecho_frete.valorDebito * trecho_frete.cotacaoDolar
                     except:
                         pass
                     quantidade_produto_total_compra = Compra.objects.filter(
                         identificadorCompra=compra.identificadorCompra).aggregate(Sum('quantidadeProduto'))
                     frete_medio_produto = frete_deslocamento / quantidade_produto_total_compra["quantidadeProduto__sum"]
-
                     if compra.quantidadeProduto >= estoque_preco_medio:
                         compra_total_produto = (compra_total_produto +
                                                 estoque_preco_medio *
@@ -203,10 +203,14 @@ class FazerVendasView(TemplateView):
                 else:
                     preco_medio = 0
                 lucro = float(quantidades[contador]) * (float(precos[contador]) - preco_medio)
+                logging.warning("Lucro antes do frete")
+                logging.warning(lucro)
                 # Prevenir quando a quantidade comprada não estiver cadastrada, pois o valor vai vir menor que zero
                 if quantidade_produto > 0:
                     lucro = lucro - frete_medio_produto * float(quantidades[contador])
-
+                logging.warning("Lucro apos do frete")
+                logging.warning(frete_medio_produto)
+                logging.warning(lucro)
                 #Cadastrando Venda
                 if produto != 0:
                     formVenda = Venda(

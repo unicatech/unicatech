@@ -46,7 +46,12 @@ class FazerComprasView(TemplateView):
         context['mensagem'] = ''
         # Popular template
         context['fornecedores'] = Fornecedor.objects.all()
-        context['produtos'] = Produto.objects.all().order_by('NomeProduto')
+
+        if self.request.resolver_match.url_name == "fazercompraspecas":
+            context['produtos'] = Produto.objects.all().filter(categoria_id=5).order_by('NomeProduto')
+        if self.request.resolver_match.url_name == "fazercomprasaparelhos":
+            context['produtos'] = Produto.objects.all().filter(categoria_id__lte=4).order_by('NomeProduto')
+        context['tipo_produto'] = self.request.resolver_match.url_name
         context['localizacaoCompra'] = LocalizacaoCompra.objects.all()
         context['contasDetalhadas'] = financeiro.saldo_conta
         return context
@@ -71,6 +76,8 @@ class FazerComprasView(TemplateView):
         contaOrigemOriginal = self.request.POST.getlist('idConta')
         identificadorCompra = self.request.POST.getlist('identificadorCompra')
         cotacaoDolar = self.request.POST.getlist('dolarMedio')
+        tipo_produto = self.request.POST.getlist('tipo_produto')
+        #cotacaoDolar = financeiro.dolarMedio(,contaOrigemOriginal)
         descricao = self.request.POST.getlist('descricao')
         localizacaoCompra = Fornecedor.objects.get(id=fornecedor[0])
 
@@ -177,11 +184,18 @@ class FazerComprasView(TemplateView):
 
         # Popular template
         context['fornecedores'] = Fornecedor.objects.all()
-        context['produtos'] = Produto.objects.all()
+        logging.warning("Tipo Produto")
+        logging.warning(tipo_produto)
+        if tipo_produto[0] == "fazercompraspecas":
+            context['produtos'] = Produto.objects.all().filter(categoria_id=5).order_by('NomeProduto')
+        if tipo_produto[0] == "fazercomprasaparelhos":
+            context['produtos'] = Produto.objects.all().filter(categoria_id__lte=4).order_by('NomeProduto')
+        context['tipo_produto'] = tipo_produto[0]
+
         context['localizacaoCompra'] = LocalizacaoCompra.objects.all()
         context['contasDetalhadas'] = financeiro.saldo_conta
         context['dolarMedio'] = financeiro.dolarMedio
-        return super(TemplateView, self).render_to_response(context)
+        return HttpResponseRedirect('/'+tipo_produto[0]+'/?venda_realizada=1', context)
 
 
 

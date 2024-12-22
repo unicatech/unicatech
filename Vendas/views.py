@@ -18,14 +18,14 @@ from Compras.models import Compra, Deslocamento
 # Create your views here.
 
 class FazerVendasView(TemplateView):
-
     template_name = 'fazervendas.html'
     def get_context_data(self, **kwargs):
         context = super(FazerVendasView, self).get_context_data(**kwargs)
         context['editarVenda'] = 0
         context['dataVenda'] = datetime.now().strftime("%d-%m-%Y")
+        #logging.warning()
         if self.request.GET.__contains__("venda_realizada"):
-            logging.warning("Venda Realizada")
+            #logging.warning("Venda Realizada")
             context['venda_realizada'] = 1
 
         if self.request.GET.__contains__("idVenda"):
@@ -54,11 +54,19 @@ class FazerVendasView(TemplateView):
         #Popular template
         context['clientes'] = Cliente.objects.filter().order_by('nomeCliente')
 
+
         # Se a função for "Editar Venda" permita que apareça o produto com estoque zerado (afinal já está na venda) mas não negativo
+        quantidade=""
         if context['editarVenda'] == 1:
-            context['produtos'] = Produto.objects.all().filter(estoque__gte=0).order_by('NomeProduto')
+            quantidade = "0"
         else:
-            context['produtos'] = Produto.objects.all().filter(estoque__gt=0).order_by('NomeProduto')
+            quantidade = "1"
+
+        if self.request.resolver_match.url_name == "fazervendaspecas":
+            context['produtos'] = Produto.objects.all().filter(estoque__gte=quantidade).filter(categoria_id=5).order_by('NomeProduto')
+        if self.request.resolver_match.url_name == "fazervendasaparelhos":
+            context['produtos'] = Produto.objects.all().filter(estoque__gte=quantidade).filter(categoria_id__lte=4).order_by('NomeProduto')
+        context['tipo_produto'] = self.request.resolver_match.url_name
 
         context['produtos_compra'] = Produto.objects.all().order_by('NomeProduto')
         return context
@@ -87,6 +95,7 @@ class FazerVendasView(TemplateView):
         descricao = self.request.POST.getlist('descricao')
         gerar_compra = self.request.POST.get('gerar_compra')
         produtos_compra = self.request.POST.getlist('produto_compra')
+        tipo_produto = self.request.POST.getlist('tipo_produto')
         dataModificada = re.sub(r'(\d{1,2})-(\d{1,2})-(\d{4})', '\\3-\\2-\\1', dataVenda[0])
 
         contador = 0
@@ -108,14 +117,14 @@ class FazerVendasView(TemplateView):
                 produto_encontrado = 0
                 for produto in produtos:
                     if produto_vendido.produto_id == produto:
-                        logging.warning("Produto encontrado")
+                        #logging.warning("Produto encontrado")
                         produto_encontrado = 1
                 if produto_encontrado == 0:
                     produtos_removidos_venda.append(produto_vendido.produto_id)
 
             for produto in produtos:
                 try:
-                    logging.warning("Try")
+                    #logging.warning("Try")
                     for produto_repetido_unico in produtos_repetidos_unicos:
                         if produto_repetido_unico == produto:
                             produto = -1
@@ -129,7 +138,7 @@ class FazerVendasView(TemplateView):
                     atualizarEstoque.save()
                     produtos_repetidos_unicos.append(produto)
                 except:
-                    logging.warning("Except")
+                    #logging.warning("Except")
                     for produto_repetido in produtos_repetidos:
                         if produto_repetido == produto:
                             produto = -1
@@ -168,11 +177,11 @@ class FazerVendasView(TemplateView):
                 compra_total_produto = 0
                 estoque_preco_medio = estoque_anterior
                 quantidade_produto = 0
-                frete_deslocamento = 0
-                frete_medio_produto = 0
                 quantidade_produto_total_compra = []
 
                 for compra in compras_produto:
+                    frete_deslocamento = 0
+                    frete_medio_produto = 0
                     try:
                         deslocamentos = Deslocamento.objects.filter(identificadorCompra=compra.identificadorCompra)
                         for deslocamento in deslocamentos:
@@ -183,7 +192,13 @@ class FazerVendasView(TemplateView):
                         pass
                     quantidade_produto_total_compra = Compra.objects.filter(
                         identificadorCompra=compra.identificadorCompra).aggregate(Sum('quantidadeProduto'))
+                    #logging.warning("Indicador compra")
+                    #logging.warning(compra.identificadorCompra)
+                    #logging.warning("Calculo do frete")
+                    #logging.warning(frete_deslocamento)
+                    #logging.warning(quantidade_produto_total_compra["quantidadeProduto__sum"])
                     frete_medio_produto = frete_deslocamento / quantidade_produto_total_compra["quantidadeProduto__sum"]
+                    #logging.warning(frete_medio_produto)
                     if compra.quantidadeProduto >= estoque_preco_medio:
                         compra_total_produto = (compra_total_produto +
                                                 estoque_preco_medio *
@@ -198,6 +213,9 @@ class FazerVendasView(TemplateView):
 
 
                 #Prevenir quando o estoque foi adicionado no cadastro do produto, pois o valor vai vir menor que zero
+                #logging.warning("Formacao preco medio")
+                #logging.warning(compra_total_produto)
+                #logging.warning(quantidade_produto)
                 if quantidade_produto > 0:
                     preco_medio = compra_total_produto / quantidade_produto
                 else:
@@ -231,7 +249,6 @@ class FazerVendasView(TemplateView):
         context['mensagem'] = 'Venda Salva'
 
         if gerar_compra == "on":
-            logging.warning("Gerou")
             try:
                 ultimaCompra = Compra.objects.last()
                 proximaCompra = ultimaCompra.identificadorCompra + 1
@@ -241,7 +258,6 @@ class FazerVendasView(TemplateView):
             identificadorDolar = False
             cotacaoDolar = 1
             valorCompra = 0
-            logging.warning(produtos_compra)
             for produto in produtos_compra:
                 if precos_compra[contador] != "" and quantidades_compra[contador] != "":
                     formCompra = Compra(
@@ -259,7 +275,7 @@ class FazerVendasView(TemplateView):
                     valorCompra = valorCompra + float(precos_compra[contador]) * float(quantidades_compra[contador])
                     formCompra.save()
                     #Atualizando o estoque
-                    logging.warning("Adicionando")
+                    #logging.warning("Adicionando")
                     atualizarEstoque = Produto.objects.get(id=produto)
                     atualizarEstoque.estoque = atualizarEstoque.estoque + int(float(quantidades[contador]))
                     atualizarEstoque.save()
@@ -287,8 +303,7 @@ class FazerVendasView(TemplateView):
                                          identificadorDolar=False,
                                          )
             dataform.save()
-
-        return HttpResponseRedirect('/fazervendas/?venda_realizada=1', context)
+        return HttpResponseRedirect('/'+tipo_produto[0]+'/?venda_realizada=1', context)
 
 class ListarVendasView(TemplateView):
 
@@ -300,13 +315,13 @@ class ListarVendasView(TemplateView):
         context['mensagem'] = ''
         if self.request.GET.__contains__("idVenda"):
             if self.request.GET["funcao"] == "apagar":
-                logging.warning(self.request.GET["idVenda"])
+                #logging.warning(self.request.GET["idVenda"])
                 apagarvendas = Venda.objects.filter(identificadorVenda=self.request.GET["idVenda"],ativo=True)
                 produto = 0
                 for apagarvenda in apagarvendas:
                     #Retorna aparelhos pro estoque
                     try:
-                        logging.warning("Try")
+                        #logging.warning("Try")
                         quantidadeOriginalEstoque = Venda.objects.get(identificadorVenda=self.request.GET["idVenda"],
                                                                   produto_id=apagarvenda.produto_id,
                                                                   ativo=True)
@@ -314,7 +329,7 @@ class ListarVendasView(TemplateView):
                         atualizarEstoque.estoque = atualizarEstoque.estoque + quantidadeOriginalEstoque.quantidadeProduto
                         atualizarEstoque.save()
                     except:
-                        logging.warning("Except")
+                        #logging.warning("Except")
                         for produto_repetido in produtos_repetidos:
                              if produto_repetido == apagarvenda.produto_id:
                                  produto = -1
@@ -496,8 +511,8 @@ class ParcelasReceberModalView(TemplateView):
         conta_recebimento = Conta.objects.get(id=self.request.POST.get('contaCredito'), ativo=True)
         taxa = 0
         if conta_recebimento.categoria_id == 1:
-            logging.warning("Cartão de crédito")
-            logging.warning(f'Parcelas do Cartão:{self.request.POST.get("parcelaCartao")}')
+            #logging.warning("Cartão de crédito")
+            #logging.warning(f'Parcelas do Cartão:{self.request.POST.get("parcelaCartao")}')
             conta_cartao = Cartao.objects.get(cartao=conta_recebimento.cartao)
             # Quando migrar para o Python 3.10 utilizar match(equivalente do switch em C)
             if self.request.POST.get("parcelaCartao") == "1":
@@ -549,10 +564,10 @@ class ParcelasReceberModalView(TemplateView):
             )
             dataform.save()
         elif conta_recebimento.categoria_id == 2:
-            logging.warning("Depósito em real")
+            #logging.warning("Depósito em real")
             valor_recebimento = float(self.request.POST.get('valorRecebido'))
         elif conta_recebimento.categoria_id == 3:
-            logging.warning("Espécie")
+            #logging.warning("Espécie")
             valor_recebimento = float(self.request.POST.get('valorRecebido'))
 
         dataform = MovimentacaoConta(contaCredito_id=self.request.POST.get('contaCredito'),

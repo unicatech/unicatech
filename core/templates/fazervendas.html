@@ -30,6 +30,7 @@
 					<form method="POST" action="{% url 'fazervendas' %}">
 					{% csrf_token %}
 					<input type="hidden" name="identificadorVenda" value="{{identificadorVenda}}">
+					<input type="hidden" name="tipo_produto" value="{{tipo_produto}}">
 					<div class="card">
 						<div class="card-body">
 							<div class="row">

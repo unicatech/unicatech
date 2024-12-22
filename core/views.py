@@ -64,7 +64,7 @@ class IndexView(TemplateView):
                      'lucro_venda': lucro_venda,
                      }
                 )
-                logging.warning(venda.identificadorVenda)
+                #logging.warning(venda.identificadorVenda)
                 #Valores totais a receber
                 recebimentos_venda = MovimentacaoConta.objects.filter(identificadorVenda=venda.identificadorVenda,ativo=True)
                 for recebimento_venda in recebimentos_venda:
@@ -92,7 +92,7 @@ class IndexView(TemplateView):
         despesas_template = []
         mes_anterior = 0
         ano_anterior = 0
-        #logging.warning(str(ano_selecionado) + " " + str(mes_selecionado) +" "+str(dia_selecionado))
+        logging.warning(str(ano_selecionado) + " " + str(mes_selecionado) +" "+str(dia_selecionado))
         for despesa in cadastro_despesas:
             if despesa.periodicidade < 4:
                 mes_anterior = mes_selecionado
@@ -228,7 +228,7 @@ class IndexView(TemplateView):
                      'nome_fornecedor': compra.fornecedor.nomeFornecedor,
                      'data_compra': compra.criados,
                      'valor_total_compra': valor_total_compra,
-                     'moeda': moeda
+                     #'moeda': moeda
                      }
                 )
                 consolidado_compras_mensal = consolidado_compras_mensal + valor_total_compra

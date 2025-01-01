@@ -76,15 +76,16 @@ class AdicionarDespesa(TemplateView):
                 movimentacao_id=registro_movimentacao.id,
             )
             registro_despesa.save()
-            contasDetalhadas = Conta.objects.all()
-            conta_despesa = []
-            for conta in contasDetalhadas:
-                conta_despesa.append({'id': conta.id, 'nomeConta': conta.nomeConta})
-            context['conta_despesa'] = conta_despesa
-            lista_despesas = ListaDespesas()
-            context['despesas'] = lista_despesas.despesas_registradas()
-            context['mensagem'] = "Despesa Salva"
-        return super(TemplateView, self).render_to_response(context)
+        contasDetalhadas = Conta.objects.all()
+        conta_despesa = []
+        for conta in contasDetalhadas:
+            conta_despesa.append({'id': conta.id, 'nomeConta': conta.nomeConta})
+        context['conta_despesa'] = conta_despesa
+        lista_despesas = ListaDespesas()
+        context['despesas'] = lista_despesas.despesas_registradas()
+        context['mensagem'] = "Despesa Salva"
+        return HttpResponseRedirect('/adicionardespesa/',context)
+        #return super(TemplateView, self).render_to_response(context)
 
 
 class DespesasPeriodicas(TemplateView):

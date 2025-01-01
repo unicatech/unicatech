@@ -66,9 +66,11 @@ class FazerVendasView(TemplateView):
             context['produtos'] = Produto.objects.all().filter(estoque__gte=quantidade).filter(categoria_id=5).order_by('NomeProduto')
         if self.request.resolver_match.url_name == "fazervendasaparelhos":
             context['produtos'] = Produto.objects.all().filter(estoque__gte=quantidade).filter(categoria_id__lte=4).order_by('NomeProduto')
+            context['produtos_compra'] = Produto.objects.all().filter(categoria_id__lte=4).order_by('NomeProduto')
+            context['aparelhos'] = 1
         context['tipo_produto'] = self.request.resolver_match.url_name
 
-        context['produtos_compra'] = Produto.objects.all().order_by('NomeProduto')
+
         return context
 
     def post(self, request, *args, **kwargs):

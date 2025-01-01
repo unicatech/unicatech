@@ -25,10 +25,12 @@ class IndexView(TemplateView):
         context = super(IndexView, self).get_context_data(**kwargs)
         mes_selecionado = 0
         ano_selecionado = 0
+        dados_data_por_link = 0
         if self.request.GET.__contains__("mes_selecionado"):
-            dia_selecionado = self.request.GET["dia_selecionado"]
+            dia_selecionado = 1
             mes_selecionado = self.request.GET["mes_selecionado"]
             ano_selecionado = self.request.GET["ano_selecionado"]
+            dados_data_por_link = 1
         else:
             dia_selecionado = timezone.now().day
             mes_selecionado = str(timezone.now().month)
@@ -88,11 +90,11 @@ class IndexView(TemplateView):
 
 
         #Dados de despesa
-        cadastro_despesas = CadastroDespesa.objects.filter(ativo=True).filter(criados__year__lte=ano_selecionado).filter(criados__month__lte=mes_selecionado).filter(criados__day__lte=dia_selecionado)
+        cadastro_despesas = CadastroDespesa.objects.filter(ativo=True).filter(periodicidade__gt=0)#.filter(criados__year__lte=ano_selecionado).filter(criados__month__lte=mes_selecionado).filter(criados__day__lte=dia_selecionado)
         despesas_template = []
         mes_anterior = 0
         ano_anterior = 0
-        logging.warning(str(ano_selecionado) + " " + str(mes_selecionado) +" "+str(dia_selecionado))
+        #logging.warning(str(ano_selecionado) + " " + str(mes_selecionado) +" "+str(dia_selecionado))
         for despesa in cadastro_despesas:
             if despesa.periodicidade < 4:
                 mes_anterior = mes_selecionado
@@ -121,9 +123,18 @@ class IndexView(TemplateView):
             if despesa.periodicidade == 7:
                 mes_anterior = mes_selecionado
                 ano_anterior = ano_selecionado - 1
-            #logging.warning(str(ano_anterior) + " " + str(mes_anterior))
-            verificar_registro_despesa = Despesa.objects.filter(criados__month=mes_anterior).filter(criados__year=ano_anterior).filter(despesa_id=despesa.id).filter(ativo=True).count()
-            if verificar_registro_despesa == 0 and despesa.periodicidade > 0:
+
+            verificar_registro_despesa = Despesa.objects.filter(
+                criados__month=mes_anterior
+            ).filter(
+                criados__year=ano_anterior
+            ).filter(
+                despesa_id=despesa.id
+            ).filter(
+                ativo=True
+            ).count()
+
+            if verificar_registro_despesa == 0 and despesa.periodicidade > 0 and dados_data_por_link == 0:
                 conta_em_dolar=0
                 cotacao_dolar=0
                 data_anterior=""
@@ -136,7 +147,7 @@ class IndexView(TemplateView):
                     conta_em_dolar = 0
                     cotacao_dolar = 1
                 logging.warning("Entrei")
-                data_anterior = datetime(ano_anterior,mes_anterior,1).strftime("%Y-%m-%d")
+                data_anterior = datetime(int(ano_anterior),int(mes_anterior),1).strftime("%Y-%m-%d")
                 registro_movimentacao = MovimentacaoConta(
                     criados=data_anterior,
                     contaDebito=despesa.conta_debito_id,

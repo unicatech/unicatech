@@ -146,7 +146,17 @@
 						</div>
 					</div>
 					<!-- Button trigger modal -->
-
+					<div class="row">
+						<div class="col-lg-5 col-sm-12 col-12 d-flex">
+							<div class="card flex-fill">
+								<h4 class="card-title mb-0">Período do Faturamento</h4>
+								<input type="date" id="dt" onchange="muda_data(event);"/>
+								<div class="addonset">
+								<img src="{% static 'img/icons/calendars.svg' %}" alt="img">
+								</div>
+							</div>
+						</div>
+					</div>
 					<div class="row">
 						<div class="col-lg-5 col-sm-12 col-12 d-flex">
 							<div class="card flex-fill">
@@ -409,7 +419,16 @@
 		<!-- /Main Wrapper -->
 
 			{% include 'footer.html' %}
-
+    <script>
+	function muda_data(e){
+   		var vals = e.target.value.split('-');
+   		var ano = vals[0];
+   		var mes = vals[1];
+   		var dia = vals[2];
+   		//alert(dia);
+  		window.location.replace("/?dia_selecionado="+dia+"&mes_selecionado="+mes+"&ano_selecionado="+ano);
+	}
+    </script>
 		<!-- Chart JS -->
 		<script src="{% static 'plugins/apexchart/apexcharts.min.js' %}"></script>
 		<script src="{% static 'plugins/apexchart/chart-data.js' %}"></script>

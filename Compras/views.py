@@ -41,6 +41,7 @@ class FazerComprasView(TemplateView):
                 context['idConta'] = compra.conta_id
                 context['compra_identificada'] = listarProdutosTemplate
                 context['dolarMedio'] = compra.valorDolarMedio
+                context['produtos'] = Produto.objects.all().order_by('NomeProduto')
 
         context['compras'] = Compra.objects.all()
         context['mensagem'] = ''
@@ -51,6 +52,7 @@ class FazerComprasView(TemplateView):
             context['produtos'] = Produto.objects.all().filter(categoria_id=5).order_by('NomeProduto')
         if self.request.resolver_match.url_name == "fazercomprasaparelhos":
             context['produtos'] = Produto.objects.all().filter(categoria_id__lte=4).order_by('NomeProduto')
+            logging.warning(context['produtos'])
         context['tipo_produto'] = self.request.resolver_match.url_name
         context['localizacaoCompra'] = LocalizacaoCompra.objects.all()
         context['contasDetalhadas'] = financeiro.saldo_conta

@@ -125,10 +125,9 @@
 												<td>{{ venda.valorVenda | floatformat:2}}</td>
 												<td> {{venda.total_a_receber | floatformat:2}}</td>
 												<td>
-													
-													<a class="me-3" href="/parcelasarecebermodal/?idVenda={{ venda.idVenda }}">
-														<img src="{% static 'img/icons/dollar-square.svg' %}" alt="img">
-													</a>
+												<a href="#" class="openModalLink" data-id="{{ venda.idVenda }}">
+    											<img src="{% static 'img/icons/dollar-square.svg' %}" alt="img">
+												</a>
 												</td>
 												<td>
 													<table>
@@ -167,6 +166,94 @@
 			<!-- /Main Wrapper -->
 
             {% include 'footer.html' %}
+<!-- Modal Structure -->
+<div id="parcelasModal" class="modal">
+    <div class="modal-content">
+        <span id="closeModal" class="close-btn">&times;</span>
+        <div id="modalBody">
+            <p>Carregando...</p>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Basic modal styles */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 10;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+    background-color: white;
+    margin: 10% auto;
+    padding: 20px;
+    width: 50%;
+    height: 70%;
+    overflow-y: auto;
+    position: relative;
+}
+
+.close-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 30px;
+    color: #aaa;
+    cursor: pointer;
+}
+
+.close-btn:hover {
+    color: #000;
+}
+</style>
+	<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const modal = document.getElementById("parcelasModal");
+    const modalBody = document.getElementById("modalBody");
+    const closeModal = document.getElementById("closeModal");
+
+    document.querySelectorAll(".openModalLink").forEach(link => {
+        link.addEventListener("click", function(event) {
+            event.preventDefault(); // Prevent regular link behavior
+            const idVenda = this.getAttribute("data-id");
+
+            // Show the modal
+            modal.style.display = "block";
+
+            // Load the content dynamically
+            fetch(`/parcelasarecebermodal/?idVenda=${idVenda}`)
+                .then(response => response.text())
+                .then(data => {
+                    modalBody.innerHTML = data;
+                })
+                .catch(error => {
+                    modalBody.innerHTML = "<p>Error loading content.</p>";
+                });
+        });
+    });
+
+    // Close modal when clicking the close button
+    closeModal.addEventListener("click", function() {
+        modal.style.display = "none";
+        modalBody.innerHTML = "<p>Loading...</p>"; // Reset content
+    });
+
+    // Close modal when clicking outside of it
+    window.addEventListener("click", function(event) {
+        if (event.target === modal) {
+            modal.style.display = "none";
+            modalBody.innerHTML = "<p>Loading...</p>"; // Reset content
+        }
+    });
+});
+</script>
 
 		</body>
+
 	</html>

@@ -2,16 +2,6 @@
 {% load l10n %}
 <!DOCTYPE html>
 
- 			<!-- Header -->
-			{% include 'head.html' %}
-			<!-- /header -->
-
-			<!-- Select2 CSS -->
-			<link rel="stylesheet" href="{% static 'plugins/select2/css/select2.min.css' %}">
-			<!-- Sidebar -->
-			{% include 'sidebar.html' %}
-			<!-- /Sidebar -->
-
 			<div class="page-wrapper">
 				<div class="content">
 					<div class="page-header">
@@ -90,7 +80,6 @@
 
 								<div class="col-lg-12">
 									<input type="submit" value="Efetuar Recebimento" class="btn btn-submit me-2">
-									<a href="/parcelasareceber/" class="btn btn-cancel">Cancelar</a>
 								</div>
 							</div>
 						</div>
@@ -101,18 +90,6 @@
 			</div>
         </div>
 
-
-		<!-- /Main Wrapper -->
-		 
-		<!-- jQuery -->
- 			{% include 'footer.html' %}
-
-        <!-- Select2 JS -->
-		<script src="{% static 'plugins/select2/js/select2.min.js' %}"></script>
-
-		<!-- Sweetalert 2 -->
-		<script src="{% static 'plugins/sweetalert/sweetalert2.all.min.js' %}"></script>
-		<script src="{% static 'plugins/sweetalert/sweetalerts.min.js' %}"></script>
 
 
 		

@@ -48,6 +48,7 @@ class FazerVendasView(TemplateView):
                 context['identificadorVenda'] = venda.identificadorVenda
                 context['venda_identificada'] = listarProdutosTemplate
                 context['descricao'] = venda.descricao
+                context['produtos'] = Produto.objects.all().order_by('NomeProduto')
 
         context['vendas'] = Venda.objects.all()
         context['mensagem'] = ''

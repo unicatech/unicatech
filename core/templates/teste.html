@@ -1,116 +1,16 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Homepage with Modal</title>
-    <style>
-        /* Basic styles */
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            margin: 0;
-            padding: 0;
-        }
+										<label>Fornecedor</label>
+										{% if idFornecedor  %}
+											<input type="hidden" name="fornecedor" value="{{idFornecedor}}" >
+											{% for c in fornecedores %}
+												{% if c.id == idFornecedor %} <font size="16"> <b>{{ c.nomeFornecedor }}</b> </font> {% endif %}
+											{% endfor %}
+										{% else %}
+										<div class="row">
+											<div class="col-lg-10 col-sm-10 col-10">
+												<div class="autocomplete" style="width:300px;">
+           										 <input id="fornecedorInput" type="text" placeholder="Fornecedor" autocomplete="off">
+															<input type="hidden" id="fornecedorHidden" name="fornecedor">
+            								<div id="fornecedorAutocompleteList" class="autocomplete-items"></div>
+        								</div>
+										{% endif %}
 
-        .homepage {
-            padding: 50px;
-        }
-
-        a {
-            text-decoration: none;
-            color: #007BFF;
-            font-size: 20px;
-        }
-
-        /* Modal Styles */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-        }
-
-        .modal-content {
-            position: relative;
-            margin: 10% auto;
-            background-color: white;
-            padding: 20px;
-            width: 80%;
-            height: 80%;
-            overflow-y: auto;
-        }
-
-        .close-btn {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            font-size: 30px;
-            color: #aaa;
-            cursor: pointer;
-        }
-
-        .close-btn:hover {
-            color: #000;
-        }
-    </style>
-</head>
-<body>
-    <div class="homepage">
-        <h1>Welcome to My Homepage</h1>
-        <a href="#" id="openModalBtn">Open Modal with Another Homepage</a>
-    </div>
-
-    <!-- Modal -->
-    <div id="modal" class="modal">
-        <div class="modal-content">
-            <span id="closeModalBtn" class="close-btn">&times;</span>
-            <div id="modalContent">
-                <!-- Modal content will be dynamically loaded here -->
-            </div>
-        </div>
-    </div>
-
-    <script>
-        // Get references to the modal, button, and close button
-        const modal = document.getElementById('modal');
-        const openModalBtn = document.getElementById('openModalBtn');
-        const closeModalBtn = document.getElementById('closeModalBtn');
-        const modalContent = document.getElementById('modalContent');
-
-        // Open the modal when the link is clicked
-        openModalBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            modal.style.display = 'block'; // Show the modal
-
-            // Fetch the content from modal.html and display it inside the modal
-            fetch('modal.html')
-                .then(response => response.text())
-                .then(data => {
-                    modalContent.innerHTML = data;  // Inject the content into modal
-                })
-                .catch(error => {
-                    modalContent.innerHTML = '<p>Error loading content.</p>';
-                });
-        });
-
-        // Close the modal when the close button is clicked
-        closeModalBtn.addEventListener('click', function() {
-            modal.style.display = 'none'; // Hide the modal
-            modalContent.innerHTML = '';  // Clear the modal content
-        });
-
-        // Close the modal if the user clicks outside of the modal content
-        window.addEventListener('click', function(e) {
-            if (e.target === modal) {
-                modal.style.display = 'none'; // Hide the modal if clicked outside
-                modalContent.innerHTML = '';  // Clear the modal content
-            }
-        });
-    </script>
-</body>
-</html>

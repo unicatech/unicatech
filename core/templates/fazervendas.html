@@ -241,7 +241,7 @@
             <div class="input-field">
 
                 <div class="table-responsive">
-
+					<div id="purchaseSection" style="display: none;">
                     <table class="table table-bordered text-center" id="table_field">
 
                         <tr>
@@ -278,6 +278,7 @@
 						</tr>
 						{%endif%}
 						</table>
+						</div>
 						<div class="row">
 								<div class="col-lg-12">
 									<div class="form-group">
@@ -510,6 +511,26 @@
         document.getElementById("clienteHidden")
     );
 </script>
+<script>
 
+	document.addEventListener("DOMContentLoaded", function () {
+    var checkbox = document.querySelector("input[name='gerar_compra']");
+    var sectionToToggle = document.getElementById("purchaseSection");
+
+    if (checkbox && sectionToToggle) {
+        checkbox.addEventListener("change", function () {
+            if (this.checked) {
+                sectionToToggle.style.display = "block";
+            } else {
+                sectionToToggle.style.display = "none";
+            }
+        });
+
+        // Initialize visibility based on checkbox state
+        sectionToToggle.style.display = checkbox.checked ? "block" : "none";
+    }
+});
+
+</script>
     </body>
 </html>

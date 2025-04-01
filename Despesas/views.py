@@ -22,7 +22,6 @@ class AdicionarDespesa(TemplateView):
         if self.request.GET.__contains__("idDespesa"):
             if self.request.GET["funcao"] == "apagar":
                 Despesa.objects.filter(id=self.request.GET["idDespesa"]).update(ativo=False)
-                CadastroDespesa.objects.filter(id=self.request.GET["idCadastroDespesa"]).update(ativo=False)
                 context["mensagem"] = "Despesa Apagada"
         contasDetalhadas = Conta.objects.all()
         conta_despesa = []
@@ -92,11 +91,11 @@ class DespesasPeriodicas(TemplateView):
     template_name = "despesasperiodicas.html"
     def get_context_data(self, **kwargs):
         context = super(DespesasPeriodicas, self).get_context_data(**kwargs)
-        if self.request.GET.__contains__("idDespesa"):
+        if self.request.GET.__contains__("idCadastroDespesa"):
             if self.request.GET["funcao"] == "apagar":
-                CadastroDespesa.objects.filter(id=self.request.GET["idDespesa"]).update(ativo=False)
-                Despesa.objects.filter(despesa_id=self.request.GET["idDespesa"]).update(ativo=False)
-                context["mensagem"] = "Despesa Apagada"
+                CadastroDespesa.objects.filter(id=self.request.GET["idCadastroDespesa"]).update(ativo=False)
+                context["mensagem"] = "Despesa Removida"
+
         contasDetalhadas = Conta.objects.all()
         conta_despesa = []
         for conta in contasDetalhadas:

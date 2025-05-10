@@ -28,6 +28,37 @@
             background-color: DodgerBlue !important;
             color: #ffffff;
         }
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 10;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+    background-color: white;
+    margin: 10% auto;
+    padding: 20px;
+    width: 50%;
+    height: 70%;
+    overflow-y: auto;
+    position: relative;
+}
+
+.close-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 30px;
+    color: #aaa;
+    cursor: pointer;
+}
+
     </style>
 <head>
     <meta charset="UTF-8">
@@ -74,18 +105,27 @@
 												{% if c.id == idCliente %} <font size="16"> <b>{{ c.nomeCliente }}</b> </font> {% endif %}
 											{% endfor %}
 										{% else %}
+
 										<div class="row">
 											<div class="col-lg-10 col-sm-10 col-10">
-												        <div class="autocomplete" style="width:300px;">
-           										 <input id="clienteInput" type="text" placeholder="Cliente" autocomplete="off">
-															<input type="hidden" id="clienteHidden" name="cliente">
-            								<div id="clienteAutocompleteList" class="autocomplete-items"></div>
+												<div class="autocomplete" style="width:300px;">
+           										 <input id="clienteInput" type="text" placeholder="Cliente" autocomplete="off"
+												 {% for c in clientes %}
+													 {% if c.id == id_cliente_cadastro %} value="{{c.nomeCliente}}"{% endif %}
+												{% endfor %}
+            									>
+												<input type="hidden" id="clienteHidden" name="cliente"
+												{% for c in clientes %}
+														   {% if c.id == id_cliente_cadastro %} value="{{c.id}}" {% endif %}
+												{% endfor %}
+												>
+													<div id="clienteAutocompleteList" class="autocomplete-items"></div>
         								</div>
 										{% endif %}
 										</div>
 											<div class="col-lg-2 col-sm-2 col-2 ps-0">
 												<div class="add-icon">
-													<a href="javascript:void(0);"><img src="{% static 'img/icons/plus1.svg' %} " alt="img"></a>
+													<a href="javascript:void(0);" onclick="openModal()"><img src="{% static 'img/icons/plus1.svg' %} " alt="img"></a>
 												</div>
 											</div>
 										</div>
@@ -303,9 +343,17 @@
 		</form>
 					<select id="clienteSelect" style="display:none;">
 						{% for c in clientes %}
-						<option value="{{ c.id }}" {% if c.id == idCliente %} SELECTED {% endif %} >{{ c.nomeCliente }}</option>
+						<option value="{{ c.id }}">{{ c.nomeCliente }}</option>
 						{% endfor %}
 					</select>
+
+					<div id="cadastrarClienteModal" class="modal" style="display: none;">
+   											 <div class="modal-content">
+      										  <span class="close" onclick="closeModal()">&times;</span>
+      										  {% include 'cadastroclientemodal.html' %}
+    											</div>
+					</div>
+
 		<!-- /Main Wrapper -->
 
 		 
@@ -532,5 +580,23 @@
 });
 
 </script>
+
+<script>
+    function openModal() {
+        document.getElementById("cadastrarClienteModal").style.display = "block";
+    }
+
+    function closeModal() {
+        document.getElementById("cadastrarClienteModal").style.display = "none";
+    }
+
+    window.onclick = function(event) {
+        const modal = document.getElementById("cadastrarClienteModal");
+        if (event.target == modal) {
+            closeModal();
+        }
+    }
+</script>
+
     </body>
 </html>

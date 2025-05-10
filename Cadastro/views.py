@@ -47,8 +47,13 @@ class CadastroClienteView(TemplateView):
             ativo="True",
         )
         dataform_cliente.save()
+
         context['mensagem'] = 'Cadastrado'
-        return HttpResponseRedirect('/cadastrocliente/?cliente_cadastrado=1', context)
+        if self.request.POST.get("cadastro_modal") == "1":
+            logging.warning("cadastro modal")
+            return HttpResponseRedirect('/fazervendasaparelhos/?id_cliente_cadastro='+str(dataform_cliente.id), context)
+        else:
+            return HttpResponseRedirect('/cadastrocliente/?cliente_cadastrado=1', context)
         #return super(TemplateView, self).render_to_response(context)
 
 class CadastroFornecedorView(TemplateView):

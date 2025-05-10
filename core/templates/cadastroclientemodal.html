@@ -1,0 +1,52 @@
+{% load static %}
+<!DOCTYPE html>
+
+			<div class="page-wrapper">
+				<div class="content">
+					<div class="page-header">
+						<div class="page-title">
+							<h4>Cadastrar Cliente</h4>
+							<h6>Dados do Cliente</h6>
+						</div>
+				        {% if cliente_cadastrado == 1 %}
+						 <div class="closebtn">
+							 <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
+  							Cliente Cadastrado.
+						</div>
+						{% endif %}
+					</div>
+					<!-- /add -->
+					<form method="POST" action="{% url 'cadastrocliente' %}">
+						{% csrf_token %}
+						<input type="hidden" name="cadastro_modal" value="1">
+						<div class="card">
+						<div class="card-body">
+							<div class="row">
+								<div class="col-lg-3 col-sm-6 col-12">
+									<div class="form-group">
+										<label>Nome do Cliente</label>
+										<input type="text" name="nomecliente">
+									</div>
+								</div>
+
+								<div class="col-lg-12">
+									<input type="submit" value="Cadastrar" class="btn btn-submit me-2">
+									<a href="/cadastrocliente/" class="btn btn-cancel">Cancelar</a>
+								</div>
+							</div>
+						</div>
+					</div>
+					</form>
+					<!-- /add -->
+				</div>
+			</div>
+        </div>
+
+        <!-- Select2 JS -->
+		<script src="{% static 'plugins/select2/js/select2.min.js' %}"></script>
+
+		<!-- Sweetalert 2 -->
+		<script src="{% static 'plugins/sweetalert/sweetalert2.all.min.js' %}"></script>
+		<script src="{% static 'plugins/sweetalert/sweetalerts.min.js' %}"></script>
+    </body>
+</html>

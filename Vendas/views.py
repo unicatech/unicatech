@@ -50,6 +50,15 @@ class FazerVendasView(TemplateView):
                 context['descricao'] = venda.descricao
                 context['produtos'] = Produto.objects.all().order_by('NomeProduto')
 
+        if self.request.GET.__contains__("id_cliente_cadastro"):
+            listarProdutosTemplate = []
+            identificadorVenda = 0
+            valorCompraVenda = 0
+
+            context['id_cliente_cadastro'] = int(self.request.GET["id_cliente_cadastro"])
+            context['produtos'] = Produto.objects.all().order_by('NomeProduto')
+
+
         context['vendas'] = Venda.objects.all()
         context['mensagem'] = ''
         #Popular template

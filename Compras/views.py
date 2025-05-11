@@ -43,6 +43,11 @@ class FazerComprasView(TemplateView):
                 context['dolarMedio'] = compra.valorDolarMedio
                 context['produtos'] = Produto.objects.all().order_by('NomeProduto')
 
+        if self.request.GET.__contains__("id_fornecedor_cadastro"):
+            listarProdutosTemplate = []
+            identificadorCompra = 0
+            context['id_fornecedor_cadastro'] = int(self.request.GET["id_fornecedor_cadastro"])
+
         context['compras'] = Compra.objects.all()
         context['mensagem'] = ''
         # Popular template

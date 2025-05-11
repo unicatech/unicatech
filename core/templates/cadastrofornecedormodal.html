@@ -1,0 +1,58 @@
+{% load static %}
+<!DOCTYPE html>
+
+
+			<div class="page-wrapper">
+				<div class="content">
+					<div class="page-header">
+						<div class="page-title">
+							<h4>Cadastrar Fornecedor</h4>
+							<h6>Dados do Fornecedor</h6>
+						</div>
+				        {% if fornecedor_cadastrado == 1 %}
+						 <div class="closebtn">
+							 <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
+  							Fornecedor Cadastrado.
+						</div>
+						{% endif %}
+					</div>
+					<!-- /add -->
+					<form method="POST" action="{% url 'cadastrofornecedor' %}">
+						{% csrf_token %}
+					<input type="hidden" name="cadastro_modal" value="1">
+					<div class="card">
+						<div class="card-body">
+							<div class="row">
+								<div class="col-lg-3 col-sm-6 col-12">
+									<div class="form-group">
+										<label>Nome do Fornecedor</label>
+										<input type="text" name="nomefornecedor">
+									</div>
+								</div>
+
+								<div class="col-lg-3 col-sm-6 col-12">
+									<div class="form-group">
+										<label>Localidade do Fornecedor</label>
+										<select name="localidade" class="select">
+											<option>Escolha a Localidade</option>
+											{% for l in localizacaoCompra %}
+											<option value="{{ l.id }}">{{ l.localizacaoCompra }}</option>
+											{% endfor %}
+										</select>
+									</div>
+								</div>
+
+								<div class="col-lg-12">
+									<input type="submit" value="Cadastrar" class="btn btn-submit me-2">
+									<a href="/cadastrocliente/" class="btn btn-cancel">Cancelar</a>
+								</div>
+							</div>
+						</div>
+					</div>
+					</form>
+					<!-- /add -->
+				</div>
+			</div>
+        </div>
+    </body>
+</html>

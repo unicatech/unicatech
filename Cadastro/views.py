@@ -71,9 +71,6 @@ class CadastroFornecedorView(TemplateView):
         fornecedores_cadastrados = Fornecedor.objects.all().order_by('-criados')
         fornecedoresTemplate = []
         for fornecedor_cadastrado in fornecedores_cadastrados:
-            logging.warning(fornecedor_cadastrado.criados)
-            logging.warning(fornecedor_cadastrado.nomeFornecedor)
-            logging.warning(fornecedor_cadastrado.id)
             fornecedoresTemplate.append(
                 {
                     "data": fornecedor_cadastrado.criados,
@@ -98,7 +95,12 @@ class CadastroFornecedorView(TemplateView):
             ativo="True",
         )
         dataform_fornecedor.save()
-        return HttpResponseRedirect('/cadastrofornecedor/?fornecedor_cadastrado=1', context)
+        if self.request.POST.get("cadastro_modal") == "1":
+            logging.warning("cadastro modal")
+            return HttpResponseRedirect('/fazercomprasaparelhos/?id_fornecedor_cadastro=' + str(dataform_fornecedor.id),
+                                        context)
+        else:
+            return HttpResponseRedirect('/cadastrofornecedor/?fornecedor_cadastrado=1', context)
         #return super(TemplateView, self).render_to_response(context)
 
 class CadastroLocalizacaoView(TemplateView):

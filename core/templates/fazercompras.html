@@ -28,6 +28,37 @@
             background-color: DodgerBlue !important;
             color: #ffffff;
         }
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 10;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+    background-color: white;
+    margin: 10% auto;
+    padding: 20px;
+    width: 50%;
+    height: 70%;
+    overflow-y: auto;
+    position: relative;
+}
+
+.close-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 30px;
+    color: #aaa;
+    cursor: pointer;
+}
+
     </style>
 
  			<!-- Header -->
@@ -75,13 +106,19 @@
 										<label>Fornecedor</label>
 										<div class="row">
 											<div class="col-lg-10 col-sm-10 col-10">
-           										 <input id="fornecedorInput" type="text" placeholder="Fornecedor" autocomplete="off">
-															<input type="hidden" id="fornecedorHidden" name="fornecedor">
+           										 <input id="fornecedorInput" type="text" placeholder="Fornecedor" autocomplete="off"
+												 {% for f in fornecedores %}
+													 {% if f.id == id_fornecedor_cadastro %} value="{{f.nomeFornecedor}}"{% endif %}
+												{% endfor %}>
+												<input type="hidden" id="fornecedorHidden" name="fornecedor"
+												{% for f in fornecedores %}
+														   {% if f.id == id_fornecedor_cadastro %} value="{{f.id}}" {% endif %}
+												{% endfor %}>
 										</div>
-											<div class="col-lg-2 col-sm-2 col-2 ps-0">
-												<div class="add-icon">
-													<a href="javascript:void(0);"><img src="{% static 'img/icons/plus1.svg' %} " alt="img"></a>
-												</div>
+									<div class="col-lg-2 col-sm-2 col-2 ps-0">
+										<div class="add-icon">
+											<a href="javascript:void(0);" onclick="openModal()"><img src="{% static 'img/icons/plus1.svg' %} " alt="img"></a>
+									</div>
 											</div>
 										</div>
 									</div>
@@ -273,6 +310,12 @@
 						{% endfor %}
 		</select>
 
+		<div id="cadastrarFornecedorModal" class="modal" style="display: none;">
+   			 <div class="modal-content">
+      		  <span class="close" onclick="closeModal()">&times;</span>
+      		  {% include 'cadastrofornecedormodal.html' %}
+    		</div>
+		</div>
 		 
 		<!-- jQuery -->
  			{% include 'footer.html' %}
@@ -476,6 +519,22 @@
     );
 </script>
 
+<script>
+    function openModal() {
+        document.getElementById("cadastrarFornecedorModal").style.display = "block";
+    }
+
+    function closeModal() {
+        document.getElementById("cadastrarFornecedorModal").style.display = "none";
+    }
+
+    window.onclick = function(event) {
+        const modal = document.getElementById("cadastrarFornecedorModal");
+        if (event.target == modal) {
+            closeModal();
+        }
+    }
+</script>
 		
     </body>
 </html>

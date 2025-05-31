@@ -1,97 +1,146 @@
 {% load static %}
 {% load l10n %}
 <!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Parcelas a Receber</title>
 
-			<div class="page-wrapper">
-				<div class="content">
-					<div class="page-header">
-						<div class="page-title">
-							<h4>Parcelas a Receber</h4>
-						</div>
-						{% if mensagem != "" %}
-						<div class="closebtn">
-							 <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
-							{{ mensagem }}
-						</div>
-						{% endif %}
-					</div>
-					<!-- /add -->
-					<form method="POST" action="{% url 'parcelasarecebermodal' %}">
-						{% csrf_token %}
-						<input type="hidden" name="identificadorVenda" value="{{ listarVendas.idVenda }}">
-					<div class="card">
-						<div class="card-body">
-							<div class="row">
-								<div class="col-lg-3 col-sm-6 col-12">
-									<div class="form-group">
-										<label>Conta de Recebimento</label>
-										<label>Nota: {{listarVendas.idVenda}}</label>
-										<label>Cliente: {{listarVendas.cliente}}</label>
-										<label>Data da Venda: {{listarVendas.dataVenda}}</label>
-										<label>Valor total: {{listarVendas.valorVenda}}</label>
-										<label>A receber: {{listarVendas.total_receber}}</label>
-										<label>Meio de Pagamento: </label>
-										<select name="contaCredito" class="select">
-											{% for c in contaCredito %}
-											<option value="{{ c.id }}">{{ c.nomeConta }}</option>
-											{% endfor %}
-										</select>
-										<label>Data do Recebimento </label>
-										<div class="input-groupicon">
-											<input type="text" placeholder="DD-MM-AAAA" class="datetimepicker" name="data_recebimento" value="{{data_recebimento}}">
-											<div class="addonset">
-												<img src="{% static 'img/icons/calendars.svg' %}" alt="img">
-											</div>
-										</div><label>Valor a Receber: <input type="text" name="valorRecebido" value="{{listarVendas.total_receber}}"></label>
+    <!-- Bootstrap 4 -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
 
-										<label>Bandeira</label>
-										<select name="bandeira" class="select">
-											<option value="Mastercard">Mastercard</option>
-											<option value="Visa">Visa</option>
-											<option value="Elo">Elo</option>
-											<option value="Hipercard">Hipercard</option>
-										</select>
-										<label>Parcelas do Cartão: </label>
-										<select name="parcelaCartao" class="select">
-											<option value="0">Débito</option>
-											<option value="1">1</option>
-											<option value="2">2</option>
-											<option value="3">3</option>
-											<option value="4">4</option>
-											<option value="5">5</option>
-											<option value="6">6</option>
-											<option value="7">7</option>
-											<option value="8">8</option>
-											<option value="9">9</option>
-											<option value="10">10</option>
-											<option value="11">11</option>
-											<option value="12">12</option>
-											<option value="13">13</option>
-											<option value="14">14</option>
-											<option value="15">15</option>
-											<option value="16">16</option>
-											<option value="17">17</option>
-											<option value="18">18</option>
-										</select>
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-										<label>Descrição</label>
-										<textarea name="descricao" class="form-control"></textarea>
-									</div>
-								</div>
+    <style>
+        .page-wrapper {
+            padding: 2rem;
+        }
+            .card {
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        border-radius: 1rem;
+    }
+    .form-control, .form-select {
+        border-radius: .5rem;
+    }
+    label {
+        font-weight: 600;
+    }
+    </style>
+</head>
+<body>
+    <div class="page-wrapper container">
+        <div class="content">
+            <div class="page-header mb-4">
+                <h4 class="mb-3">Parcelas a Receber</h4>
+            </div>
 
-								<div class="col-lg-12">
-									<input type="submit" value="Efetuar Recebimento" class="btn btn-submit me-2">
-								</div>
-							</div>
-						</div>
-					</div>
-					</form>
-					<!-- /add -->
-				</div>
-			</div>
+            {% if mensagem != "" %}
+            <script>
+                document.addEventListener("DOMContentLoaded", function () {
+                    Swal.fire({
+                        icon: 'info',
+                        title: 'Aviso',
+                        text: '{{ mensagem|escapejs }}',
+                        confirmButtonColor: '#3085d6'
+                    });
+                });
+            </script>
+            {% endif %}
+
+            <form method="POST" action="{% url 'parcelasarecebermodal' %}">
+                {% csrf_token %}
+                <input type="hidden" name="identificadorVenda" value="{{ listarVendas.idVenda }}">
+
+                <div class="card">
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <h5>Detalhes da Venda</h5>
+                            <p><strong>Nota:</strong> {{listarVendas.idVenda}}</p>
+                            <p><strong>Cliente:</strong> {{listarVendas.cliente}}</p>
+                            <p><strong>Data da Venda:</strong> {{listarVendas.dataVenda}}</p>
+                            <p><strong>Valor total:</strong> {{listarVendas.valorVenda}}</p>
+                            <p><strong>A receber:</strong> {{listarVendas.total_receber}}</p>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label>Meio de Pagamento</label>
+                                <select name="contaCredito" class="form-control">
+                                    {% for c in contaCredito %}
+                                    <option value="{{ c.id }}">{{ c.nomeConta }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="form-group col-md-6">
+                                <label>Data do Recebimento</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" placeholder="DD-MM-AAAA" name="data_recebimento" value="{{data_recebimento}}">
+                                    <div class="input-group-append">
+                                        <span class="input-group-text">
+                                            <img src="{% static 'img/icons/calendars.svg' %}" alt="Calendário" style="width: 16px;">
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group col-md-6">
+                                <label>Valor a Receber</label>
+                                <input type="text" class="form-control" name="valorRecebido" value="{{listarVendas.total_receber}}">
+                            </div>
+
+                            <div class="form-group col-md-6">
+                                <label>Bandeira</label>
+                                <select name="bandeira" class="form-control">
+                                    <option value="Mastercard">Mastercard</option>
+                                    <option value="Visa">Visa</option>
+                                    <option value="Elo">Elo</option>
+                                    <option value="Hipercard">Hipercard</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group col-md-6">
+                                <label>Parcelas do Cartão</label>
+                                <select name="parcelaCartao" class="form-control">
+                                    <option value="0">Débito</option>
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                    <option value="4">4</option>
+                                    <option value="5">5</option>
+                                    <option value="6">6</option>
+                                    <option value="7">7</option>
+                                    <option value="8">8</option>
+                                    <option value="9">9</option>
+                                    <option value="10">10</option>
+                                    <option value="11">11</option>
+                                    <option value="12">12</option>
+                                    <option value="13">13</option>
+                                    <option value="14">14</option>
+                                    <option value="15">15</option>
+                                    <option value="16">16</option>
+                                    <option value="17">17</option>
+                                    <option value="18">18</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group col-12">
+                                <label>Descrição</label>
+                                <textarea name="descricao" class="form-control" rows="3"></textarea>
+                            </div>
+
+                            <div class="form-group col-12 text-right">
+                                <button type="submit" class="btn btn-primary">Efetuar Recebimento</button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </form>
         </div>
-
-
-		
-    </body>
+    </div>
+</body>
 </html>

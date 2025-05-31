@@ -535,6 +535,29 @@
         }
     }
 </script>
-		
+
+					<script>
+$(document).ready(function () {
+    $('form').on('submit', function (e) {
+        var fornecedorHidden = $('#fornecedorHidden').val().trim();
+
+        if (!fornecedorHidden) {
+            e.preventDefault(); // Impede o envio do formulário
+
+            // Exibe alerta com SweetAlert2 e classes customizadas
+            Swal.fire({
+                icon: 'warning',
+                title: 'Fornecedor Não Cadastrado',
+                confirmButtonText: 'OK',
+                customClass: {
+                    confirmButton: 'btn btn-primary me-3 confirm-text'
+                },
+                buttonsStyling: false
+            });
+        }
+    });
+});
+</script>
+
     </body>
 </html>

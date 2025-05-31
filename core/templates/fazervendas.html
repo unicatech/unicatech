@@ -88,6 +88,12 @@
 							 Venda Realizada
 						</div>
 						{% endif %}
+						{% if cliente_sem_cadastro == 1%}
+						     <div class="closebtn">
+						     <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
+							 Cliente Não Cadastrado
+							 </div>
+						{% endif %}
 					</div>
 					<form method="POST" action="{% url 'fazervendas' %}">
 					{% csrf_token %}
@@ -596,6 +602,28 @@
             closeModal();
         }
     }
+</script>
+<script>
+$(document).ready(function () {
+    $('form').on('submit', function (e) {
+        var clienteHidden = $('#clienteHidden').val().trim();
+
+        if (!clienteHidden) {
+            e.preventDefault(); // Impede o envio do formulário
+
+            // Exibe caixa de diálogo com SweetAlert2
+            Swal.fire({
+                icon: 'warning',
+                title: 'Cliente Não Cadastrado',
+                confirmButtonText: 'OK',
+                customClass: {
+                    confirmButton: 'btn btn-primary me-3 confirm-text'
+                },
+                buttonsStyling: false
+            });
+        }
+    });
+});
 </script>
 
     </body>

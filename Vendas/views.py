@@ -25,8 +25,10 @@ class FazerVendasView(TemplateView):
         context['dataVenda'] = datetime.now().strftime("%d-%m-%Y")
         #logging.warning()
         if self.request.GET.__contains__("venda_realizada"):
-            #logging.warning("Venda Realizada")
             context['venda_realizada'] = 1
+
+        if self.request.GET.__contains__("cliente_sem_cadastro"):
+            context['cliente_sem_cadastro'] = 1
 
         if self.request.GET.__contains__("idVenda"):
             vendas = Venda.objects.filter(identificadorVenda=self.request.GET["idVenda"],ativo=True)
@@ -110,6 +112,8 @@ class FazerVendasView(TemplateView):
         tipo_produto = self.request.POST.getlist('tipo_produto')
         dataModificada = re.sub(r'(\d{1,2})-(\d{1,2})-(\d{4})', '\\3-\\2-\\1', dataVenda[0])
 
+        if cliente[0] == "":
+            return HttpResponseRedirect('/' + tipo_produto[0] + '/?cliente_sem_cadastro=1', context)
         contador = 0
         valorVenda = 0
         valorEstorno = 0
@@ -204,13 +208,8 @@ class FazerVendasView(TemplateView):
                         pass
                     quantidade_produto_total_compra = Compra.objects.filter(
                         identificadorCompra=compra.identificadorCompra).aggregate(Sum('quantidadeProduto'))
-                    #logging.warning("Indicador compra")
-                    #logging.warning(compra.identificadorCompra)
-                    #logging.warning("Calculo do frete")
-                    #logging.warning(frete_deslocamento)
-                    #logging.warning(quantidade_produto_total_compra["quantidadeProduto__sum"])
                     frete_medio_produto = frete_deslocamento / quantidade_produto_total_compra["quantidadeProduto__sum"]
-                    #logging.warning(frete_medio_produto)
+
                     if compra.quantidadeProduto >= estoque_preco_medio:
                         compra_total_produto = (compra_total_produto +
                                                 estoque_preco_medio *
@@ -233,14 +232,9 @@ class FazerVendasView(TemplateView):
                 else:
                     preco_medio = 0
                 lucro = float(quantidades[contador]) * (float(precos[contador]) - preco_medio)
-                logging.warning("Lucro antes do frete")
-                logging.warning(lucro)
                 # Prevenir quando a quantidade comprada não estiver cadastrada, pois o valor vai vir menor que zero
                 if quantidade_produto > 0:
                     lucro = lucro - frete_medio_produto * float(quantidades[contador])
-                logging.warning("Lucro apos do frete")
-                logging.warning(frete_medio_produto)
-                logging.warning(lucro)
                 #Cadastrando Venda
                 if produto != 0:
                     formVenda = Venda(

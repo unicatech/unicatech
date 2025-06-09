@@ -95,7 +95,7 @@
 							 </div>
 						{% endif %}
 					</div>
-					<form method="POST" action="{% url 'fazervendas' %}">
+					<form id="formVenda" method="POST" action="{% url 'fazervendas' %}">
 					{% csrf_token %}
 					<input type="hidden" name="identificadorVenda" value="{{identificadorVenda}}">
 					<input type="hidden" name="tipo_produto" value="{{tipo_produto}}">
@@ -605,13 +605,12 @@
 </script>
 <script>
 $(document).ready(function () {
-    $('form').on('submit', function (e) {
+    $('#formVenda').on('submit', function (e) {
         var clienteHidden = $('#clienteHidden').val().trim();
 
         if (!clienteHidden) {
             e.preventDefault(); // Impede o envio do formulário
 
-            // Exibe caixa de diálogo com SweetAlert2
             Swal.fire({
                 icon: 'warning',
                 title: 'Cliente Não Cadastrado',

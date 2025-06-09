@@ -92,7 +92,7 @@
 						</div>
 						{% endif %}
 					</div>
-					<form method="POST" action="{% url 'fazercompras' %}">
+					<form id="formCompra" method="POST" action="{% url 'fazercompras' %}">
 					{% csrf_token %}
 					<input type="hidden" name="identificadorCompra" value="{{identificadorCompra}}">
 					<input type="hidden" name="dolarMedio" value="{{dolarMedio | floatformat:4}}">
@@ -536,9 +536,9 @@
     }
 </script>
 
-					<script>
+<script>
 $(document).ready(function () {
-    $('form').on('submit', function (e) {
+    $('formCompra').on('submit', function (e) {
         var fornecedorHidden = $('#fornecedorHidden').val().trim();
 
         if (!fornecedorHidden) {

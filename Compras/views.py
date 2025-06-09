@@ -159,13 +159,7 @@ class FazerComprasView(TemplateView):
                 )
                 valorCompra = valorCompra + float(precos[contador]) * float(quantidades[contador])
                 formCompra.save()
-                #Atualizando o estoque
-                logging.warning("Adicionando")
-                atualizarEstoque = Produto.objects.get(id=produto)
-                atualizarEstoque.estoque = atualizarEstoque.estoque + int(float(quantidades[contador]))
-                atualizarEstoque.save()
                 contador = contador + 1
-
         # Debitando da conta
         formMovimentacao = MovimentacaoConta(
             criados=str(dataModificada),
@@ -219,9 +213,12 @@ class ListarComprasView(TemplateView):
                 for apagarcompra in apagarcompras:
                     apagar = Compra(id=apagarcompra.id)
                     logging.warning(apagar.produto_id)
-                    atualizarEstoque = Produto.objects.get(id=apagarcompra.produto_id)
-                    atualizarEstoque.estoque = atualizarEstoque.estoque - apagarcompra.quantidadeProduto
-                    atualizarEstoque.save()
+                    localizacao_compra = Deslocamento.objects.filter(identificadorCompra=self.request.GET["idCompra"])
+                    for local in localizacao_compra:
+                        if local.destino == 7:
+                            atualizarEstoque = Produto.objects.get(id=apagarcompra.produto_id)
+                            atualizarEstoque.estoque = atualizarEstoque.estoque - apagarcompra.quantidadeProduto
+                            atualizarEstoque.save()
                     apagar.delete()
                 apagarmovimentacao = MovimentacaoConta.objects.filter(identificadorCompra=self.request.GET["idCompra"])
                 apagarmovimentacao.delete()
@@ -296,15 +293,15 @@ class LocalizacaoCompraView(TemplateView):
                 origem_itinerario = LocalizacaoCompra.objects.get(id=localizacao.origem)
                 destino_itinerario = LocalizacaoCompra.objects.get(id=localizacao.destino)
                 localizacao_detalhada.append(
-                {
-                 "id": localizacao.id,
-                 "origem": origem_itinerario.localizacaoCompra,
-                 "destino": destino_itinerario.localizacaoCompra,
-                 "frete": localizacao.frete,
-                 "data": localizacao.criados,
-                 "id_movimentacao_conta": localizacao.idMovimentacaoConta,
-                 "apagar_apenas_ultimo": apagar_apenas_ultimo,
-                }
+                    {
+                     "id": localizacao.id,
+                    "origem": origem_itinerario.localizacaoCompra,
+                    "destino": destino_itinerario.localizacaoCompra,
+                    "frete": localizacao.frete,
+                    "data": localizacao.criados,
+                    "id_movimentacao_conta": localizacao.idMovimentacaoConta,
+                    "apagar_apenas_ultimo": apagar_apenas_ultimo,
+                    }
                 )
             except:
                 pass
@@ -324,6 +321,7 @@ class LocalizacaoCompraView(TemplateView):
         context['id_compra'] = self.request.GET["idCompra"]
         context['apagar_ultimo'] = "1"
         return(context)
+
     def post(self, request, *args, **kwargs):
         context = super(LocalizacaoCompraView, self).get_context_data(**kwargs)
         financeiro = MovimentacaoFinanceira()
@@ -359,6 +357,16 @@ class LocalizacaoCompraView(TemplateView):
             idMovimentacaoConta=formMovimentacao.id,
         )
         formDeslocamento.save()
+
+        # Atualizando o estoque Destino Sobral (7) modificar para ficar dinâmico
+        if self.request.POST.get('destino') == "7":
+            produtos_comprados = Compra.objects.filter(identificadorCompra=self.request.POST.get('id_compra'))
+            contador = 0
+            for produto_comprado in produtos_comprados:
+                atualizarEstoque = Produto.objects.get(id=produto_comprado.produto_id)
+                atualizarEstoque.estoque = atualizarEstoque.estoque + produto_comprado.quantidadeProduto
+                atualizarEstoque.save()
+                contador = contador + 1
         return HttpResponseRedirect('/listarcompras/', context)
 
 class AdicionarLocalizacao(TemplateView):

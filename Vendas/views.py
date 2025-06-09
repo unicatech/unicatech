@@ -224,9 +224,9 @@ class FazerVendasView(TemplateView):
 
 
                 #Prevenir quando o estoque foi adicionado no cadastro do produto, pois o valor vai vir menor que zero
-                #logging.warning("Formacao preco medio")
-                #logging.warning(compra_total_produto)
-                #logging.warning(quantidade_produto)
+                logging.warning("Formacao preco medio")
+                logging.warning(compra_total_produto)
+                logging.warning(quantidade_produto)
                 if quantidade_produto > 0:
                     preco_medio = compra_total_produto / quantidade_produto
                 else:

@@ -114,6 +114,8 @@
 												{% for f in fornecedores %}
 														   {% if f.id == id_fornecedor_cadastro %} value="{{f.id}}" {% endif %}
 												{% endfor %}>
+                                                <div id="fornecedorAutocompleteList" class="autocomplete-items">
+        								        </div>
 										</div>
 									<div class="col-lg-2 col-sm-2 col-2 ps-0">
 										<div class="add-icon">
@@ -168,11 +170,11 @@
 
 							</select></td>
 
-                            <td><input type="text" class="form-control" name="qtde" id="tab1" size="2" maxlength="3"></td>
+                            <td><input type="text" class="form-control" name="qtde" id="tab1" size="2" maxlength="3" autocomplete="off"></td>
 
-							<td><input type="text" class="form-control" name="preco" id="tab1" size="2" maxlength="5"></td>
+							<td><input type="text" class="form-control" name="preco" id="tab1" size="2" maxlength="5" autocomplete="off"></td>
 
-							<td><input type="text" class="form-control" name="total" id="tab1" size="2"></td>
+							<td><input type="text" class="form-control" name="total" id="tab1" size="2" autocomplete="off"></td>
 
 							<td><input class="btn btn-danger" name="remove" id="remove" value="Apagar" type="button">
 							</td>
@@ -189,11 +191,11 @@
 
 							</select></td>
 
-                            <td><input type="text" class="form-control" name="qtde" id="tab1" size="2" maxlength="3"></td>
+                            <td><input type="text" class="form-control" name="qtde" id="tab1" size="2" maxlength="3" autocomplete="off"></td>
 
-							<td><input type="text" class="form-control" name="preco" id="tab1" size="2" maxlength="5"></td>
+							<td><input type="text" class="form-control" name="preco" id="tab1" size="2" maxlength="5" autocomplete="off"></td>
 
-							<td><input type="text" class="form-control" name="total" id="tab1" size="2"></td>
+							<td><input type="text" class="form-control" name="total" id="tab1" size="2" autocomplete="off"></td>
 
 							<td><input class="btn btn-danger" name="remove" id="remove" value="Apagar" type="button">
 							</td>
@@ -210,11 +212,11 @@
 
 							</select></td>
 
-                            <td><input type="text" class="form-control" name="qtde" id="tab1" size="2" maxlength="3"></td>
+                            <td><input type="text" class="form-control" name="qtde" id="tab1" size="2" maxlength="3" autocomplete="off"></td>
 
-							<td><input type="text" class="form-control" name="preco" id="tab1" size="2" maxlength="5"></td>
+							<td><input type="text" class="form-control" name="preco" id="tab1" size="2" maxlength="5" autocomplete="off"></td>
 
-							<td><input type="text" class="form-control" name="total" id="tab1" size="2"></td>
+							<td><input type="text" class="form-control" name="total" id="tab1" size="2" autocomplete="off"></td>
 
 							<td><input class="btn btn-danger" name="remove" id="remove" value="Apagar" type="button">
 							</td>
@@ -332,7 +334,7 @@
 
             $(document).ready(function() {
 
-                var html = '<tr><td><div class="row"><select name="produto" class="select"><option>Selecione o Produto</option>{% for p in produtos %}<option value="{{ p.id }}">{{ p.NomeProduto }}</option>{% endfor %}</select></td><td><input type="text" class="form-control" name="qtde" id="tab1" size="4" maxlength="4"></td><td><input type="text" class="form-control" name="preco" id="tab1" size="4" maxlength="4"></td><td><input type="text" class="form-control" name="total" id="tab1" size="5" maxlength="5"></td><td><input class="btn btn-danger" id="remove" type="button" name="remove" value="Apagar" tabindex="-1"></td></div></tr>';
+                var html = '<tr><td><div class="row"><select name="produto" class="select"><option>Selecione o Produto</option>{% for p in produtos %}<option value="{{ p.id }}">{{ p.NomeProduto }}</option>{% endfor %}</select></td><td><input type="text" class="form-control" name="qtde" id="tab1" size="4" maxlength="4" autocomplete="off"></td><td><input type="text" class="form-control" name="preco" id="tab1" size="4" maxlength="4" autocomplete="off"></td><td><input type="text" class="form-control" name="total" id="tab1" size="5" maxlength="5" autocomplete="off"></td><td><input class="btn btn-danger" id="remove" type="button" name="remove" value="Apagar" tabindex="-1"></td></div></tr>';
 
                 var max = 10;
 
@@ -538,7 +540,7 @@
 
 <script>
 $(document).ready(function () {
-    $('formCompra').on('submit', function (e) {
+    $('#formCompra').on('submit', function (e) {
         var fornecedorHidden = $('#fornecedorHidden').val().trim();
 
         if (!fornecedorHidden) {

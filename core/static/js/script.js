@@ -1,3 +1,5 @@
+
+
 /*
 Author       : Dreamguys
 Template Name: POS - Bootstrap Admin Template
@@ -71,7 +73,7 @@ $(document).ready(function(){
 		});
 	}
 
-	//Home popular 
+	//Home popular
 	if($('.owl-product').length > 0 ){
 		var owl = $('.owl-product');
 			owl.owlCarousel({
@@ -98,8 +100,8 @@ $(document).ready(function(){
 	if($('.datanew').length > 0) {
 		$('.datanew').DataTable({
 			"bFilter": true,
-			"sDom": 'fBtlpi',  
-			'pagingType': 'numbers', 
+			"sDom": 'fBtlpi',
+			'pagingType': 'numbers',
 			"ordering": true,
 			"language": {
 				search: ' ',
@@ -110,7 +112,7 @@ $(document).ready(function(){
 			initComplete: (settings, json)=>{
 				$('.dataTables_filter').appendTo('#tableSearch');
 				$('.dataTables_filter').appendTo('.search-input');
-			},	
+			},
 		});
 	}
 
@@ -118,15 +120,15 @@ $(document).ready(function(){
 	function readURL(input) {
 		if (input.files && input.files[0]) {
 			var reader = new FileReader();
-	
+
 			reader.onload = function (e) {
 				$('#blah').attr('src', e.target.result);
 			}
-	
+
 			reader.readAsDataURL(input.files[0]);
 		}
 	}
-	
+
 	$("#imgInp").change(function(){
 		readURL(this);
 	});
@@ -157,7 +159,7 @@ $(document).ready(function(){
 			}
 		});
 	}
-	
+
 	// toggle-password
 	if($('.toggle-password').length > 0) {
 		$(document).on('click', '.toggle-password', function() {
@@ -201,7 +203,7 @@ $(document).ready(function(){
 		});
 	}
 
-	// Counter 
+	// Counter
 	if($('.counter').length > 0) {
 		$('.counter').counterUp({
 			delay: 20,
@@ -218,31 +220,31 @@ $(document).ready(function(){
 			autostart: true
 		});
 	}
-	
+
 	if($('#timer-countup').length > 0) {
 		$( '#timer-countup' ).countdown( {
 			from: 0,
-			to: 180 
+			to: 180
 		});
 	}
-	
+
 	if($('#timer-countinbetween').length > 0) {
 		$( '#timer-countinbetween' ).countdown( {
 			from: 30,
-			to: 20 
+			to: 20
 		});
 	}
-	
+
 	if($('#timer-countercallback').length > 0) {
 		$( '#timer-countercallback' ).countdown( {
 			from: 10,
 			to: 0,
 			timerEnd: function() {
 				this.css( { 'text-decoration':'line-through' } ).animate( { 'opacity':.5 }, 500 );
-			} 
+			}
 		});
 	}
-	
+
 	if($('#timer-outputpattern').length > 0) {
 		$( '#timer-outputpattern' ).countdown( {
 			outputPattern: '$day Days $hour Hour $minute Min $second Sec..',
@@ -260,7 +262,7 @@ $(document).ready(function(){
 		focus: true                  // set focus to editable area after initializing summernote
 		});
 	}
-	
+
 
 
 	// Sidebar Slimscroll
@@ -307,7 +309,7 @@ $(document).ready(function(){
 		});
 		$('#sidebar-menu ul li.submenu a.active').parents('li:last').children('a:first').addClass('active').trigger('click');
 	}
-	
+
 	// Sidebar Initiate
 	init();
 	$(document).on('mouseover', function(e) {
@@ -360,7 +362,7 @@ $(document).ready(function(){
 	$('.submenus').on('click', function(){
 		$('body').addClass('sidebarrightmenu');
 	});
-	
+
 	$('#searchdiv').on('click', function(){
 		$('.searchinputs').addClass('show');
 	});
@@ -428,11 +430,11 @@ $(document).ready(function(){
 			complete: function() {
 			$this.text(this.countNum);
 			}
-		
-		});  
-		
+
+		});
+
 	});
-	
+
 
 	// toggle-password
 	if($('.toggle-password').length > 0) {
@@ -476,7 +478,7 @@ $(document).ready(function(){
 			});
 		});
 	}
-		
+
 	// Popover
 	if($('.popover-list').length > 0) {
 		var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'))
@@ -485,7 +487,7 @@ $(document).ready(function(){
 		})
 	}
 
-	// Clipboard 
+	// Clipboard
 	if($('.clipboard').length > 0) {
 		var clipboard = new Clipboard('.btn');
 	}
@@ -495,7 +497,7 @@ $(document).ready(function(){
 	(function() {
 		if ($(window).width() > 991)
 			chatAppTarget.removeClass('chat-slide');
-		
+
 		$(document).on("click",".chat-window .chat-users-list a.media",function () {
 			if ($(window).width() <= 991) {
 				chatAppTarget.addClass('chat-slide');
@@ -505,22 +507,22 @@ $(document).ready(function(){
 		$(document).on("click","#back_user_list",function () {
 			if ($(window).width() <= 991) {
 				chatAppTarget.removeClass('chat-slide');
-			}	
+			}
 			return false;
 		});
 	})();
 
 	// Mail important
-	
+
 	$(document).on('click', '.mail-important', function() {
 		$(this).find('i.fa').toggleClass('fa-star').toggleClass('fa-star-o');
 	});
 
-		
+
 	var selectAllItems = "#select-all";
 	var checkboxItem = ":checkbox";
 	$(selectAllItems).click(function() {
-		
+
 		if (this.checked) {
 		$(checkboxItem).each(function() {
 			this.checked = true;
@@ -530,9 +532,9 @@ $(document).ready(function(){
 			this.checked = false;
 		});
 		}
-		
+
 	});
-		
+
 	// Tooltip
 	if($('[data-bs-toggle="tooltip"]').length > 0) {
 		var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
@@ -602,7 +604,7 @@ $(document).ready(function(){
     $("body").append(right_side_views);
 
 	// Sidebar Visible
-	
+
 	$('.open-layout').on("click", function (s) {
 		s.preventDefault();
 		$('.sidebar-layout').addClass('show-layout');
@@ -640,7 +642,7 @@ $(document).ready(function(){
 
 		if (currentTheme) {
 			app.setAttribute('data-theme', currentTheme);
-		  
+
 			if (currentTheme === 'dark') {
 				toggleSwitch.checked = true;
 			}
@@ -651,15 +653,15 @@ $(document).ready(function(){
 				app.setAttribute('data-theme', 'dark');
 				localStorage.setItem('theme', 'dark');
 			}
-			else {       
+			else {
 				app.setAttribute('data-theme', 'light');
 				localStorage.setItem('theme', 'light');
-			}    
+			}
 		}
 
-		toggleSwitch.addEventListener('change', switchTheme, false);	
+		toggleSwitch.addEventListener('change', switchTheme, false);
 	}
-	
+
 	if(window.location.hash == "#LightMode"){
 		localStorage.setItem('theme', 'dark');
 	}
@@ -669,7 +671,7 @@ $(document).ready(function(){
 		}
 	}
 
-	
+
 	$('ul.tabs li').click(function(){
 		var $this = $(this);
 		var $theTab = $(this).attr('id');
@@ -680,10 +682,10 @@ $(document).ready(function(){
 		  $this.closest('.tabs_wrapper').find('ul.tabs li, .tabs_container .tab_content').removeClass('active');
 		  $('.tabs_container .tab_content[data-tab="'+$theTab+'"], ul.tabs li[id="'+$theTab+'"]').addClass('active');
 		}
-		
+
 	});
 
-	
+
 
 	var customize_link = '<div class="customizer-links">' +
 			'<ul class="sticky-sidebar">' +
@@ -721,11 +723,11 @@ $(document).ready(function(){
 					'</div>' +
 					'<div class="row  ">' +
 						'<div class="col-xl-6 ere">' +
-							'<div class="layout-wrap">' +								
+							'<div class="layout-wrap">' +
 								'<div class="d-flex align-items-center">' +
 									'<div class="status-toggle d-flex align-items-center me-2">' +
 										'<input type="checkbox" id="1" class="check">' +
-										'<label for="1" class="checktoggle"><a  href="index.html"class="layout-link">checkbox</a> </label>' + 
+										'<label for="1" class="checktoggle"><a  href="index.html"class="layout-link">checkbox</a> </label>' +
 									'</div>' +
 									'<span class="status-text">LTR</span>' +
 								'</div>' +
@@ -735,11 +737,11 @@ $(document).ready(function(){
 							'</div>' +
 						'</div>' +
 						'<div class="col-xl-6 ere">' +
-							'<div class="layout-wrap">' +								
+							'<div class="layout-wrap">' +
 								'<div class="d-flex align-items-center">' +
 									'<div class="status-toggle d-flex align-items-center me-2">' +
 										'<input type="checkbox" id="1" class="check">' +
-										'<label for="1" class="checktoggle"><a  href="../template-rtl/index.html"class="layout-link">checkbox</a> </label>' + 
+										'<label for="1" class="checktoggle"><a  href="../template-rtl/index.html"class="layout-link">checkbox</a> </label>' +
 									'</div>' +
 									'<span class="status-text">RTL</span>' +
 								'</div>' +
@@ -751,11 +753,11 @@ $(document).ready(function(){
 					'</div>' +
 					'<div class="row  ">' +
 						'<div class="col-xl-6 ere">' +
-							'<div class="layout-wrap">' +								
+							'<div class="layout-wrap">' +
 								'<div class="d-flex align-items-center">' +
 									'<div class="status-toggle d-flex align-items-center me-2">' +
 										'<input type="checkbox" id="3" class="check">' +
-										'<label for="3" class="checktoggle"><a  href="index-three.html"class="layout-link">checkbox</a> </label>' + 
+										'<label for="3" class="checktoggle"><a  href="index-three.html"class="layout-link">checkbox</a> </label>' +
 									'</div>' +
 									'<span class="status-text">Boxed</span>' +
 								'</div>' +
@@ -765,11 +767,11 @@ $(document).ready(function(){
 							'</div>' +
 						'</div>' +
 						'<div class="col-xl-6 ere">' +
-						 	'<div class="layout-wrap">' +								
+						 	'<div class="layout-wrap">' +
 								'<div class="d-flex align-items-center">' +
 								 	'<div class="status-toggle d-flex align-items-center me-2">' +
 									 	'<input type="checkbox" id="3" class="check">' +
-									 	'<label for="3" class="checktoggle"><a  href="index-four.html"class="layout-link">checkbox</a> </label>' + 
+									 	'<label for="3" class="checktoggle"><a  href="index-four.html"class="layout-link">checkbox</a> </label>' +
 								 	'</div>' +
 								 	'<span class="status-text">Collapsed</span>' +
 								'</div>' +
@@ -782,7 +784,7 @@ $(document).ready(function(){
 				'</div>' +
 			'</div>' +
 	 	'</div>' +
-		
+
 		'<div class="sidebar-settings nav-toggle">' +
 			'<div class="sidebar-content sticky-sidebar-one">' +
 				'<div class="sidebar-header">' +
@@ -793,11 +795,11 @@ $(document).ready(function(){
 				 	'<h6 class="theme-title">Navigation Type</h6>' +
 				 	'<div class="row  ">' +
 						'<div class="col-xl-6 ere">' +
-							'<div class="layout-wrap">' +								
+							'<div class="layout-wrap">' +
 								'<div class="d-flex align-items-center">' +
 									'<div class="status-toggle d-flex align-items-center me-2">' +
 										'<input type="checkbox" id="1" class="check">' +
-										'<label for="1" class="checktoggle"><a  href="index.html"class="layout-link">checkbox</a> </label>' + 
+										'<label for="1" class="checktoggle"><a  href="index.html"class="layout-link">checkbox</a> </label>' +
 									'</div>' +
 									'<span class="status-text">Vertical</span>' +
 								'</div>' +
@@ -807,11 +809,11 @@ $(document).ready(function(){
 							'</div>' +
 						'</div>' +
 						'<div class="col-xl-6 ere">' +
-						 	'<div class="layout-wrap">' +								
+						 	'<div class="layout-wrap">' +
 								'<div class="d-flex align-items-center">' +
 								 	'<div class="status-toggle d-flex align-items-center me-2">' +
 									 	'<input type="checkbox" id="2" class="check">' +
-									 	'<label for="2" class="checktoggle"><a  href="index-one.html"class="layout-link">checkbox</a> </label>' + 
+									 	'<label for="2" class="checktoggle"><a  href="index-one.html"class="layout-link">checkbox</a> </label>' +
 								 	'</div>' +
 								 	'<span class="status-text">Horizontal</span>' +
 								'</div>' +
@@ -821,11 +823,11 @@ $(document).ready(function(){
 						 	'</div>' +
 						'</div>' +
 						'<div class="col-xl-6 ere">' +
-						 	'<div class="layout-wrap">' +								
+						 	'<div class="layout-wrap">' +
 								'<div class="d-flex align-items-center">' +
 								 	'<div class="status-toggle d-flex align-items-center me-2">' +
 									 	'<input type="checkbox" id="3" class="check">' +
-									 	'<label for="3" class="checktoggle"><a  href="index-four.html"class="layout-link">checkbox</a> </label>' + 
+									 	'<label for="3" class="checktoggle"><a  href="index-four.html"class="layout-link">checkbox</a> </label>' +
 								 	'</div>' +
 								 	'<span class="status-text">Collapsed</span>' +
 								'</div>' +
@@ -835,11 +837,11 @@ $(document).ready(function(){
 						 	'</div>' +
 						'</div>' +
 						'<div class="col-xl-6 ere">' +
-						 	'<div class="layout-wrap">' +								
+						 	'<div class="layout-wrap">' +
 								'<div class="d-flex align-items-center">' +
 								 	'<div class="status-toggle d-flex align-items-center me-2">' +
 									 	'<input type="checkbox" id="3" class="check">' +
-									 	'<label for="3" class="checktoggle"><a  href="index-three.html"class="layout-link">checkbox</a> </label>' + 
+									 	'<label for="3" class="checktoggle"><a  href="index-three.html"class="layout-link">checkbox</a> </label>' +
 								 	'</div>' +
 								 	'<span class="status-text">Modern</span>' +
 								'</div>' +
@@ -849,11 +851,11 @@ $(document).ready(function(){
 						 	'</div>' +
 						'</div>' +
 						'<div class="col-xl-6 ere">' +
-						 	'<div class="layout-wrap">' +								
+						 	'<div class="layout-wrap">' +
 								'<div class="d-flex align-items-center">' +
 								 	'<div class="status-toggle d-flex align-items-center me-2">' +
 									 	'<input type="checkbox" id="3" class="check">' +
-									 	'<label for="3" class="checktoggle"><a  href="index-two.html"class="layout-link">checkbox</a> </label>' + 
+									 	'<label for="3" class="checktoggle"><a  href="index-two.html"class="layout-link">checkbox</a> </label>' +
 								 	'</div>' +
 								 	'<span class="status-text">Boxed</span>' +
 								'</div>' +
@@ -889,10 +891,10 @@ $('.sidebar-close').on("click", function (e) {
 // DarkMode with LocalStorage
 if($('#dark-mode-toggle').length > 0) {
 	$("#dark-mode-toggle").children(".light-mode").addClass("active");
-	let darkMode = localStorage.getItem('darkMode'); 
-	
+	let darkMode = localStorage.getItem('darkMode');
+
 	const darkModeToggle = document.querySelector('#dark-mode-toggle');
-	
+
 	const enableDarkMode = () => {
 		document.body.setAttribute('data-theme', 'dark');
 		$("#dark-mode-toggle").children(".dark-mode").addClass("active");
@@ -906,28 +908,28 @@ if($('#dark-mode-toggle').length > 0) {
 		$("#dark-mode-toggle").children(".light-mode").addClass("active");
 	  localStorage.setItem('darkMode', null);
 	}
-	 
+
 	if (darkMode === 'enabled') {
 		enableDarkMode();
 	}
 
 	darkModeToggle.addEventListener('click', () => {
-	  darkMode = localStorage.getItem('darkMode'); 
-	  
+	  darkMode = localStorage.getItem('darkMode');
+
 	  if (darkMode !== 'enabled') {
 		enableDarkMode();
-	  } else {  
-		disableDarkMode(); 
+	  } else {
+		disableDarkMode();
 	  }
 	});
 }
-	  
+
 
 });
 
-	
 
-	
+
+
 
 
 

@@ -16,12 +16,120 @@ SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
 
+ALTER TABLE ONLY public.django_admin_log DROP CONSTRAINT django_admin_log_user_id_c564eba6_fk_auth_user_id;
+ALTER TABLE ONLY public.django_admin_log DROP CONSTRAINT django_admin_log_content_type_id_c4bce8eb_fk_django_co;
+ALTER TABLE ONLY public.auth_user_user_permissions DROP CONSTRAINT auth_user_user_permissions_user_id_a95ead1b_fk_auth_user_id;
+ALTER TABLE ONLY public.auth_user_user_permissions DROP CONSTRAINT auth_user_user_permi_permission_id_1fbb5f2c_fk_auth_perm;
+ALTER TABLE ONLY public.auth_user_groups DROP CONSTRAINT auth_user_groups_user_id_6a12ed8b_fk_auth_user_id;
+ALTER TABLE ONLY public.auth_user_groups DROP CONSTRAINT auth_user_groups_group_id_97559544_fk_auth_group_id;
+ALTER TABLE ONLY public.auth_permission DROP CONSTRAINT auth_permission_content_type_id_2f476e4b_fk_django_co;
+ALTER TABLE ONLY public.auth_group_permissions DROP CONSTRAINT auth_group_permissions_group_id_b120cbf9_fk_auth_group_id;
+ALTER TABLE ONLY public.auth_group_permissions DROP CONSTRAINT auth_group_permissio_permission_id_84c5c92e_fk_auth_perm;
+ALTER TABLE ONLY public."Vendas_venda" DROP CONSTRAINT "Vendas_venda_produto_id_f6e1a6cb_fk_Produtos_produto_id";
+ALTER TABLE ONLY public."Vendas_venda" DROP CONSTRAINT "Vendas_venda_cliente_id_6d5152c0_fk_Vendas_cliente_id";
+ALTER TABLE ONLY public."Produtos_produto" DROP CONSTRAINT "Produtos_produto_categoria_id_3e08c4e8_fk_Produtos_";
+ALTER TABLE ONLY public."Despesas_despesa" DROP CONSTRAINT "Despesas_despesas_movimentacao_id_b66e6b2c_fk_Contas_mo";
+ALTER TABLE ONLY public."Despesas_despesa" DROP CONSTRAINT "Despesas_despesas_despesa_id_4fa6bd3f_fk_Despesas_";
+ALTER TABLE ONLY public."Despesas_cadastrodespesa" DROP CONSTRAINT "Despesas_cadastrodes_conta_debito_id_82041d29_fk_Contas_co";
+ALTER TABLE ONLY public."Contas_recebimentocartao" DROP CONSTRAINT "Contas_recebimentoca_conta_cartao_id_81665651_fk_Contas_co";
+ALTER TABLE ONLY public."Contas_movimentacaoconta" DROP CONSTRAINT "Contas_movimentacaoc_contaCredito_id_30a2f6ad_fk_Contas_co";
+ALTER TABLE ONLY public."Contas_conta" DROP CONSTRAINT "Contas_conta_categoria_id_a9363112_fk_Contas_categoriaconta_id";
+ALTER TABLE ONLY public."Compras_fornecedor" DROP CONSTRAINT "Compras_fornecedor_localizacaoCompra_id_bed95cbc_fk";
+ALTER TABLE ONLY public."Compras_compra" DROP CONSTRAINT "Compras_compra_produto_id_bf520d8c_fk_Produtos_produto_id";
+ALTER TABLE ONLY public."Compras_compra" DROP CONSTRAINT "Compras_compra_idLocalizacao_id_4f303239_fk";
+ALTER TABLE ONLY public."Compras_compra" DROP CONSTRAINT "Compras_compra_fornecedor_id_e6f5f3a9_fk_core_fornecedor_id";
+ALTER TABLE ONLY public."Compras_compra" DROP CONSTRAINT "Compras_compra_fornecedor_id_e6f5f3a9_fk_Compras_fornecedor_id";
+ALTER TABLE ONLY public."Compras_compra" DROP CONSTRAINT "Compras_compra_conta_id_94fdb6c6_fk_Contas_conta_id";
+DROP INDEX public.django_session_session_key_c0390e0f_like;
+DROP INDEX public.django_session_expire_date_a5c62663;
+DROP INDEX public.django_admin_log_user_id_c564eba6;
+DROP INDEX public.django_admin_log_content_type_id_c4bce8eb;
+DROP INDEX public.auth_user_username_6821ab7c_like;
+DROP INDEX public.auth_user_user_permissions_user_id_a95ead1b;
+DROP INDEX public.auth_user_user_permissions_permission_id_1fbb5f2c;
+DROP INDEX public.auth_user_groups_user_id_6a12ed8b;
+DROP INDEX public.auth_user_groups_group_id_97559544;
+DROP INDEX public.auth_permission_content_type_id_2f476e4b;
+DROP INDEX public.auth_group_permissions_permission_id_84c5c92e;
+DROP INDEX public.auth_group_permissions_group_id_b120cbf9;
+DROP INDEX public.auth_group_name_a6ea08ec_like;
+DROP INDEX public."Vendas_venda_produto_id_f6e1a6cb";
+DROP INDEX public."Vendas_venda_cliente_id_6d5152c0";
+DROP INDEX public."Produtos_produto_categoria_id_3e08c4e8";
+DROP INDEX public."Despesas_despesas_movimentacao_id_b66e6b2c";
+DROP INDEX public."Despesas_despesas_despesa_id_4fa6bd3f";
+DROP INDEX public."Despesas_cadastrodespesa_conta_debito_id_82041d29";
+DROP INDEX public."Contas_recebimentocartao_conta_cartao_id_81665651";
+DROP INDEX public."Contas_movimentacaoconta_contaCredito_id_30a2f6ad";
+DROP INDEX public."Contas_conta_categoria_id_a9363112";
+DROP INDEX public."Compras_fornecedor_localizacaoCompra_id_bed95cbc";
+DROP INDEX public."Compras_compra_produto_id_bf520d8c";
+DROP INDEX public."Compras_compra_idLocalizacao_id_4f303239";
+DROP INDEX public."Compras_compra_fornecedor_id_e6f5f3a9";
+DROP INDEX public."Compras_compra_conta_id_94fdb6c6";
+ALTER TABLE ONLY public.django_session DROP CONSTRAINT django_session_pkey;
+ALTER TABLE ONLY public.django_migrations DROP CONSTRAINT django_migrations_pkey;
+ALTER TABLE ONLY public.django_content_type DROP CONSTRAINT django_content_type_pkey;
+ALTER TABLE ONLY public.django_content_type DROP CONSTRAINT django_content_type_app_label_model_76bd3d3b_uniq;
+ALTER TABLE ONLY public.django_admin_log DROP CONSTRAINT django_admin_log_pkey;
+ALTER TABLE ONLY public.auth_user DROP CONSTRAINT auth_user_username_key;
+ALTER TABLE ONLY public.auth_user_user_permissions DROP CONSTRAINT auth_user_user_permissions_user_id_permission_id_14a6b632_uniq;
+ALTER TABLE ONLY public.auth_user_user_permissions DROP CONSTRAINT auth_user_user_permissions_pkey;
+ALTER TABLE ONLY public.auth_user DROP CONSTRAINT auth_user_pkey;
+ALTER TABLE ONLY public.auth_user_groups DROP CONSTRAINT auth_user_groups_user_id_group_id_94350c0c_uniq;
+ALTER TABLE ONLY public.auth_user_groups DROP CONSTRAINT auth_user_groups_pkey;
+ALTER TABLE ONLY public.auth_permission DROP CONSTRAINT auth_permission_pkey;
+ALTER TABLE ONLY public.auth_permission DROP CONSTRAINT auth_permission_content_type_id_codename_01ab375a_uniq;
+ALTER TABLE ONLY public.auth_group DROP CONSTRAINT auth_group_pkey;
+ALTER TABLE ONLY public.auth_group_permissions DROP CONSTRAINT auth_group_permissions_pkey;
+ALTER TABLE ONLY public.auth_group_permissions DROP CONSTRAINT auth_group_permissions_group_id_permission_id_0cd325b0_uniq;
+ALTER TABLE ONLY public.auth_group DROP CONSTRAINT auth_group_name_key;
+ALTER TABLE ONLY public."Vendas_venda" DROP CONSTRAINT "Vendas_venda_pkey";
+ALTER TABLE ONLY public."Vendas_cliente" DROP CONSTRAINT "Vendas_cliente_pkey";
+ALTER TABLE ONLY public."Produtos_produto" DROP CONSTRAINT "Produtos_produto_pkey";
+ALTER TABLE ONLY public."Produtos_categoriaproduto" DROP CONSTRAINT "Produtos_categoriaproduto_pkey";
+ALTER TABLE ONLY public."Despesas_despesa" DROP CONSTRAINT "Despesas_despesas_pkey";
+ALTER TABLE ONLY public."Despesas_cadastrodespesa" DROP CONSTRAINT "Despesas_despesa_pkey";
+ALTER TABLE ONLY public."Contas_recebimentocartao" DROP CONSTRAINT "Contas_recebimentocartao_pkey";
+ALTER TABLE ONLY public."Contas_movimentacaoconta" DROP CONSTRAINT "Contas_movimentacaoconta_pkey";
+ALTER TABLE ONLY public."Contas_conta" DROP CONSTRAINT "Contas_conta_pkey";
+ALTER TABLE ONLY public."Contas_categoriaconta" DROP CONSTRAINT "Contas_categoriaconta_pkey";
+ALTER TABLE ONLY public."Contas_cartao" DROP CONSTRAINT "Contas_cartao_pkey";
+ALTER TABLE ONLY public."Compras_localizacaocompra" DROP CONSTRAINT "Compras_localizacaocompra_pkey";
+ALTER TABLE ONLY public."Compras_fornecedor" DROP CONSTRAINT "Compras_fornecedor_pkey";
+ALTER TABLE ONLY public."Compras_deslocamento" DROP CONSTRAINT "Compras_deslocamento_pkey";
+ALTER TABLE ONLY public."Compras_compra" DROP CONSTRAINT "Compras_compra_pkey";
+DROP TABLE public.django_session;
+DROP TABLE public.django_migrations;
+DROP TABLE public.django_content_type;
+DROP TABLE public.django_admin_log;
+DROP TABLE public.auth_user_user_permissions;
+DROP TABLE public.auth_user_groups;
+DROP TABLE public.auth_user;
+DROP TABLE public.auth_permission;
+DROP TABLE public.auth_group_permissions;
+DROP TABLE public.auth_group;
+DROP TABLE public."Vendas_venda";
+DROP TABLE public."Vendas_cliente";
+DROP TABLE public."Produtos_produto";
+DROP TABLE public."Produtos_categoriaproduto";
+DROP TABLE public."Despesas_despesa";
+DROP TABLE public."Despesas_cadastrodespesa";
+DROP TABLE public."Contas_recebimentocartao";
+DROP TABLE public."Contas_movimentacaoconta";
+DROP TABLE public."Contas_conta";
+DROP TABLE public."Contas_categoriaconta";
+DROP TABLE public."Contas_cartao";
+DROP TABLE public."Compras_localizacaocompra";
+DROP TABLE public."Compras_fornecedor";
+DROP TABLE public."Compras_deslocamento";
+DROP TABLE public."Compras_compra";
 SET default_tablespace = '';
 
 SET default_table_access_method = heap;
 
 --
--- Name: Compras_compra; Type: TABLE; Schema: public; Owner: unicatech
+-- Name: Compras_compra; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public."Compras_compra" (
@@ -42,10 +150,8 @@ CREATE TABLE public."Compras_compra" (
 );
 
 
-ALTER TABLE public."Compras_compra" OWNER TO unicatech;
-
 --
--- Name: Compras_compra_id_seq; Type: SEQUENCE; Schema: public; Owner: unicatech
+-- Name: Compras_compra_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
 ALTER TABLE public."Compras_compra" ALTER COLUMN id ADD GENERATED BY DEFAULT AS IDENTITY (
@@ -59,7 +165,7 @@ ALTER TABLE public."Compras_compra" ALTER COLUMN id ADD GENERATED BY DEFAULT AS 
 
 
 --
--- Name: Compras_deslocamento; Type: TABLE; Schema: public; Owner: unicatech
+-- Name: Compras_deslocamento; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public."Compras_deslocamento" (
@@ -75,10 +181,8 @@ CREATE TABLE public."Compras_deslocamento" (
 );
 
 
-ALTER TABLE public."Compras_deslocamento" OWNER TO unicatech;
-
 --
--- Name: Compras_deslocamento_id_seq; Type: SEQUENCE; Schema: public; Owner: unicatech
+-- Name: Compras_deslocamento_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
 ALTER TABLE public."Compras_deslocamento" ALTER COLUMN id ADD GENERATED BY DEFAULT AS IDENTITY (
@@ -92,7 +196,7 @@ ALTER TABLE public."Compras_deslocamento" ALTER COLUMN id ADD GENERATED BY DEFAU
 
 
 --
--- Name: Compras_fornecedor; Type: TABLE; Schema: public; Owner: unicatech
+-- Name: Compras_fornecedor; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public."Compras_fornecedor" (
@@ -105,10 +209,8 @@ CREATE TABLE public."Compras_fornecedor" (
 );
 
 
-ALTER TABLE public."Compras_fornecedor" OWNER TO unicatech;
-
 --
--- Name: Compras_fornecedor_id_seq; Type: SEQUENCE; Schema: public; Owner: unicatech
+-- Name: Compras_fornecedor_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
 ALTER TABLE public."Compras_fornecedor" ALTER COLUMN id ADD GENERATED BY DEFAULT AS IDENTITY (
@@ -122,7 +224,7 @@ ALTER TABLE public."Compras_fornecedor" ALTER COLUMN id ADD GENERATED BY DEFAULT
 
 
 --
--- Name: Compras_localizacaocompra; Type: TABLE; Schema: public; Owner: unicatech
+-- Name: Compras_localizacaocompra; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public."Compras_localizacaocompra" (
@@ -134,10 +236,8 @@ CREATE TABLE public."Compras_localizacaocompra" (
 );
 
 
-ALTER TABLE public."Compras_localizacaocompra" OWNER TO unicatech;
-
 --
--- Name: Compras_localizacaocompra_id_seq; Type: SEQUENCE; Schema: public; Owner: unicatech
+-- Name: Compras_localizacaocompra_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
 ALTER TABLE public."Compras_localizacaocompra" ALTER COLUMN id ADD GENERATED BY DEFAULT AS IDENTITY (
@@ -151,7 +251,7 @@ ALTER TABLE public."Compras_localizacaocompra" ALTER COLUMN id ADD GENERATED BY 
 
 
 --
--- Name: Contas_cartao; Type: TABLE; Schema: public; Owner: unicatech
+-- Name: Contas_cartao; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public."Contas_cartao" (
@@ -182,10 +282,8 @@ CREATE TABLE public."Contas_cartao" (
 );
 
 
-ALTER TABLE public."Contas_cartao" OWNER TO unicatech;
-
 --
--- Name: Contas_cartao_id_seq; Type: SEQUENCE; Schema: public; Owner: unicatech
+-- Name: Contas_cartao_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
 ALTER TABLE public."Contas_cartao" ALTER COLUMN id ADD GENERATED BY DEFAULT AS IDENTITY (
@@ -199,7 +297,7 @@ ALTER TABLE public."Contas_cartao" ALTER COLUMN id ADD GENERATED BY DEFAULT AS I
 
 
 --
--- Name: Contas_categoriaconta; Type: TABLE; Schema: public; Owner: unicatech
+-- Name: Contas_categoriaconta; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public."Contas_categoriaconta" (
@@ -211,10 +309,8 @@ CREATE TABLE public."Contas_categoriaconta" (
 );
 
 
-ALTER TABLE public."Contas_categoriaconta" OWNER TO unicatech;
-
 --
--- Name: Contas_categoriaconta_id_seq; Type: SEQUENCE; Schema: public; Owner: unicatech
+-- Name: Contas_categoriaconta_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
 ALTER TABLE public."Contas_categoriaconta" ALTER COLUMN id ADD GENERATED BY DEFAULT AS IDENTITY (
@@ -228,7 +324,7 @@ ALTER TABLE public."Contas_categoriaconta" ALTER COLUMN id ADD GENERATED BY DEFA
 
 
 --
--- Name: Contas_conta; Type: TABLE; Schema: public; Owner: unicatech
+-- Name: Contas_conta; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public."Contas_conta" (
@@ -246,10 +342,8 @@ CREATE TABLE public."Contas_conta" (
 );
 
 
-ALTER TABLE public."Contas_conta" OWNER TO unicatech;
-
 --
--- Name: Contas_conta_id_seq; Type: SEQUENCE; Schema: public; Owner: unicatech
+-- Name: Contas_conta_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
 ALTER TABLE public."Contas_conta" ALTER COLUMN id ADD GENERATED BY DEFAULT AS IDENTITY (
@@ -263,7 +357,7 @@ ALTER TABLE public."Contas_conta" ALTER COLUMN id ADD GENERATED BY DEFAULT AS ID
 
 
 --
--- Name: Contas_movimentacaoconta; Type: TABLE; Schema: public; Owner: unicatech
+-- Name: Contas_movimentacaoconta; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public."Contas_movimentacaoconta" (
@@ -283,10 +377,8 @@ CREATE TABLE public."Contas_movimentacaoconta" (
 );
 
 
-ALTER TABLE public."Contas_movimentacaoconta" OWNER TO unicatech;
-
 --
--- Name: Contas_movimentacaoconta_id_seq; Type: SEQUENCE; Schema: public; Owner: unicatech
+-- Name: Contas_movimentacaoconta_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
 ALTER TABLE public."Contas_movimentacaoconta" ALTER COLUMN id ADD GENERATED BY DEFAULT AS IDENTITY (
@@ -300,7 +392,7 @@ ALTER TABLE public."Contas_movimentacaoconta" ALTER COLUMN id ADD GENERATED BY D
 
 
 --
--- Name: Contas_recebimentocartao; Type: TABLE; Schema: public; Owner: unicatech
+-- Name: Contas_recebimentocartao; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public."Contas_recebimentocartao" (
@@ -317,10 +409,8 @@ CREATE TABLE public."Contas_recebimentocartao" (
 );
 
 
-ALTER TABLE public."Contas_recebimentocartao" OWNER TO unicatech;
-
 --
--- Name: Contas_recebimentocartao_id_seq; Type: SEQUENCE; Schema: public; Owner: unicatech
+-- Name: Contas_recebimentocartao_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
 ALTER TABLE public."Contas_recebimentocartao" ALTER COLUMN id ADD GENERATED BY DEFAULT AS IDENTITY (
@@ -334,7 +424,7 @@ ALTER TABLE public."Contas_recebimentocartao" ALTER COLUMN id ADD GENERATED BY D
 
 
 --
--- Name: Despesas_cadastrodespesa; Type: TABLE; Schema: public; Owner: unicatech
+-- Name: Despesas_cadastrodespesa; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public."Despesas_cadastrodespesa" (
@@ -349,10 +439,8 @@ CREATE TABLE public."Despesas_cadastrodespesa" (
 );
 
 
-ALTER TABLE public."Despesas_cadastrodespesa" OWNER TO unicatech;
-
 --
--- Name: Despesas_despesa; Type: TABLE; Schema: public; Owner: unicatech
+-- Name: Despesas_despesa; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public."Despesas_despesa" (
@@ -365,10 +453,8 @@ CREATE TABLE public."Despesas_despesa" (
 );
 
 
-ALTER TABLE public."Despesas_despesa" OWNER TO unicatech;
-
 --
--- Name: Despesas_despesa_id_seq; Type: SEQUENCE; Schema: public; Owner: unicatech
+-- Name: Despesas_despesa_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
 ALTER TABLE public."Despesas_cadastrodespesa" ALTER COLUMN id ADD GENERATED BY DEFAULT AS IDENTITY (
@@ -382,7 +468,7 @@ ALTER TABLE public."Despesas_cadastrodespesa" ALTER COLUMN id ADD GENERATED BY D
 
 
 --
--- Name: Despesas_despesas_id_seq; Type: SEQUENCE; Schema: public; Owner: unicatech
+-- Name: Despesas_despesas_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
 ALTER TABLE public."Despesas_despesa" ALTER COLUMN id ADD GENERATED BY DEFAULT AS IDENTITY (
@@ -396,7 +482,7 @@ ALTER TABLE public."Despesas_despesa" ALTER COLUMN id ADD GENERATED BY DEFAULT A
 
 
 --
--- Name: Produtos_categoriaproduto; Type: TABLE; Schema: public; Owner: unicatech
+-- Name: Produtos_categoriaproduto; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public."Produtos_categoriaproduto" (
@@ -408,10 +494,8 @@ CREATE TABLE public."Produtos_categoriaproduto" (
 );
 
 
-ALTER TABLE public."Produtos_categoriaproduto" OWNER TO unicatech;
-
 --
--- Name: Produtos_categoriaproduto_id_seq; Type: SEQUENCE; Schema: public; Owner: unicatech
+-- Name: Produtos_categoriaproduto_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
 ALTER TABLE public."Produtos_categoriaproduto" ALTER COLUMN id ADD GENERATED BY DEFAULT AS IDENTITY (
@@ -425,7 +509,7 @@ ALTER TABLE public."Produtos_categoriaproduto" ALTER COLUMN id ADD GENERATED BY 
 
 
 --
--- Name: Produtos_produto; Type: TABLE; Schema: public; Owner: unicatech
+-- Name: Produtos_produto; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public."Produtos_produto" (
@@ -440,10 +524,8 @@ CREATE TABLE public."Produtos_produto" (
 );
 
 
-ALTER TABLE public."Produtos_produto" OWNER TO unicatech;
-
 --
--- Name: Produtos_produto_id_seq; Type: SEQUENCE; Schema: public; Owner: unicatech
+-- Name: Produtos_produto_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
 ALTER TABLE public."Produtos_produto" ALTER COLUMN id ADD GENERATED BY DEFAULT AS IDENTITY (
@@ -457,7 +539,7 @@ ALTER TABLE public."Produtos_produto" ALTER COLUMN id ADD GENERATED BY DEFAULT A
 
 
 --
--- Name: Vendas_cliente; Type: TABLE; Schema: public; Owner: unicatech
+-- Name: Vendas_cliente; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public."Vendas_cliente" (
@@ -469,10 +551,8 @@ CREATE TABLE public."Vendas_cliente" (
 );
 
 
-ALTER TABLE public."Vendas_cliente" OWNER TO unicatech;
-
 --
--- Name: Vendas_cliente_id_seq; Type: SEQUENCE; Schema: public; Owner: unicatech
+-- Name: Vendas_cliente_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
 ALTER TABLE public."Vendas_cliente" ALTER COLUMN id ADD GENERATED BY DEFAULT AS IDENTITY (
@@ -486,7 +566,7 @@ ALTER TABLE public."Vendas_cliente" ALTER COLUMN id ADD GENERATED BY DEFAULT AS 
 
 
 --
--- Name: Vendas_venda; Type: TABLE; Schema: public; Owner: unicatech
+-- Name: Vendas_venda; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public."Vendas_venda" (
@@ -504,10 +584,8 @@ CREATE TABLE public."Vendas_venda" (
 );
 
 
-ALTER TABLE public."Vendas_venda" OWNER TO unicatech;
-
 --
--- Name: Vendas_venda_id_seq; Type: SEQUENCE; Schema: public; Owner: unicatech
+-- Name: Vendas_venda_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
 ALTER TABLE public."Vendas_venda" ALTER COLUMN id ADD GENERATED BY DEFAULT AS IDENTITY (
@@ -521,7 +599,7 @@ ALTER TABLE public."Vendas_venda" ALTER COLUMN id ADD GENERATED BY DEFAULT AS ID
 
 
 --
--- Name: auth_group; Type: TABLE; Schema: public; Owner: unicatech
+-- Name: auth_group; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public.auth_group (
@@ -530,10 +608,8 @@ CREATE TABLE public.auth_group (
 );
 
 
-ALTER TABLE public.auth_group OWNER TO unicatech;
-
 --
--- Name: auth_group_id_seq; Type: SEQUENCE; Schema: public; Owner: unicatech
+-- Name: auth_group_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
 ALTER TABLE public.auth_group ALTER COLUMN id ADD GENERATED BY DEFAULT AS IDENTITY (
@@ -547,7 +623,7 @@ ALTER TABLE public.auth_group ALTER COLUMN id ADD GENERATED BY DEFAULT AS IDENTI
 
 
 --
--- Name: auth_group_permissions; Type: TABLE; Schema: public; Owner: unicatech
+-- Name: auth_group_permissions; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public.auth_group_permissions (
@@ -557,10 +633,8 @@ CREATE TABLE public.auth_group_permissions (
 );
 
 
-ALTER TABLE public.auth_group_permissions OWNER TO unicatech;
-
 --
--- Name: auth_group_permissions_id_seq; Type: SEQUENCE; Schema: public; Owner: unicatech
+-- Name: auth_group_permissions_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
 ALTER TABLE public.auth_group_permissions ALTER COLUMN id ADD GENERATED BY DEFAULT AS IDENTITY (
@@ -574,7 +648,7 @@ ALTER TABLE public.auth_group_permissions ALTER COLUMN id ADD GENERATED BY DEFAU
 
 
 --
--- Name: auth_permission; Type: TABLE; Schema: public; Owner: unicatech
+-- Name: auth_permission; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public.auth_permission (
@@ -585,10 +659,8 @@ CREATE TABLE public.auth_permission (
 );
 
 
-ALTER TABLE public.auth_permission OWNER TO unicatech;
-
 --
--- Name: auth_permission_id_seq; Type: SEQUENCE; Schema: public; Owner: unicatech
+-- Name: auth_permission_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
 ALTER TABLE public.auth_permission ALTER COLUMN id ADD GENERATED BY DEFAULT AS IDENTITY (
@@ -602,7 +674,7 @@ ALTER TABLE public.auth_permission ALTER COLUMN id ADD GENERATED BY DEFAULT AS I
 
 
 --
--- Name: auth_user; Type: TABLE; Schema: public; Owner: unicatech
+-- Name: auth_user; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public.auth_user (
@@ -620,10 +692,8 @@ CREATE TABLE public.auth_user (
 );
 
 
-ALTER TABLE public.auth_user OWNER TO unicatech;
-
 --
--- Name: auth_user_groups; Type: TABLE; Schema: public; Owner: unicatech
+-- Name: auth_user_groups; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public.auth_user_groups (
@@ -633,10 +703,8 @@ CREATE TABLE public.auth_user_groups (
 );
 
 
-ALTER TABLE public.auth_user_groups OWNER TO unicatech;
-
 --
--- Name: auth_user_groups_id_seq; Type: SEQUENCE; Schema: public; Owner: unicatech
+-- Name: auth_user_groups_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
 ALTER TABLE public.auth_user_groups ALTER COLUMN id ADD GENERATED BY DEFAULT AS IDENTITY (
@@ -650,7 +718,7 @@ ALTER TABLE public.auth_user_groups ALTER COLUMN id ADD GENERATED BY DEFAULT AS 
 
 
 --
--- Name: auth_user_id_seq; Type: SEQUENCE; Schema: public; Owner: unicatech
+-- Name: auth_user_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
 ALTER TABLE public.auth_user ALTER COLUMN id ADD GENERATED BY DEFAULT AS IDENTITY (
@@ -664,7 +732,7 @@ ALTER TABLE public.auth_user ALTER COLUMN id ADD GENERATED BY DEFAULT AS IDENTIT
 
 
 --
--- Name: auth_user_user_permissions; Type: TABLE; Schema: public; Owner: unicatech
+-- Name: auth_user_user_permissions; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public.auth_user_user_permissions (
@@ -674,10 +742,8 @@ CREATE TABLE public.auth_user_user_permissions (
 );
 
 
-ALTER TABLE public.auth_user_user_permissions OWNER TO unicatech;
-
 --
--- Name: auth_user_user_permissions_id_seq; Type: SEQUENCE; Schema: public; Owner: unicatech
+-- Name: auth_user_user_permissions_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
 ALTER TABLE public.auth_user_user_permissions ALTER COLUMN id ADD GENERATED BY DEFAULT AS IDENTITY (
@@ -691,7 +757,7 @@ ALTER TABLE public.auth_user_user_permissions ALTER COLUMN id ADD GENERATED BY D
 
 
 --
--- Name: django_admin_log; Type: TABLE; Schema: public; Owner: unicatech
+-- Name: django_admin_log; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public.django_admin_log (
@@ -707,10 +773,8 @@ CREATE TABLE public.django_admin_log (
 );
 
 
-ALTER TABLE public.django_admin_log OWNER TO unicatech;
-
 --
--- Name: django_admin_log_id_seq; Type: SEQUENCE; Schema: public; Owner: unicatech
+-- Name: django_admin_log_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
 ALTER TABLE public.django_admin_log ALTER COLUMN id ADD GENERATED BY DEFAULT AS IDENTITY (
@@ -724,7 +788,7 @@ ALTER TABLE public.django_admin_log ALTER COLUMN id ADD GENERATED BY DEFAULT AS 
 
 
 --
--- Name: django_content_type; Type: TABLE; Schema: public; Owner: unicatech
+-- Name: django_content_type; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public.django_content_type (
@@ -734,10 +798,8 @@ CREATE TABLE public.django_content_type (
 );
 
 
-ALTER TABLE public.django_content_type OWNER TO unicatech;
-
 --
--- Name: django_content_type_id_seq; Type: SEQUENCE; Schema: public; Owner: unicatech
+-- Name: django_content_type_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
 ALTER TABLE public.django_content_type ALTER COLUMN id ADD GENERATED BY DEFAULT AS IDENTITY (
@@ -751,7 +813,7 @@ ALTER TABLE public.django_content_type ALTER COLUMN id ADD GENERATED BY DEFAULT 
 
 
 --
--- Name: django_migrations; Type: TABLE; Schema: public; Owner: unicatech
+-- Name: django_migrations; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public.django_migrations (
@@ -762,10 +824,8 @@ CREATE TABLE public.django_migrations (
 );
 
 
-ALTER TABLE public.django_migrations OWNER TO unicatech;
-
 --
--- Name: django_migrations_id_seq; Type: SEQUENCE; Schema: public; Owner: unicatech
+-- Name: django_migrations_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
 ALTER TABLE public.django_migrations ALTER COLUMN id ADD GENERATED BY DEFAULT AS IDENTITY (
@@ -779,7 +839,7 @@ ALTER TABLE public.django_migrations ALTER COLUMN id ADD GENERATED BY DEFAULT AS
 
 
 --
--- Name: django_session; Type: TABLE; Schema: public; Owner: unicatech
+-- Name: django_session; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public.django_session (
@@ -789,10 +849,8 @@ CREATE TABLE public.django_session (
 );
 
 
-ALTER TABLE public.django_session OWNER TO unicatech;
-
 --
--- Data for Name: Compras_compra; Type: TABLE DATA; Schema: public; Owner: unicatech
+-- Data for Name: Compras_compra; Type: TABLE DATA; Schema: public; Owner: -
 --
 
 COPY public."Compras_compra" (id, criados, modificado, ativo, "identificadorCompra", "quantidadeProduto", "precoProduto", frete, descricao, conta_id, fornecedor_id, "idLocalizacao_id", produto_id, "valorDolarMedio") FROM stdin;
@@ -1201,7 +1259,7 @@ COPY public."Compras_compra" (id, criados, modificado, ativo, "identificadorComp
 
 
 --
--- Data for Name: Compras_deslocamento; Type: TABLE DATA; Schema: public; Owner: unicatech
+-- Data for Name: Compras_deslocamento; Type: TABLE DATA; Schema: public; Owner: -
 --
 
 COPY public."Compras_deslocamento" (id, criados, modificado, ativo, origem, destino, frete, "identificadorCompra", "idMovimentacaoConta") FROM stdin;
@@ -1387,7 +1445,7 @@ COPY public."Compras_deslocamento" (id, criados, modificado, ativo, origem, dest
 
 
 --
--- Data for Name: Compras_fornecedor; Type: TABLE DATA; Schema: public; Owner: unicatech
+-- Data for Name: Compras_fornecedor; Type: TABLE DATA; Schema: public; Owner: -
 --
 
 COPY public."Compras_fornecedor" (id, criados, modificado, ativo, "nomeFornecedor", "localizacaoCompra_id") FROM stdin;
@@ -1409,7 +1467,7 @@ COPY public."Compras_fornecedor" (id, criados, modificado, ativo, "nomeFornecedo
 
 
 --
--- Data for Name: Compras_localizacaocompra; Type: TABLE DATA; Schema: public; Owner: unicatech
+-- Data for Name: Compras_localizacaocompra; Type: TABLE DATA; Schema: public; Owner: -
 --
 
 COPY public."Compras_localizacaocompra" (id, criados, modificado, ativo, "localizacaoCompra") FROM stdin;
@@ -1426,7 +1484,7 @@ COPY public."Compras_localizacaocompra" (id, criados, modificado, ativo, "locali
 
 
 --
--- Data for Name: Contas_cartao; Type: TABLE DATA; Schema: public; Owner: unicatech
+-- Data for Name: Contas_cartao; Type: TABLE DATA; Schema: public; Owner: -
 --
 
 COPY public."Contas_cartao" (id, criados, modificado, ativo, cartao, taxa_cartao1, taxa_cartao2, taxa_cartao3, taxa_cartao4, taxa_cartao5, taxa_cartao6, taxa_cartao7, taxa_cartao8, taxa_cartao9, taxa_cartao10, taxa_cartao11, taxa_cartao12, taxa_cartao13, taxa_cartao14, taxa_cartao15, taxa_cartao16, taxa_cartao17, taxa_cartao18, taxa_debito) FROM stdin;
@@ -1436,7 +1494,7 @@ COPY public."Contas_cartao" (id, criados, modificado, ativo, cartao, taxa_cartao
 
 
 --
--- Data for Name: Contas_categoriaconta; Type: TABLE DATA; Schema: public; Owner: unicatech
+-- Data for Name: Contas_categoriaconta; Type: TABLE DATA; Schema: public; Owner: -
 --
 
 COPY public."Contas_categoriaconta" (id, criados, modificado, ativo, categoria) FROM stdin;
@@ -1450,7 +1508,7 @@ COPY public."Contas_categoriaconta" (id, criados, modificado, ativo, categoria) 
 
 
 --
--- Data for Name: Contas_conta; Type: TABLE DATA; Schema: public; Owner: unicatech
+-- Data for Name: Contas_conta; Type: TABLE DATA; Schema: public; Owner: -
 --
 
 COPY public."Contas_conta" (id, criados, modificado, ativo, "nomeConta", categoria_id, taxas, descricao, cartao, valor_dolar_medio, taxa_wire) FROM stdin;
@@ -1466,7 +1524,7 @@ COPY public."Contas_conta" (id, criados, modificado, ativo, "nomeConta", categor
 
 
 --
--- Data for Name: Contas_movimentacaoconta; Type: TABLE DATA; Schema: public; Owner: unicatech
+-- Data for Name: Contas_movimentacaoconta; Type: TABLE DATA; Schema: public; Owner: -
 --
 
 COPY public."Contas_movimentacaoconta" (id, criados, modificado, ativo, "contaCredito_id", "contaDebito", "valorCredito", "valorDebito", "identificadorCompra", "identificadorVenda", descricao, "cotacaoDolar", "identificadorDolar") FROM stdin;
@@ -4126,7 +4184,7 @@ COPY public."Contas_movimentacaoconta" (id, criados, modificado, ativo, "contaCr
 
 
 --
--- Data for Name: Contas_recebimentocartao; Type: TABLE DATA; Schema: public; Owner: unicatech
+-- Data for Name: Contas_recebimentocartao; Type: TABLE DATA; Schema: public; Owner: -
 --
 
 COPY public."Contas_recebimentocartao" (id, criados, modificado, ativo, valor, parcelas, bandeira, identificador_venda, conta_cartao_id, valor_liquido) FROM stdin;
@@ -4885,7 +4943,7 @@ COPY public."Contas_recebimentocartao" (id, criados, modificado, ativo, valor, p
 
 
 --
--- Data for Name: Despesas_cadastrodespesa; Type: TABLE DATA; Schema: public; Owner: unicatech
+-- Data for Name: Despesas_cadastrodespesa; Type: TABLE DATA; Schema: public; Owner: -
 --
 
 COPY public."Despesas_cadastrodespesa" (id, criados, modificado, ativo, nome_despesa, periodicidade, valor, conta_debito_id) FROM stdin;
@@ -5130,7 +5188,7 @@ COPY public."Despesas_cadastrodespesa" (id, criados, modificado, ativo, nome_des
 
 
 --
--- Data for Name: Despesas_despesa; Type: TABLE DATA; Schema: public; Owner: unicatech
+-- Data for Name: Despesas_despesa; Type: TABLE DATA; Schema: public; Owner: -
 --
 
 COPY public."Despesas_despesa" (id, criados, modificado, ativo, despesa_id, movimentacao_id) FROM stdin;
@@ -5487,7 +5545,7 @@ COPY public."Despesas_despesa" (id, criados, modificado, ativo, despesa_id, movi
 
 
 --
--- Data for Name: Produtos_categoriaproduto; Type: TABLE DATA; Schema: public; Owner: unicatech
+-- Data for Name: Produtos_categoriaproduto; Type: TABLE DATA; Schema: public; Owner: -
 --
 
 COPY public."Produtos_categoriaproduto" (id, criados, modificado, ativo, categoria) FROM stdin;
@@ -5500,7 +5558,7 @@ COPY public."Produtos_categoriaproduto" (id, criados, modificado, ativo, categor
 
 
 --
--- Data for Name: Produtos_produto; Type: TABLE DATA; Schema: public; Owner: unicatech
+-- Data for Name: Produtos_produto; Type: TABLE DATA; Schema: public; Owner: -
 --
 
 COPY public."Produtos_produto" (id, criados, modificado, ativo, "SKU", "NomeProduto", estoque, categoria_id) FROM stdin;
@@ -5617,7 +5675,7 @@ COPY public."Produtos_produto" (id, criados, modificado, ativo, "SKU", "NomeProd
 
 
 --
--- Data for Name: Vendas_cliente; Type: TABLE DATA; Schema: public; Owner: unicatech
+-- Data for Name: Vendas_cliente; Type: TABLE DATA; Schema: public; Owner: -
 --
 
 COPY public."Vendas_cliente" (id, criados, modificado, ativo, "nomeCliente") FROM stdin;
@@ -6351,7 +6409,7 @@ COPY public."Vendas_cliente" (id, criados, modificado, ativo, "nomeCliente") FRO
 
 
 --
--- Data for Name: Vendas_venda; Type: TABLE DATA; Schema: public; Owner: unicatech
+-- Data for Name: Vendas_venda; Type: TABLE DATA; Schema: public; Owner: -
 --
 
 COPY public."Vendas_venda" (id, criados, modificado, ativo, "identificadorVenda", "quantidadeProduto", "precoProduto", descricao, produto_id, cliente_id, lucro) FROM stdin;
@@ -9334,7 +9392,7 @@ COPY public."Vendas_venda" (id, criados, modificado, ativo, "identificadorVenda"
 
 
 --
--- Data for Name: auth_group; Type: TABLE DATA; Schema: public; Owner: unicatech
+-- Data for Name: auth_group; Type: TABLE DATA; Schema: public; Owner: -
 --
 
 COPY public.auth_group (id, name) FROM stdin;
@@ -9343,7 +9401,7 @@ COPY public.auth_group (id, name) FROM stdin;
 
 
 --
--- Data for Name: auth_group_permissions; Type: TABLE DATA; Schema: public; Owner: unicatech
+-- Data for Name: auth_group_permissions; Type: TABLE DATA; Schema: public; Owner: -
 --
 
 COPY public.auth_group_permissions (id, group_id, permission_id) FROM stdin;
@@ -9373,7 +9431,7 @@ COPY public.auth_group_permissions (id, group_id, permission_id) FROM stdin;
 
 
 --
--- Data for Name: auth_permission; Type: TABLE DATA; Schema: public; Owner: unicatech
+-- Data for Name: auth_permission; Type: TABLE DATA; Schema: public; Owner: -
 --
 
 COPY public.auth_permission (id, name, content_type_id, codename) FROM stdin;
@@ -9469,7 +9527,7 @@ COPY public.auth_permission (id, name, content_type_id, codename) FROM stdin;
 
 
 --
--- Data for Name: auth_user; Type: TABLE DATA; Schema: public; Owner: unicatech
+-- Data for Name: auth_user; Type: TABLE DATA; Schema: public; Owner: -
 --
 
 COPY public.auth_user (id, password, last_login, is_superuser, username, first_name, last_name, email, is_staff, is_active, date_joined) FROM stdin;
@@ -9481,7 +9539,7 @@ COPY public.auth_user (id, password, last_login, is_superuser, username, first_n
 
 
 --
--- Data for Name: auth_user_groups; Type: TABLE DATA; Schema: public; Owner: unicatech
+-- Data for Name: auth_user_groups; Type: TABLE DATA; Schema: public; Owner: -
 --
 
 COPY public.auth_user_groups (id, user_id, group_id) FROM stdin;
@@ -9491,7 +9549,7 @@ COPY public.auth_user_groups (id, user_id, group_id) FROM stdin;
 
 
 --
--- Data for Name: auth_user_user_permissions; Type: TABLE DATA; Schema: public; Owner: unicatech
+-- Data for Name: auth_user_user_permissions; Type: TABLE DATA; Schema: public; Owner: -
 --
 
 COPY public.auth_user_user_permissions (id, user_id, permission_id) FROM stdin;
@@ -9499,7 +9557,7 @@ COPY public.auth_user_user_permissions (id, user_id, permission_id) FROM stdin;
 
 
 --
--- Data for Name: django_admin_log; Type: TABLE DATA; Schema: public; Owner: unicatech
+-- Data for Name: django_admin_log; Type: TABLE DATA; Schema: public; Owner: -
 --
 
 COPY public.django_admin_log (id, action_time, object_id, object_repr, action_flag, change_message, content_type_id, user_id) FROM stdin;
@@ -9512,7 +9570,7 @@ COPY public.django_admin_log (id, action_time, object_id, object_repr, action_fl
 
 
 --
--- Data for Name: django_content_type; Type: TABLE DATA; Schema: public; Owner: unicatech
+-- Data for Name: django_content_type; Type: TABLE DATA; Schema: public; Owner: -
 --
 
 COPY public.django_content_type (id, app_label, model) FROM stdin;
@@ -9541,7 +9599,7 @@ COPY public.django_content_type (id, app_label, model) FROM stdin;
 
 
 --
--- Data for Name: django_migrations; Type: TABLE DATA; Schema: public; Owner: unicatech
+-- Data for Name: django_migrations; Type: TABLE DATA; Schema: public; Owner: -
 --
 
 COPY public.django_migrations (id, app, name, applied) FROM stdin;
@@ -9654,7 +9712,7 @@ COPY public.django_migrations (id, app, name, applied) FROM stdin;
 
 
 --
--- Data for Name: django_session; Type: TABLE DATA; Schema: public; Owner: unicatech
+-- Data for Name: django_session; Type: TABLE DATA; Schema: public; Owner: -
 --
 
 COPY public.django_session (session_key, session_data, expire_date) FROM stdin;
@@ -9663,175 +9721,175 @@ COPY public.django_session (session_key, session_data, expire_date) FROM stdin;
 
 
 --
--- Name: Compras_compra_id_seq; Type: SEQUENCE SET; Schema: public; Owner: unicatech
+-- Name: Compras_compra_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
 SELECT pg_catalog.setval('public."Compras_compra_id_seq"', 672, true);
 
 
 --
--- Name: Compras_deslocamento_id_seq; Type: SEQUENCE SET; Schema: public; Owner: unicatech
+-- Name: Compras_deslocamento_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
 SELECT pg_catalog.setval('public."Compras_deslocamento_id_seq"', 276, true);
 
 
 --
--- Name: Compras_fornecedor_id_seq; Type: SEQUENCE SET; Schema: public; Owner: unicatech
+-- Name: Compras_fornecedor_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
 SELECT pg_catalog.setval('public."Compras_fornecedor_id_seq"', 17, true);
 
 
 --
--- Name: Compras_localizacaocompra_id_seq; Type: SEQUENCE SET; Schema: public; Owner: unicatech
+-- Name: Compras_localizacaocompra_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
 SELECT pg_catalog.setval('public."Compras_localizacaocompra_id_seq"', 10, true);
 
 
 --
--- Name: Contas_cartao_id_seq; Type: SEQUENCE SET; Schema: public; Owner: unicatech
+-- Name: Contas_cartao_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
 SELECT pg_catalog.setval('public."Contas_cartao_id_seq"', 10, true);
 
 
 --
--- Name: Contas_categoriaconta_id_seq; Type: SEQUENCE SET; Schema: public; Owner: unicatech
+-- Name: Contas_categoriaconta_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
 SELECT pg_catalog.setval('public."Contas_categoriaconta_id_seq"', 1, false);
 
 
 --
--- Name: Contas_conta_id_seq; Type: SEQUENCE SET; Schema: public; Owner: unicatech
+-- Name: Contas_conta_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
 SELECT pg_catalog.setval('public."Contas_conta_id_seq"', 27, true);
 
 
 --
--- Name: Contas_movimentacaoconta_id_seq; Type: SEQUENCE SET; Schema: public; Owner: unicatech
+-- Name: Contas_movimentacaoconta_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
 SELECT pg_catalog.setval('public."Contas_movimentacaoconta_id_seq"', 3075, true);
 
 
 --
--- Name: Contas_recebimentocartao_id_seq; Type: SEQUENCE SET; Schema: public; Owner: unicatech
+-- Name: Contas_recebimentocartao_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
 SELECT pg_catalog.setval('public."Contas_recebimentocartao_id_seq"', 1092, true);
 
 
 --
--- Name: Despesas_despesa_id_seq; Type: SEQUENCE SET; Schema: public; Owner: unicatech
+-- Name: Despesas_despesa_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
 SELECT pg_catalog.setval('public."Despesas_despesa_id_seq"', 288, true);
 
 
 --
--- Name: Despesas_despesas_id_seq; Type: SEQUENCE SET; Schema: public; Owner: unicatech
+-- Name: Despesas_despesas_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
 SELECT pg_catalog.setval('public."Despesas_despesas_id_seq"', 396, true);
 
 
 --
--- Name: Produtos_categoriaproduto_id_seq; Type: SEQUENCE SET; Schema: public; Owner: unicatech
+-- Name: Produtos_categoriaproduto_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
 SELECT pg_catalog.setval('public."Produtos_categoriaproduto_id_seq"', 1, false);
 
 
 --
--- Name: Produtos_produto_id_seq; Type: SEQUENCE SET; Schema: public; Owner: unicatech
+-- Name: Produtos_produto_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
 SELECT pg_catalog.setval('public."Produtos_produto_id_seq"', 133, true);
 
 
 --
--- Name: Vendas_cliente_id_seq; Type: SEQUENCE SET; Schema: public; Owner: unicatech
+-- Name: Vendas_cliente_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
 SELECT pg_catalog.setval('public."Vendas_cliente_id_seq"', 761, true);
 
 
 --
--- Name: Vendas_venda_id_seq; Type: SEQUENCE SET; Schema: public; Owner: unicatech
+-- Name: Vendas_venda_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
 SELECT pg_catalog.setval('public."Vendas_venda_id_seq"', 3483, true);
 
 
 --
--- Name: auth_group_id_seq; Type: SEQUENCE SET; Schema: public; Owner: unicatech
+-- Name: auth_group_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
 SELECT pg_catalog.setval('public.auth_group_id_seq', 1, true);
 
 
 --
--- Name: auth_group_permissions_id_seq; Type: SEQUENCE SET; Schema: public; Owner: unicatech
+-- Name: auth_group_permissions_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
 SELECT pg_catalog.setval('public.auth_group_permissions_id_seq', 22, true);
 
 
 --
--- Name: auth_permission_id_seq; Type: SEQUENCE SET; Schema: public; Owner: unicatech
+-- Name: auth_permission_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
 SELECT pg_catalog.setval('public.auth_permission_id_seq', 140, true);
 
 
 --
--- Name: auth_user_groups_id_seq; Type: SEQUENCE SET; Schema: public; Owner: unicatech
+-- Name: auth_user_groups_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
 SELECT pg_catalog.setval('public.auth_user_groups_id_seq', 2, true);
 
 
 --
--- Name: auth_user_id_seq; Type: SEQUENCE SET; Schema: public; Owner: unicatech
+-- Name: auth_user_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
 SELECT pg_catalog.setval('public.auth_user_id_seq', 4, true);
 
 
 --
--- Name: auth_user_user_permissions_id_seq; Type: SEQUENCE SET; Schema: public; Owner: unicatech
+-- Name: auth_user_user_permissions_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
 SELECT pg_catalog.setval('public.auth_user_user_permissions_id_seq', 1, false);
 
 
 --
--- Name: django_admin_log_id_seq; Type: SEQUENCE SET; Schema: public; Owner: unicatech
+-- Name: django_admin_log_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
 SELECT pg_catalog.setval('public.django_admin_log_id_seq', 5, true);
 
 
 --
--- Name: django_content_type_id_seq; Type: SEQUENCE SET; Schema: public; Owner: unicatech
+-- Name: django_content_type_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
 SELECT pg_catalog.setval('public.django_content_type_id_seq', 33, true);
 
 
 --
--- Name: django_migrations_id_seq; Type: SEQUENCE SET; Schema: public; Owner: unicatech
+-- Name: django_migrations_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
 SELECT pg_catalog.setval('public.django_migrations_id_seq', 109, true);
 
 
 --
--- Name: Compras_compra Compras_compra_pkey; Type: CONSTRAINT; Schema: public; Owner: unicatech
+-- Name: Compras_compra Compras_compra_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public."Compras_compra"
@@ -9839,7 +9897,7 @@ ALTER TABLE ONLY public."Compras_compra"
 
 
 --
--- Name: Compras_deslocamento Compras_deslocamento_pkey; Type: CONSTRAINT; Schema: public; Owner: unicatech
+-- Name: Compras_deslocamento Compras_deslocamento_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public."Compras_deslocamento"
@@ -9847,7 +9905,7 @@ ALTER TABLE ONLY public."Compras_deslocamento"
 
 
 --
--- Name: Compras_fornecedor Compras_fornecedor_pkey; Type: CONSTRAINT; Schema: public; Owner: unicatech
+-- Name: Compras_fornecedor Compras_fornecedor_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public."Compras_fornecedor"
@@ -9855,7 +9913,7 @@ ALTER TABLE ONLY public."Compras_fornecedor"
 
 
 --
--- Name: Compras_localizacaocompra Compras_localizacaocompra_pkey; Type: CONSTRAINT; Schema: public; Owner: unicatech
+-- Name: Compras_localizacaocompra Compras_localizacaocompra_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public."Compras_localizacaocompra"
@@ -9863,7 +9921,7 @@ ALTER TABLE ONLY public."Compras_localizacaocompra"
 
 
 --
--- Name: Contas_cartao Contas_cartao_pkey; Type: CONSTRAINT; Schema: public; Owner: unicatech
+-- Name: Contas_cartao Contas_cartao_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public."Contas_cartao"
@@ -9871,7 +9929,7 @@ ALTER TABLE ONLY public."Contas_cartao"
 
 
 --
--- Name: Contas_categoriaconta Contas_categoriaconta_pkey; Type: CONSTRAINT; Schema: public; Owner: unicatech
+-- Name: Contas_categoriaconta Contas_categoriaconta_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public."Contas_categoriaconta"
@@ -9879,7 +9937,7 @@ ALTER TABLE ONLY public."Contas_categoriaconta"
 
 
 --
--- Name: Contas_conta Contas_conta_pkey; Type: CONSTRAINT; Schema: public; Owner: unicatech
+-- Name: Contas_conta Contas_conta_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public."Contas_conta"
@@ -9887,7 +9945,7 @@ ALTER TABLE ONLY public."Contas_conta"
 
 
 --
--- Name: Contas_movimentacaoconta Contas_movimentacaoconta_pkey; Type: CONSTRAINT; Schema: public; Owner: unicatech
+-- Name: Contas_movimentacaoconta Contas_movimentacaoconta_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public."Contas_movimentacaoconta"
@@ -9895,7 +9953,7 @@ ALTER TABLE ONLY public."Contas_movimentacaoconta"
 
 
 --
--- Name: Contas_recebimentocartao Contas_recebimentocartao_pkey; Type: CONSTRAINT; Schema: public; Owner: unicatech
+-- Name: Contas_recebimentocartao Contas_recebimentocartao_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public."Contas_recebimentocartao"
@@ -9903,7 +9961,7 @@ ALTER TABLE ONLY public."Contas_recebimentocartao"
 
 
 --
--- Name: Despesas_cadastrodespesa Despesas_despesa_pkey; Type: CONSTRAINT; Schema: public; Owner: unicatech
+-- Name: Despesas_cadastrodespesa Despesas_despesa_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public."Despesas_cadastrodespesa"
@@ -9911,7 +9969,7 @@ ALTER TABLE ONLY public."Despesas_cadastrodespesa"
 
 
 --
--- Name: Despesas_despesa Despesas_despesas_pkey; Type: CONSTRAINT; Schema: public; Owner: unicatech
+-- Name: Despesas_despesa Despesas_despesas_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public."Despesas_despesa"
@@ -9919,7 +9977,7 @@ ALTER TABLE ONLY public."Despesas_despesa"
 
 
 --
--- Name: Produtos_categoriaproduto Produtos_categoriaproduto_pkey; Type: CONSTRAINT; Schema: public; Owner: unicatech
+-- Name: Produtos_categoriaproduto Produtos_categoriaproduto_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public."Produtos_categoriaproduto"
@@ -9927,7 +9985,7 @@ ALTER TABLE ONLY public."Produtos_categoriaproduto"
 
 
 --
--- Name: Produtos_produto Produtos_produto_pkey; Type: CONSTRAINT; Schema: public; Owner: unicatech
+-- Name: Produtos_produto Produtos_produto_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public."Produtos_produto"
@@ -9935,7 +9993,7 @@ ALTER TABLE ONLY public."Produtos_produto"
 
 
 --
--- Name: Vendas_cliente Vendas_cliente_pkey; Type: CONSTRAINT; Schema: public; Owner: unicatech
+-- Name: Vendas_cliente Vendas_cliente_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public."Vendas_cliente"
@@ -9943,7 +10001,7 @@ ALTER TABLE ONLY public."Vendas_cliente"
 
 
 --
--- Name: Vendas_venda Vendas_venda_pkey; Type: CONSTRAINT; Schema: public; Owner: unicatech
+-- Name: Vendas_venda Vendas_venda_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public."Vendas_venda"
@@ -9951,7 +10009,7 @@ ALTER TABLE ONLY public."Vendas_venda"
 
 
 --
--- Name: auth_group auth_group_name_key; Type: CONSTRAINT; Schema: public; Owner: unicatech
+-- Name: auth_group auth_group_name_key; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.auth_group
@@ -9959,7 +10017,7 @@ ALTER TABLE ONLY public.auth_group
 
 
 --
--- Name: auth_group_permissions auth_group_permissions_group_id_permission_id_0cd325b0_uniq; Type: CONSTRAINT; Schema: public; Owner: unicatech
+-- Name: auth_group_permissions auth_group_permissions_group_id_permission_id_0cd325b0_uniq; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.auth_group_permissions
@@ -9967,7 +10025,7 @@ ALTER TABLE ONLY public.auth_group_permissions
 
 
 --
--- Name: auth_group_permissions auth_group_permissions_pkey; Type: CONSTRAINT; Schema: public; Owner: unicatech
+-- Name: auth_group_permissions auth_group_permissions_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.auth_group_permissions
@@ -9975,7 +10033,7 @@ ALTER TABLE ONLY public.auth_group_permissions
 
 
 --
--- Name: auth_group auth_group_pkey; Type: CONSTRAINT; Schema: public; Owner: unicatech
+-- Name: auth_group auth_group_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.auth_group
@@ -9983,7 +10041,7 @@ ALTER TABLE ONLY public.auth_group
 
 
 --
--- Name: auth_permission auth_permission_content_type_id_codename_01ab375a_uniq; Type: CONSTRAINT; Schema: public; Owner: unicatech
+-- Name: auth_permission auth_permission_content_type_id_codename_01ab375a_uniq; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.auth_permission
@@ -9991,7 +10049,7 @@ ALTER TABLE ONLY public.auth_permission
 
 
 --
--- Name: auth_permission auth_permission_pkey; Type: CONSTRAINT; Schema: public; Owner: unicatech
+-- Name: auth_permission auth_permission_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.auth_permission
@@ -9999,7 +10057,7 @@ ALTER TABLE ONLY public.auth_permission
 
 
 --
--- Name: auth_user_groups auth_user_groups_pkey; Type: CONSTRAINT; Schema: public; Owner: unicatech
+-- Name: auth_user_groups auth_user_groups_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.auth_user_groups
@@ -10007,7 +10065,7 @@ ALTER TABLE ONLY public.auth_user_groups
 
 
 --
--- Name: auth_user_groups auth_user_groups_user_id_group_id_94350c0c_uniq; Type: CONSTRAINT; Schema: public; Owner: unicatech
+-- Name: auth_user_groups auth_user_groups_user_id_group_id_94350c0c_uniq; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.auth_user_groups
@@ -10015,7 +10073,7 @@ ALTER TABLE ONLY public.auth_user_groups
 
 
 --
--- Name: auth_user auth_user_pkey; Type: CONSTRAINT; Schema: public; Owner: unicatech
+-- Name: auth_user auth_user_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.auth_user
@@ -10023,7 +10081,7 @@ ALTER TABLE ONLY public.auth_user
 
 
 --
--- Name: auth_user_user_permissions auth_user_user_permissions_pkey; Type: CONSTRAINT; Schema: public; Owner: unicatech
+-- Name: auth_user_user_permissions auth_user_user_permissions_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.auth_user_user_permissions
@@ -10031,7 +10089,7 @@ ALTER TABLE ONLY public.auth_user_user_permissions
 
 
 --
--- Name: auth_user_user_permissions auth_user_user_permissions_user_id_permission_id_14a6b632_uniq; Type: CONSTRAINT; Schema: public; Owner: unicatech
+-- Name: auth_user_user_permissions auth_user_user_permissions_user_id_permission_id_14a6b632_uniq; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.auth_user_user_permissions
@@ -10039,7 +10097,7 @@ ALTER TABLE ONLY public.auth_user_user_permissions
 
 
 --
--- Name: auth_user auth_user_username_key; Type: CONSTRAINT; Schema: public; Owner: unicatech
+-- Name: auth_user auth_user_username_key; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.auth_user
@@ -10047,7 +10105,7 @@ ALTER TABLE ONLY public.auth_user
 
 
 --
--- Name: django_admin_log django_admin_log_pkey; Type: CONSTRAINT; Schema: public; Owner: unicatech
+-- Name: django_admin_log django_admin_log_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.django_admin_log
@@ -10055,7 +10113,7 @@ ALTER TABLE ONLY public.django_admin_log
 
 
 --
--- Name: django_content_type django_content_type_app_label_model_76bd3d3b_uniq; Type: CONSTRAINT; Schema: public; Owner: unicatech
+-- Name: django_content_type django_content_type_app_label_model_76bd3d3b_uniq; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.django_content_type
@@ -10063,7 +10121,7 @@ ALTER TABLE ONLY public.django_content_type
 
 
 --
--- Name: django_content_type django_content_type_pkey; Type: CONSTRAINT; Schema: public; Owner: unicatech
+-- Name: django_content_type django_content_type_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.django_content_type
@@ -10071,7 +10129,7 @@ ALTER TABLE ONLY public.django_content_type
 
 
 --
--- Name: django_migrations django_migrations_pkey; Type: CONSTRAINT; Schema: public; Owner: unicatech
+-- Name: django_migrations django_migrations_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.django_migrations
@@ -10079,7 +10137,7 @@ ALTER TABLE ONLY public.django_migrations
 
 
 --
--- Name: django_session django_session_pkey; Type: CONSTRAINT; Schema: public; Owner: unicatech
+-- Name: django_session django_session_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.django_session
@@ -10087,196 +10145,196 @@ ALTER TABLE ONLY public.django_session
 
 
 --
--- Name: Compras_compra_conta_id_94fdb6c6; Type: INDEX; Schema: public; Owner: unicatech
+-- Name: Compras_compra_conta_id_94fdb6c6; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX "Compras_compra_conta_id_94fdb6c6" ON public."Compras_compra" USING btree (conta_id);
 
 
 --
--- Name: Compras_compra_fornecedor_id_e6f5f3a9; Type: INDEX; Schema: public; Owner: unicatech
+-- Name: Compras_compra_fornecedor_id_e6f5f3a9; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX "Compras_compra_fornecedor_id_e6f5f3a9" ON public."Compras_compra" USING btree (fornecedor_id);
 
 
 --
--- Name: Compras_compra_idLocalizacao_id_4f303239; Type: INDEX; Schema: public; Owner: unicatech
+-- Name: Compras_compra_idLocalizacao_id_4f303239; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX "Compras_compra_idLocalizacao_id_4f303239" ON public."Compras_compra" USING btree ("idLocalizacao_id");
 
 
 --
--- Name: Compras_compra_produto_id_bf520d8c; Type: INDEX; Schema: public; Owner: unicatech
+-- Name: Compras_compra_produto_id_bf520d8c; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX "Compras_compra_produto_id_bf520d8c" ON public."Compras_compra" USING btree (produto_id);
 
 
 --
--- Name: Compras_fornecedor_localizacaoCompra_id_bed95cbc; Type: INDEX; Schema: public; Owner: unicatech
+-- Name: Compras_fornecedor_localizacaoCompra_id_bed95cbc; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX "Compras_fornecedor_localizacaoCompra_id_bed95cbc" ON public."Compras_fornecedor" USING btree ("localizacaoCompra_id");
 
 
 --
--- Name: Contas_conta_categoria_id_a9363112; Type: INDEX; Schema: public; Owner: unicatech
+-- Name: Contas_conta_categoria_id_a9363112; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX "Contas_conta_categoria_id_a9363112" ON public."Contas_conta" USING btree (categoria_id);
 
 
 --
--- Name: Contas_movimentacaoconta_contaCredito_id_30a2f6ad; Type: INDEX; Schema: public; Owner: unicatech
+-- Name: Contas_movimentacaoconta_contaCredito_id_30a2f6ad; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX "Contas_movimentacaoconta_contaCredito_id_30a2f6ad" ON public."Contas_movimentacaoconta" USING btree ("contaCredito_id");
 
 
 --
--- Name: Contas_recebimentocartao_conta_cartao_id_81665651; Type: INDEX; Schema: public; Owner: unicatech
+-- Name: Contas_recebimentocartao_conta_cartao_id_81665651; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX "Contas_recebimentocartao_conta_cartao_id_81665651" ON public."Contas_recebimentocartao" USING btree (conta_cartao_id);
 
 
 --
--- Name: Despesas_cadastrodespesa_conta_debito_id_82041d29; Type: INDEX; Schema: public; Owner: unicatech
+-- Name: Despesas_cadastrodespesa_conta_debito_id_82041d29; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX "Despesas_cadastrodespesa_conta_debito_id_82041d29" ON public."Despesas_cadastrodespesa" USING btree (conta_debito_id);
 
 
 --
--- Name: Despesas_despesas_despesa_id_4fa6bd3f; Type: INDEX; Schema: public; Owner: unicatech
+-- Name: Despesas_despesas_despesa_id_4fa6bd3f; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX "Despesas_despesas_despesa_id_4fa6bd3f" ON public."Despesas_despesa" USING btree (despesa_id);
 
 
 --
--- Name: Despesas_despesas_movimentacao_id_b66e6b2c; Type: INDEX; Schema: public; Owner: unicatech
+-- Name: Despesas_despesas_movimentacao_id_b66e6b2c; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX "Despesas_despesas_movimentacao_id_b66e6b2c" ON public."Despesas_despesa" USING btree (movimentacao_id);
 
 
 --
--- Name: Produtos_produto_categoria_id_3e08c4e8; Type: INDEX; Schema: public; Owner: unicatech
+-- Name: Produtos_produto_categoria_id_3e08c4e8; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX "Produtos_produto_categoria_id_3e08c4e8" ON public."Produtos_produto" USING btree (categoria_id);
 
 
 --
--- Name: Vendas_venda_cliente_id_6d5152c0; Type: INDEX; Schema: public; Owner: unicatech
+-- Name: Vendas_venda_cliente_id_6d5152c0; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX "Vendas_venda_cliente_id_6d5152c0" ON public."Vendas_venda" USING btree (cliente_id);
 
 
 --
--- Name: Vendas_venda_produto_id_f6e1a6cb; Type: INDEX; Schema: public; Owner: unicatech
+-- Name: Vendas_venda_produto_id_f6e1a6cb; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX "Vendas_venda_produto_id_f6e1a6cb" ON public."Vendas_venda" USING btree (produto_id);
 
 
 --
--- Name: auth_group_name_a6ea08ec_like; Type: INDEX; Schema: public; Owner: unicatech
+-- Name: auth_group_name_a6ea08ec_like; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX auth_group_name_a6ea08ec_like ON public.auth_group USING btree (name varchar_pattern_ops);
 
 
 --
--- Name: auth_group_permissions_group_id_b120cbf9; Type: INDEX; Schema: public; Owner: unicatech
+-- Name: auth_group_permissions_group_id_b120cbf9; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX auth_group_permissions_group_id_b120cbf9 ON public.auth_group_permissions USING btree (group_id);
 
 
 --
--- Name: auth_group_permissions_permission_id_84c5c92e; Type: INDEX; Schema: public; Owner: unicatech
+-- Name: auth_group_permissions_permission_id_84c5c92e; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX auth_group_permissions_permission_id_84c5c92e ON public.auth_group_permissions USING btree (permission_id);
 
 
 --
--- Name: auth_permission_content_type_id_2f476e4b; Type: INDEX; Schema: public; Owner: unicatech
+-- Name: auth_permission_content_type_id_2f476e4b; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX auth_permission_content_type_id_2f476e4b ON public.auth_permission USING btree (content_type_id);
 
 
 --
--- Name: auth_user_groups_group_id_97559544; Type: INDEX; Schema: public; Owner: unicatech
+-- Name: auth_user_groups_group_id_97559544; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX auth_user_groups_group_id_97559544 ON public.auth_user_groups USING btree (group_id);
 
 
 --
--- Name: auth_user_groups_user_id_6a12ed8b; Type: INDEX; Schema: public; Owner: unicatech
+-- Name: auth_user_groups_user_id_6a12ed8b; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX auth_user_groups_user_id_6a12ed8b ON public.auth_user_groups USING btree (user_id);
 
 
 --
--- Name: auth_user_user_permissions_permission_id_1fbb5f2c; Type: INDEX; Schema: public; Owner: unicatech
+-- Name: auth_user_user_permissions_permission_id_1fbb5f2c; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX auth_user_user_permissions_permission_id_1fbb5f2c ON public.auth_user_user_permissions USING btree (permission_id);
 
 
 --
--- Name: auth_user_user_permissions_user_id_a95ead1b; Type: INDEX; Schema: public; Owner: unicatech
+-- Name: auth_user_user_permissions_user_id_a95ead1b; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX auth_user_user_permissions_user_id_a95ead1b ON public.auth_user_user_permissions USING btree (user_id);
 
 
 --
--- Name: auth_user_username_6821ab7c_like; Type: INDEX; Schema: public; Owner: unicatech
+-- Name: auth_user_username_6821ab7c_like; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX auth_user_username_6821ab7c_like ON public.auth_user USING btree (username varchar_pattern_ops);
 
 
 --
--- Name: django_admin_log_content_type_id_c4bce8eb; Type: INDEX; Schema: public; Owner: unicatech
+-- Name: django_admin_log_content_type_id_c4bce8eb; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX django_admin_log_content_type_id_c4bce8eb ON public.django_admin_log USING btree (content_type_id);
 
 
 --
--- Name: django_admin_log_user_id_c564eba6; Type: INDEX; Schema: public; Owner: unicatech
+-- Name: django_admin_log_user_id_c564eba6; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX django_admin_log_user_id_c564eba6 ON public.django_admin_log USING btree (user_id);
 
 
 --
--- Name: django_session_expire_date_a5c62663; Type: INDEX; Schema: public; Owner: unicatech
+-- Name: django_session_expire_date_a5c62663; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX django_session_expire_date_a5c62663 ON public.django_session USING btree (expire_date);
 
 
 --
--- Name: django_session_session_key_c0390e0f_like; Type: INDEX; Schema: public; Owner: unicatech
+-- Name: django_session_session_key_c0390e0f_like; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX django_session_session_key_c0390e0f_like ON public.django_session USING btree (session_key varchar_pattern_ops);
 
 
 --
--- Name: Compras_compra Compras_compra_conta_id_94fdb6c6_fk_Contas_conta_id; Type: FK CONSTRAINT; Schema: public; Owner: unicatech
+-- Name: Compras_compra Compras_compra_conta_id_94fdb6c6_fk_Contas_conta_id; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public."Compras_compra"
@@ -10284,7 +10342,7 @@ ALTER TABLE ONLY public."Compras_compra"
 
 
 --
--- Name: Compras_compra Compras_compra_fornecedor_id_e6f5f3a9_fk_Compras_fornecedor_id; Type: FK CONSTRAINT; Schema: public; Owner: unicatech
+-- Name: Compras_compra Compras_compra_fornecedor_id_e6f5f3a9_fk_Compras_fornecedor_id; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public."Compras_compra"
@@ -10292,7 +10350,7 @@ ALTER TABLE ONLY public."Compras_compra"
 
 
 --
--- Name: Compras_compra Compras_compra_fornecedor_id_e6f5f3a9_fk_core_fornecedor_id; Type: FK CONSTRAINT; Schema: public; Owner: unicatech
+-- Name: Compras_compra Compras_compra_fornecedor_id_e6f5f3a9_fk_core_fornecedor_id; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public."Compras_compra"
@@ -10300,7 +10358,7 @@ ALTER TABLE ONLY public."Compras_compra"
 
 
 --
--- Name: Compras_compra Compras_compra_idLocalizacao_id_4f303239_fk; Type: FK CONSTRAINT; Schema: public; Owner: unicatech
+-- Name: Compras_compra Compras_compra_idLocalizacao_id_4f303239_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public."Compras_compra"
@@ -10308,7 +10366,7 @@ ALTER TABLE ONLY public."Compras_compra"
 
 
 --
--- Name: Compras_compra Compras_compra_produto_id_bf520d8c_fk_Produtos_produto_id; Type: FK CONSTRAINT; Schema: public; Owner: unicatech
+-- Name: Compras_compra Compras_compra_produto_id_bf520d8c_fk_Produtos_produto_id; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public."Compras_compra"
@@ -10316,7 +10374,7 @@ ALTER TABLE ONLY public."Compras_compra"
 
 
 --
--- Name: Compras_fornecedor Compras_fornecedor_localizacaoCompra_id_bed95cbc_fk; Type: FK CONSTRAINT; Schema: public; Owner: unicatech
+-- Name: Compras_fornecedor Compras_fornecedor_localizacaoCompra_id_bed95cbc_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public."Compras_fornecedor"
@@ -10324,7 +10382,7 @@ ALTER TABLE ONLY public."Compras_fornecedor"
 
 
 --
--- Name: Contas_conta Contas_conta_categoria_id_a9363112_fk_Contas_categoriaconta_id; Type: FK CONSTRAINT; Schema: public; Owner: unicatech
+-- Name: Contas_conta Contas_conta_categoria_id_a9363112_fk_Contas_categoriaconta_id; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public."Contas_conta"
@@ -10332,7 +10390,7 @@ ALTER TABLE ONLY public."Contas_conta"
 
 
 --
--- Name: Contas_movimentacaoconta Contas_movimentacaoc_contaCredito_id_30a2f6ad_fk_Contas_co; Type: FK CONSTRAINT; Schema: public; Owner: unicatech
+-- Name: Contas_movimentacaoconta Contas_movimentacaoc_contaCredito_id_30a2f6ad_fk_Contas_co; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public."Contas_movimentacaoconta"
@@ -10340,7 +10398,7 @@ ALTER TABLE ONLY public."Contas_movimentacaoconta"
 
 
 --
--- Name: Contas_recebimentocartao Contas_recebimentoca_conta_cartao_id_81665651_fk_Contas_co; Type: FK CONSTRAINT; Schema: public; Owner: unicatech
+-- Name: Contas_recebimentocartao Contas_recebimentoca_conta_cartao_id_81665651_fk_Contas_co; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public."Contas_recebimentocartao"
@@ -10348,7 +10406,7 @@ ALTER TABLE ONLY public."Contas_recebimentocartao"
 
 
 --
--- Name: Despesas_cadastrodespesa Despesas_cadastrodes_conta_debito_id_82041d29_fk_Contas_co; Type: FK CONSTRAINT; Schema: public; Owner: unicatech
+-- Name: Despesas_cadastrodespesa Despesas_cadastrodes_conta_debito_id_82041d29_fk_Contas_co; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public."Despesas_cadastrodespesa"
@@ -10356,7 +10414,7 @@ ALTER TABLE ONLY public."Despesas_cadastrodespesa"
 
 
 --
--- Name: Despesas_despesa Despesas_despesas_despesa_id_4fa6bd3f_fk_Despesas_; Type: FK CONSTRAINT; Schema: public; Owner: unicatech
+-- Name: Despesas_despesa Despesas_despesas_despesa_id_4fa6bd3f_fk_Despesas_; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public."Despesas_despesa"
@@ -10364,7 +10422,7 @@ ALTER TABLE ONLY public."Despesas_despesa"
 
 
 --
--- Name: Despesas_despesa Despesas_despesas_movimentacao_id_b66e6b2c_fk_Contas_mo; Type: FK CONSTRAINT; Schema: public; Owner: unicatech
+-- Name: Despesas_despesa Despesas_despesas_movimentacao_id_b66e6b2c_fk_Contas_mo; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public."Despesas_despesa"
@@ -10372,7 +10430,7 @@ ALTER TABLE ONLY public."Despesas_despesa"
 
 
 --
--- Name: Produtos_produto Produtos_produto_categoria_id_3e08c4e8_fk_Produtos_; Type: FK CONSTRAINT; Schema: public; Owner: unicatech
+-- Name: Produtos_produto Produtos_produto_categoria_id_3e08c4e8_fk_Produtos_; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public."Produtos_produto"
@@ -10380,7 +10438,7 @@ ALTER TABLE ONLY public."Produtos_produto"
 
 
 --
--- Name: Vendas_venda Vendas_venda_cliente_id_6d5152c0_fk_Vendas_cliente_id; Type: FK CONSTRAINT; Schema: public; Owner: unicatech
+-- Name: Vendas_venda Vendas_venda_cliente_id_6d5152c0_fk_Vendas_cliente_id; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public."Vendas_venda"
@@ -10388,7 +10446,7 @@ ALTER TABLE ONLY public."Vendas_venda"
 
 
 --
--- Name: Vendas_venda Vendas_venda_produto_id_f6e1a6cb_fk_Produtos_produto_id; Type: FK CONSTRAINT; Schema: public; Owner: unicatech
+-- Name: Vendas_venda Vendas_venda_produto_id_f6e1a6cb_fk_Produtos_produto_id; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public."Vendas_venda"
@@ -10396,7 +10454,7 @@ ALTER TABLE ONLY public."Vendas_venda"
 
 
 --
--- Name: auth_group_permissions auth_group_permissio_permission_id_84c5c92e_fk_auth_perm; Type: FK CONSTRAINT; Schema: public; Owner: unicatech
+-- Name: auth_group_permissions auth_group_permissio_permission_id_84c5c92e_fk_auth_perm; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.auth_group_permissions
@@ -10404,7 +10462,7 @@ ALTER TABLE ONLY public.auth_group_permissions
 
 
 --
--- Name: auth_group_permissions auth_group_permissions_group_id_b120cbf9_fk_auth_group_id; Type: FK CONSTRAINT; Schema: public; Owner: unicatech
+-- Name: auth_group_permissions auth_group_permissions_group_id_b120cbf9_fk_auth_group_id; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.auth_group_permissions
@@ -10412,7 +10470,7 @@ ALTER TABLE ONLY public.auth_group_permissions
 
 
 --
--- Name: auth_permission auth_permission_content_type_id_2f476e4b_fk_django_co; Type: FK CONSTRAINT; Schema: public; Owner: unicatech
+-- Name: auth_permission auth_permission_content_type_id_2f476e4b_fk_django_co; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.auth_permission
@@ -10420,7 +10478,7 @@ ALTER TABLE ONLY public.auth_permission
 
 
 --
--- Name: auth_user_groups auth_user_groups_group_id_97559544_fk_auth_group_id; Type: FK CONSTRAINT; Schema: public; Owner: unicatech
+-- Name: auth_user_groups auth_user_groups_group_id_97559544_fk_auth_group_id; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.auth_user_groups
@@ -10428,7 +10486,7 @@ ALTER TABLE ONLY public.auth_user_groups
 
 
 --
--- Name: auth_user_groups auth_user_groups_user_id_6a12ed8b_fk_auth_user_id; Type: FK CONSTRAINT; Schema: public; Owner: unicatech
+-- Name: auth_user_groups auth_user_groups_user_id_6a12ed8b_fk_auth_user_id; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.auth_user_groups
@@ -10436,7 +10494,7 @@ ALTER TABLE ONLY public.auth_user_groups
 
 
 --
--- Name: auth_user_user_permissions auth_user_user_permi_permission_id_1fbb5f2c_fk_auth_perm; Type: FK CONSTRAINT; Schema: public; Owner: unicatech
+-- Name: auth_user_user_permissions auth_user_user_permi_permission_id_1fbb5f2c_fk_auth_perm; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.auth_user_user_permissions
@@ -10444,7 +10502,7 @@ ALTER TABLE ONLY public.auth_user_user_permissions
 
 
 --
--- Name: auth_user_user_permissions auth_user_user_permissions_user_id_a95ead1b_fk_auth_user_id; Type: FK CONSTRAINT; Schema: public; Owner: unicatech
+-- Name: auth_user_user_permissions auth_user_user_permissions_user_id_a95ead1b_fk_auth_user_id; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.auth_user_user_permissions
@@ -10452,7 +10510,7 @@ ALTER TABLE ONLY public.auth_user_user_permissions
 
 
 --
--- Name: django_admin_log django_admin_log_content_type_id_c4bce8eb_fk_django_co; Type: FK CONSTRAINT; Schema: public; Owner: unicatech
+-- Name: django_admin_log django_admin_log_content_type_id_c4bce8eb_fk_django_co; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.django_admin_log
@@ -10460,7 +10518,7 @@ ALTER TABLE ONLY public.django_admin_log
 
 
 --
--- Name: django_admin_log django_admin_log_user_id_c564eba6_fk_auth_user_id; Type: FK CONSTRAINT; Schema: public; Owner: unicatech
+-- Name: django_admin_log django_admin_log_user_id_c564eba6_fk_auth_user_id; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.django_admin_log

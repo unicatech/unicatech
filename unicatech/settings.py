@@ -87,7 +87,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'unicatech',
         'USER': 'unicatech',
-        'PASSWORD': 'abelfe',
+        'PASSWORD': 'abelfera',
         'HOST': 'unicatech-db',
         'PORT': '5432',
     }

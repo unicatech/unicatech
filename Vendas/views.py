@@ -15,6 +15,11 @@ from Produtos.models import Produto
 from Contas.models import MovimentacaoConta, Conta, Cartao, RecebimentoCartao
 from Vendas.models import Cliente
 from Compras.models import Compra, Deslocamento
+
+# vendas/views.py
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.shortcuts import render
+
 # Create your views here.
 
 class FazerVendasView(TemplateView):

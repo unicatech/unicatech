@@ -1,40 +1,41 @@
-version: "3.10"
+version: "3.9"
+
 services:
   db:
-    env_file: .env
-    image: postgres:13-alpine
+    image: postgres:13
     container_name: unicatech-db
+    environment:
+      POSTGRES_USER: unicatech
+      POSTGRES_PASSWORD: abelfera
+      POSTGRES_DB: unicatech
     volumes:
-      - data_db:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
+      - ./db/init:/docker-entrypoint-initdb.d
     ports:
       - "5432:5432"
+    networks:
+      - unicatech-net
 
   app:
     build: .
-    env_file: .env
     container_name: unicatech-app
-    command:
-       gunicorn -b :8000 unicatech.wsgi:application --workers 3 --timeout 1200 --access-logfile Unicatech.txt
-    #>
-    #  sh -c "python manage.py migrate
-    #         python manage.py collectstatic --noinput
-    #         python manage.py runserver 0.0.0.0:8000"
-    #   gunicorn -b :8000 unicatech.wsgi:application --workers 3 --timeout 1200
+    command: >
+      sh -c "chmod +x /wait-for-it.sh &&
+             /wait-for-it.sh db:5432 -- 
+             python manage.py migrate &&
+             python manage.py runserver 0.0.0.0:8000"
     volumes:
       - .:/app
-#    ports:
-#      - "8000:8000"
-    expose:
-      - 8000
+    ports:
+      - "80:8000"
     depends_on:
       - db
-
-  nginx:
-    build: ./nginx
-    ports:
-      - 1337:80
-    depends_on:
-      - app
+    networks:
+      - unicatech-net
 
 volumes:
-  data_db:
+  postgres_data:
+
+networks:
+  unicatech-net:
+    driver: bridge

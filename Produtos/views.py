@@ -14,7 +14,7 @@ from Vendas.models import Venda
 from datetime import date, datetime
 import re
 import logging
-@method_decorator(permission_required('Produtos.view_produto', login_url='acesso_negado'), name='dispatch')
+#@method_decorator(permission_required('Produtos.view_produto', login_url='acesso_negado'), name='dispatch')
 class ProductListView(LoginRequiredMixin,TemplateView):
     template_name = 'productlist.html'
 
@@ -35,7 +35,7 @@ class ProductListView(LoginRequiredMixin,TemplateView):
         context['categoriaproduto'] = CategoriaProduto.objects.all()
         return context
 
-@method_decorator(permission_required('Produtos.add_produto', login_url='acesso_negado'), name='dispatch')
+#@method_decorator(permission_required('Produtos.add_produto', login_url='acesso_negado'), name='dispatch')
 class AddProductView(LoginRequiredMixin,TemplateView):
     template_name = 'addproduct.html'
 
@@ -61,7 +61,7 @@ class AddProductView(LoginRequiredMixin,TemplateView):
         context['categoriaproduto'] = CategoriaProduto.objects.all()
         return super(TemplateView, self).render_to_response(context)
 
-@method_decorator(permission_required('Produtos.change_produto', login_url='acesso_negado'), name='dispatch')
+#@method_decorator(permission_required('Produtos.change_produto', login_url='acesso_negado'), name='dispatch')
 class EditProductView(LoginRequiredMixin,TemplateView):
     template_name = 'editproduct.html'
 

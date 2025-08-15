@@ -271,7 +271,7 @@ class IndexView(LoginRequiredMixin,UserPassesTestMixin,TemplateView):
     def test_func(self):
         return self.request.user.is_superuser
 
-        # opcional: redireciona quem não passar no teste
+    # opcional: redireciona quem não passar no teste
 
     def handle_no_permission(self):
         from django.shortcuts import redirect

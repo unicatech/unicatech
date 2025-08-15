@@ -1,0 +1,68 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Sistema</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <!-- CSS customizado (dash-widget) -->
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <style>
+        body {
+            background-color: #f5f6fa;  /* tom suave de fundo */
+        }
+        .login-card {
+            max-width: 450px;
+            width: 100%;
+            background-color: #fff;
+            padding: 3rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        .login-logo {
+            width: 150px;
+            margin-bottom: 2rem;
+        }
+    </style>
+</head>
+<body>
+
+<div class="d-flex vh-100 justify-content-center align-items-center">
+    <div class="login-card text-center">
+        <!-- Logo e título -->
+        <img src="{% static 'img/logounicatech.jpeg' %}">
+        <h2 class="mb-4">Bem-vindo ao Sistema</h2>
+
+        <!-- Mensagem de erro -->
+        {% if form.errors %}
+            <div class="alert alert-danger">
+                Usuário ou senha inválidos.
+            </div>
+        {% endif %}
+
+        <!-- Formulário -->
+        <form method="post">
+            {% csrf_token %}
+            <div class="mb-4 text-start">
+                <label for="username" class="form-label">Usuário</label>
+                <input type="text" class="form-control form-control-lg" id="username" name="username" required placeholder="Digite seu usuário">
+            </div>
+            <div class="mb-4 text-start">
+                <label for="password" class="form-label">Senha</label>
+                <input type="password" class="form-control form-control-lg" id="password" name="password" required placeholder="Digite sua senha">
+            </div>
+            <button type="submit" class="btn btn-primary btn-lg w-100">Entrar</button>
+        </form>
+
+        <div class="mt-4">
+            <small>© 2025 Unicatech</small>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap JS -->
+<script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+</body>
+</html>

@@ -135,7 +135,7 @@
 													<img alt="" src="{% static 'img/profiles/avatar-02.jpg' %}">
 												</span>
 												<div class="media-body flex-grow-1">
-													<p class="noti-details"><span class="noti-title">John Doe</span> added new task <span class="noti-title">Patient appointment booking</span></p>
+													<p class="noti-details"><span class="noti-title"> {{ request.user.username }}</span> added new task <span class="noti-title">Patient appointment booking</span></p>
 													<p class="noti-time"><span class="notification-time">4 mins ago</span></p>
 												</div>
 											</div>
@@ -213,15 +213,17 @@
 									<span class="user-img"><img src="{% static 'img/profiles/avator1.jpg' %}" alt="">
 									<span class="status online"></span></span>
 									<div class="profilesets">
-										<h6>John Doe</h6>
-										<h5>Admin</h5>
+										<h6>Olá {{ request.user.first_name }}</h6>
+										<h5>    {% for grupo in request.user.groups.all %}
+                                         <li>{{ grupo.name }}</li>
+                                        {% endfor %}</h5>
 									</div>
 								</div>
 								<hr class="m-0">
 								<a class="dropdown-item" href="profile.html"> <i class="me-2"  data-feather="user"></i> My Profile</a>
 								<a class="dropdown-item" href="generalsettings.html"><i class="me-2" data-feather="settings"></i>Settings</a>
 								<hr class="m-0">
-								<a class="dropdown-item logout pb-0" href="signin.html"><img src="{% static 'img/icons/log-out.svg' %}" class="me-2" alt="img">Logout</a>
+								<a class="dropdown-item logout pb-0" href="/accounts/logout/"><img src="{% static 'img/icons/log-out.svg' %}" class="me-2" alt="img">Logout</a>
 							</div>
 						</div>
 					</li>

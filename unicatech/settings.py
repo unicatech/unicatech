@@ -17,7 +17,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 THOUSAND_SEPARATOR='.',
 USE_THOUSAND_SEPARATOR=True
-
+LOGIN_URL = '/accounts/login/'  # URL da página de login
+LOGIN_REDIRECT_URL = '/'        # para onde o usuário vai após logar
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
@@ -88,7 +89,7 @@ DATABASES = {
         'NAME': 'unicatech',
         'USER': 'unicatech' ,
         'PASSWORD': 'abelfera',
-        'HOST': 'unicatech-db',
+        'HOST': 'localhost',
         'PORT': '5432',
     }
 }

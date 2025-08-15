@@ -1,5 +1,5 @@
 from django.db import models
-
+from django.contrib.auth.models import Group
 from stdimage.models import StdImageField
 
 
@@ -12,5 +12,4 @@ class Base(models.Model):
 
     class Meta:
         abstract = True
-
 

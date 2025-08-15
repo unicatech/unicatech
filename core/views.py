@@ -18,8 +18,9 @@ from Produtos.models import Produto
 from Contas.models import MovimentacaoConta, Conta
 from Despesas.models import CadastroDespesa, Despesa
 from Contas.views import MovimentacaoFinanceira
+from django.contrib.auth.mixins import LoginRequiredMixin,UserPassesTestMixin
 
-class IndexView(TemplateView):
+class IndexView(LoginRequiredMixin,UserPassesTestMixin,TemplateView):
     template_name = 'index.html'
     def get_context_data(self, **kwargs):
         context = super(IndexView, self).get_context_data(**kwargs)
@@ -264,3 +265,14 @@ class IndexView(TemplateView):
             context['ticket_medio'] = 0
         context['valor_total_estoque'] = valor_total_estoque
         return context
+
+        # verifica se o usuário é superusuário
+
+    def test_func(self):
+        return self.request.user.is_superuser
+
+        # opcional: redireciona quem não passar no teste
+
+    def handle_no_permission(self):
+        from django.shortcuts import redirect
+        return redirect('/productlist/')  # ou outra página de acesso negado

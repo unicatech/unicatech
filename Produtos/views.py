@@ -3,7 +3,10 @@ from django.views import View
 from django.shortcuts import render
 from django.http import HttpResponseRedirect
 from django.contrib import messages
-
+from django.utils.decorators import method_decorator
+from django.contrib.auth.decorators import permission_required
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.views.generic import ListView
 from .models import Produto, CategoriaProduto
 
 from Vendas.models import Venda
@@ -11,8 +14,8 @@ from Vendas.models import Venda
 from datetime import date, datetime
 import re
 import logging
-
-class ProductListView(TemplateView):
+@method_decorator(permission_required('Produtos.view_produto', login_url='acesso_negado'), name='dispatch')
+class ProductListView(LoginRequiredMixin,TemplateView):
     template_name = 'productlist.html'
 
     def get(self, request, *args, **kwargs):
@@ -32,8 +35,8 @@ class ProductListView(TemplateView):
         context['categoriaproduto'] = CategoriaProduto.objects.all()
         return context
 
-
-class AddProductView(TemplateView):
+@method_decorator(permission_required('Produtos.add_produto', login_url='acesso_negado'), name='dispatch')
+class AddProductView(LoginRequiredMixin,TemplateView):
     template_name = 'addproduct.html'
 
     def get_context_data(self, **kwargs):
@@ -58,8 +61,8 @@ class AddProductView(TemplateView):
         context['categoriaproduto'] = CategoriaProduto.objects.all()
         return super(TemplateView, self).render_to_response(context)
 
-
-class EditProductView(TemplateView):
+@method_decorator(permission_required('Produtos.change_produto', login_url='acesso_negado'), name='dispatch')
+class EditProductView(LoginRequiredMixin,TemplateView):
     template_name = 'editproduct.html'
 
     def get_context_data(self, **kwargs):

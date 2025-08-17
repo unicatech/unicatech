@@ -172,7 +172,7 @@
 
                             <td><input type="text" class="form-control" name="qtde" id="tab1" size="2" maxlength="3" autocomplete="off"></td>
 
-							<td><input type="text" class="form-control" name="preco" id="tab1" size="2" maxlength="5" autocomplete="off"></td>
+							<td><input type="text" class="form-control" name="preco" id="tab1" size="2" maxlength="9" autocomplete="off"></td>
 
 							<td><input type="text" class="form-control" name="total" id="tab1" size="2" autocomplete="off"></td>
 
@@ -193,7 +193,7 @@
 
                             <td><input type="text" class="form-control" name="qtde" id="tab1" size="2" maxlength="3" autocomplete="off"></td>
 
-							<td><input type="text" class="form-control" name="preco" id="tab1" size="2" maxlength="5" autocomplete="off"></td>
+							<td><input type="text" class="form-control" name="preco" id="tab1" size="2" maxlength="9" autocomplete="off"></td>
 
 							<td><input type="text" class="form-control" name="total" id="tab1" size="2" autocomplete="off"></td>
 
@@ -214,7 +214,7 @@
 
                             <td><input type="text" class="form-control" name="qtde" id="tab1" size="2" maxlength="3" autocomplete="off"></td>
 
-							<td><input type="text" class="form-control" name="preco" id="tab1" size="2" maxlength="5" autocomplete="off"></td>
+							<td><input type="text" class="form-control" name="preco" id="tab1" size="2" maxlength="9" autocomplete="off"></td>
 
 							<td><input type="text" class="form-control" name="total" id="tab1" size="2" autocomplete="off"></td>
 
@@ -239,7 +239,7 @@
 
                             <td><input type="text" class="form-control" name="qtde" id="tab1" size="2" maxlength="3" value="{{ c.quantidadeProduto }}"></td>
 
-							<td><input type="text" class="form-control" name="preco" id="tab1" size="2" maxlength="5" value="{{ c.precoProduto }}"></td>
+							<td><input type="text" class="form-control" name="preco" id="tab1" size="2" maxlength="9" value="{{ c.precoProduto }}"></td>
 
 							<td><input type="text" class="form-control" name="total" id="tab1" size="2"></td>
 
@@ -252,14 +252,18 @@
 
                     </table>
 
-					<div class="row">
-
-                        <div class="col-12 text-left">
-
-                            Valor Total:
-
-                        </div>
-					</div>
+<div class="row mt-4">
+    <div class="col-lg-4 col-sm-6 col-12">
+        <div class="form-group text-center p-3" style="background: #f8f9fa; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.1);">
+            <label class="form-label" style="font-size: 1.1rem; font-weight: 600; color: #333;">
+                💰 Valor Total da Compra
+            </label>
+            <input type="text" id="valorTotalCompra" class="form-control text-center"
+                   style="font-size: 1.2rem; font-weight: bold; color: #198754;"
+                   readonly>
+        </div>
+    </div>
+</div>
                     <div class="row">
 
                         <div class="col-12 text-right">
@@ -318,7 +322,7 @@
       		  {% include 'cadastrofornecedormodal.html' %}
     		</div>
 		</div>
-		 
+
 		<!-- jQuery -->
  			{% include 'footer.html' %}
 
@@ -334,7 +338,7 @@
 
             $(document).ready(function() {
 
-                var html = '<tr><td><div class="row"><select name="produto" class="select"><option>Selecione o Produto</option>{% for p in produtos %}<option value="{{ p.id }}">{{ p.NomeProduto }}</option>{% endfor %}</select></td><td><input type="text" class="form-control" name="qtde" id="tab1" size="4" maxlength="4" autocomplete="off"></td><td><input type="text" class="form-control" name="preco" id="tab1" size="4" maxlength="4" autocomplete="off"></td><td><input type="text" class="form-control" name="total" id="tab1" size="5" maxlength="5" autocomplete="off"></td><td><input class="btn btn-danger" id="remove" type="button" name="remove" value="Apagar" tabindex="-1"></td></div></tr>';
+                var html = '<tr><td><div class="row"><select name="produto" class="select"><option>Selecione o Produto</option>{% for p in produtos %}<option value="{{ p.id }}">{{ p.NomeProduto }}</option>{% endfor %}</select></td><td><input type="text" class="form-control" name="qtde" id="tab1" size="4" maxlength="4" autocomplete="off"></td><td><input type="text" class="form-control" name="preco" id="tab1" size="4" maxlength="9" autocomplete="off"></td><td><input type="text" class="form-control" name="total" id="tab1" size="5" maxlength="5" autocomplete="off"></td><td><input class="btn btn-danger" id="remove" type="button" name="remove" value="Apagar" tabindex="-1"></td></div></tr>';
 
                 var max = 10;
 
@@ -558,6 +562,104 @@ $(document).ready(function () {
             });
         }
     });
+});
+</script>
+<script>
+$(document).ready(function() {
+
+    // Converte e formata valores em BRL
+    function formatCurrency(input) {
+        let value = input.val().replace(/\D/g, '');
+        value = (value/100).toFixed(2) + '';
+        value = value.replace(".", ",");
+        value = value.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+        input.val(value);
+    }
+
+    // Atualiza total de uma linha
+    function updateTotalRow(row) {
+        let qtde = row.find('input[name="qtde"]').val().replace(/\D/g,'');
+        let preco = row.find('input[name="preco"]').val().replace(/\D/g,'');
+        let totalValue = 0;
+
+        if(qtde && preco){
+            totalValue = parseInt(qtde) * parseInt(preco) / 100;
+            let totalStr = totalValue.toFixed(2).replace(".", ",").replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+            row.find('input[name="total"]').val(totalStr);
+        } else {
+            row.find('input[name="total"]').val('');
+        }
+
+        updateTotalCompra();
+    }
+
+    // Atualiza o valor total da compra
+    function updateTotalCompra() {
+        let soma = 0;
+        $('#table_field tr').each(function() {
+            let val = $(this).find('input[name="total"]').val();
+            if(val){
+                val = val.replace(/\./g,'').replace(',', '.');
+                soma += parseFloat(val);
+            }
+        });
+        let somaStr = soma.toFixed(2).replace(".", ",").replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+        $('#valorTotalCompra').val(somaStr);
+    }
+
+    // Atualiza total ao digitar qtde ou preco
+    $('#table_field').on('input', 'input[name="qtde"]', function() {
+        this.value = this.value.replace(/\D/g,'');
+        updateTotalRow($(this).closest('tr'));
+    });
+
+    $('#table_field').on('input', 'input[name="preco"]', function() {
+        formatCurrency($(this));
+        updateTotalRow($(this).closest('tr'));
+    });
+
+    // Inicializa total geral ao carregar
+    $('#table_field tr').each(function() {
+        updateTotalRow($(this));
+    });
+
+    // Atualiza total ao adicionar ou remover linhas
+    $("#add").click(function() {
+        setTimeout(function() {
+            $('#table_field tr').each(function() {
+                updateTotalRow($(this));
+            });
+        }, 100);
+    });
+
+    $("#table_field").on('click', '#remove', function() {
+        setTimeout(updateTotalCompra, 100);
+    });
+
+});
+
+</script>
+<script>
+$(document).ready(function() {
+
+    $('#formCompra').on('submit', function(e) {
+        $('#table_field tr').each(function() {
+            let qtdeInput = $(this).find('input[name="qtde"]');
+            let precoInput = $(this).find('input[name="preco"]');
+
+            if(qtdeInput.length && qtdeInput.val()) {
+                // Converte qtde para padrão americano (substitui ',' por '.')
+                qtdeInput.val(qtdeInput.val().replace(',', '.'));
+            }
+
+            if(precoInput.length && precoInput.val()) {
+                // Remove pontos de milhar e converte ',' para '.'
+                let preco = precoInput.val().replace(/\./g, '').replace(',', '.');
+                precoInput.val(preco);
+            }
+        });
+    });
+
 });
 </script>
 

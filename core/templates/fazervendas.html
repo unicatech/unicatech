@@ -184,7 +184,7 @@
 
                             <td><input type="text" class="form-control" name="qtde" id="tab1" size="2" maxlength="3" autocomplete="off"></td>
 
-							<td><input type="text" class="form-control" name="preco" id="tab1" size="2" maxlength="5" autocomplete="off"></td>
+							<td><input type="text" class="form-control" name="preco" id="tab1" size="2" maxlength="9" autocomplete="off"></td>
 
 							<td><input type="text" class="form-control" name="total" id="tab1" size="2" autocomplete="off"></td>
 
@@ -205,7 +205,7 @@
 
                             <td><input type="text" class="form-control" name="qtde" id="tab1" size="2" maxlength="3" autocomplete="off"></td>
 
-							<td><input type="text" class="form-control" name="preco" id="tab1" size="2" maxlength="5" autocomplete="off" ></td>
+							<td><input type="text" class="form-control" name="preco" id="tab1" size="2" maxlength="9" autocomplete="off" ></td>
 
 							<td><input type="text" class="form-control" name="total" id="tab1" size="2" autocomplete="off"></td>
 
@@ -226,7 +226,7 @@
 
                             <td><input type="text" class="form-control" name="qtde" id="tab1" size="2" maxlength="3" autocomplete="off"></td>
 
-							<td><input type="text" class="form-control" name="preco" id="tab1" size="2" maxlength="5" autocomplete="off"></td>
+							<td><input type="text" class="form-control" name="preco" id="tab1" size="2" maxlength="9" autocomplete="off"></td>
 
 							<td><input type="text" class="form-control" name="total" id="tab1" size="2" autocomplete="off"></td>
 
@@ -266,11 +266,18 @@
 
 					<div class="row">
 
-                        <div class="col-12 text-left">
-
-                            Valor Total:
-
-                        </div>
+            <div class="row mt-4">
+                <div class="col-lg-4 col-sm-6 col-12">
+                    <div class="form-group text-center p-3" style="background: #f8f9fa; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.1);">
+                    <label class="form-label" style="font-size: 1.1rem; font-weight: 600; color: #333;">
+                    💰 Valor Total da Venda
+                    </label>
+                    <input type="text" id="valorTotalVenda" class="form-control text-center"
+                    style="font-size: 1.2rem; font-weight: bold; color: #198754;"
+                   readonly>
+                    </div>
+                </div>
+            </div>
 					</div>
                     <div class="row">
 
@@ -280,9 +287,10 @@
 
                         </div>
 						{% if aparelhos == 1 %}
-						<div>
+						<div><h4>
 						<input type="checkbox" name="gerar_compra"> Essa venda gerou compra?
-						</div>
+						</h4>
+                        </div>
 
             <div class="input-field">
 
@@ -378,7 +386,7 @@
 
             $(document).ready(function() {
 
-                var html = '<tr><td><select name="produto" class="select"><option value="0">Selecione o Produto</option>{% for p in produtos %}<option value="{{ p.id }}">{{ p.NomeProduto }} - Estoque {{p.estoque}}</option>{% endfor %}</select></td><td><input type="text" class="form-control" name="qtde" id="tab1" size="4" maxlength="4" autocomplete="off"></td><td><input type="text" class="form-control" name="preco" id="tab1" size="4" maxlength="4" autocomplete="off"></td><td><input type="text" class="form-control" name="total" id="tab1" size="5" maxlength="5"></td><td><input class="btn btn-danger" id="remove" type="button" name="remove" value="Apagar" tabindex="-1"></td></tr>';
+                var html = '<tr><td><select name="produto" class="select"><option value="0">Selecione o Produto</option>{% for p in produtos %}<option value="{{ p.id }}">{{ p.NomeProduto }} - Estoque {{p.estoque}}</option>{% endfor %}</select></td><td><input type="text" class="form-control" name="qtde" id="tab1" size="4" maxlength="4" autocomplete="off"></td><td><input type="text" class="form-control" name="preco" id="tab1" size="4" maxlength="9" autocomplete="off"></td><td><input type="text" class="form-control" name="total" id="tab1" size="5" maxlength="5"></td><td><input class="btn btn-danger" id="remove" type="button" name="remove" value="Apagar" tabindex="-1"></td></tr>';
 
                 var max = 10;
 
@@ -622,6 +630,84 @@ $(document).ready(function () {
             });
         }
     });
+});
+</script>
+<script src="{% static 'plugins/jquery.mask.min.js' %}"></script>
+<script>
+$(document).ready(function () {
+    // Máscara para preço e total
+    $(document).on("input", "input[name='preco'], input[name='total']", function () {
+        $(this).mask("000.000.000,00", {reverse: true});
+    });
+
+    // Apenas números em quantidade
+    $(document).on("input", "input[name='qtde']", function () {
+        this.value = this.value.replace(/[^0-9]/g, '');
+        calcularLinha($(this).closest("tr"));
+        calcularTotalGeral();
+    });
+
+    // Atualiza linha quando preço muda
+    $(document).on("input", "input[name='preco']", function () {
+        calcularLinha($(this).closest("tr"));
+        calcularTotalGeral();
+    });
+
+    function calcularLinha(row) {
+        let qtde = parseInt(row.find("input[name='qtde']").val()) || 0;
+        let precoStr = row.find("input[name='preco']").val().replace(/\./g, '').replace(',', '.');
+        let preco = parseFloat(precoStr) || 0;
+
+        let total = qtde * preco;
+
+        if (!isNaN(total)) {
+            let totalFormatado = total.toFixed(2)
+                .replace('.', ',')
+                .replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+            row.find("input[name='total']").val(totalFormatado);
+        } else {
+            row.find("input[name='total']").val('');
+        }
+    }
+
+    function calcularTotalGeral() {
+        let soma = 0;
+
+        $("input[name='total']").each(function () {
+            let val = $(this).val().replace(/\./g, '').replace(',', '.');
+            let num = parseFloat(val) || 0;
+            soma += num;
+        });
+
+        let somaFormatada = soma.toFixed(2)
+            .replace('.', ',')
+            .replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+        $("#valorTotalVenda").val(somaFormatada);
+    }
+});
+</script>
+
+                    <script>
+$(document).ready(function() {
+
+    $('#formVenda').on('submit', function(e) {
+        $('#table_field tr').each(function() {
+            let qtdeInput = $(this).find('input[name="qtde"]');
+            let precoInput = $(this).find('input[name="preco"]');
+
+            if(qtdeInput.length && qtdeInput.val()) {
+                // Converte qtde para padrão americano (substitui ',' por '.')
+                qtdeInput.val(qtdeInput.val().replace(',', '.'));
+            }
+
+            if(precoInput.length && precoInput.val()) {
+                // Remove pontos de milhar e converte ',' para '.'
+                let preco = precoInput.val().replace(/\./g, '').replace(',', '.');
+                precoInput.val(preco);
+            }
+        });
+    });
+
 });
 </script>
 

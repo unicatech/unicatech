@@ -6,7 +6,8 @@ from django.http import HttpResponseRedirect
 from django.contrib import messages
 from django.db.models import Sum
 
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
+from django.utils import timezone
 import re
 import logging
 
@@ -371,7 +372,10 @@ class ListarVendasView(TemplateView):
                         #    atualizarEstoque.save()
                         #Compra.objects.filter(identificadorCompra=compra.identificadorCompra).update(ativo=False)
 
-        vendas = Venda.objects.order_by('-identificadorVenda').filter(ativo=True)
+        hoje = timezone.now().date()
+        quinze_dias_atras = hoje - timedelta(days=15)
+        vendas = Venda.objects.filter(ativo=True, criados__gte=quinze_dias_atras).order_by('-identificadorVenda')
+        #vendas = Venda.objects.filter(ativo=True).order_by('-identificadorVenda')
 
         listarVendasTemplate = []
         recebimentos = []
@@ -413,6 +417,60 @@ class ListarVendasView(TemplateView):
                 identificadorVenda = venda.identificadorVenda
         context['listarVendas'] = listarVendasTemplate
         return(context)
+
+    def post(self, request, *args, **kwargs):
+        context = super(ListarVendasView, self).get_context_data(**kwargs)
+        data_inicio = self.request.POST.getlist('data_inicio')
+        data_fim = self.request.POST.getlist('data_fim')
+        cliente = self.request.POST.getlist('cliente')
+        data_inicio = datetime.strptime(data_inicio[0], '%Y-%m-%d').date()
+        data_fim = datetime.strptime(data_fim[0], '%Y-%m-%d').date()
+        logging.warning("Data início: %s", data_inicio)
+        logging.warning("Data fim: %s", data_fim)
+        identificadorVenda = 0
+        valor_recebido_venda = 0
+        listarVendasTemplate = []
+        recebimentos = []
+        vendas = Venda.objects.filter(
+            ativo=True,
+            criados__range=[data_inicio,data_fim],
+        ).order_by('-identificadorVenda')
+        for venda in vendas:
+            if identificadorVenda != venda.identificadorVenda:
+                vendaIdentificada = Venda.objects.filter(identificadorVenda=venda.identificadorVenda,ativo=True).order_by('-identificadorVenda')
+                valorVendaTotal = 0
+                for venda in vendaIdentificada:
+                    valorVendaTotal = valorVendaTotal + venda.quantidadeProduto * venda.precoProduto
+                recebimentos_venda = MovimentacaoConta.objects.filter(
+                    identificadorVenda=venda.identificadorVenda,
+                    identificadorCompra=0,
+                    ativo=True)
+                #logging.warning("Identificador Venda:" +" "+str(venda.identificadorVenda))
+                for recebimento_venda in recebimentos_venda:
+                    recebimentos.append({
+                            'valor_recebimento': recebimento_venda.valorCredito,
+                            'data': recebimento_venda.criados,
+                            'Credito': recebimento_venda.contaCredito,
+                            'identificador_parcela': recebimento_venda.id,
+                    })
+                    valor_recebido_venda = valor_recebido_venda + recebimento_venda.valorCredito
+
+                total_a_receber = valorVendaTotal - valor_recebido_venda
+                listarVendasTemplate.append(
+                    {
+                        'idVenda': venda.identificadorVenda,
+                        'cliente': venda.cliente,
+                        'dataVenda': venda.criados,
+                        'valorVenda': valorVendaTotal,
+                        'recebimentos': recebimentos,
+                        'total_a_receber': total_a_receber,
+                     }
+                )
+                valor_recebido_venda = 0
+                recebimentos = []
+                identificadorVenda = venda.identificadorVenda
+        context['listarVendas'] = listarVendasTemplate
+        return render(request, 'listarvendas.html', context)
 
 class ParcelasReceberView(TemplateView):
 

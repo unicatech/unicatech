@@ -1,164 +1,163 @@
 {% load static %}
 {% load l10n %}
 <!DOCTYPE html>
-				<!-- Header -->
-				{% include 'head.html' %}
-				<!-- Sidebar -->
-				{% include 'sidebar.html' %}
-				<div class="page-wrapper">
-					<div class="content">
-						<div class="page-header">
-							<div class="page-title">
-								<h4>Lista de Vendas</h4>
-								<h6>Gerencie suas Vendas</h6>
-							</div>
-							<div class="page-btn">
-								<a href="{% url 'fazervendasaparelhos'%}" class="btn btn-added">
-									<img src="{% static 'img/icons/plus.svg' %}" alt="img">Fazer Nova Venda de Aparelhos
-								</a>
-                                <a href="{% url 'fazervendaspecas'%}" class="btn btn-added">
-									<img src="{% static 'img/icons/plus.svg' %}" alt="img">Fazer Nova Venda de Peças
-								</a>
-							</div>
+<!-- Header -->
+{% include 'head.html' %}
+<!-- Sidebar -->
+{% include 'sidebar.html' %}
 
-						</div>
+<div class="page-wrapper">
+  <div class="content">
 
-						<!-- /product list -->
-						<div class="card">
-							<div class="card-body">
-								<div class="table-top">
-									<div class="search-set">
-										<div class="search-path">
-											<a class="btn btn-filter" id="filter_search">
-												<img src="{% static 'img/icons/filter.svg' %}" alt="img">
-												<span><img src="{% static 'img/icons/closes.svg' %}" alt="img"></span>
-											</a>
-										</div>
-										<div class="search-input">
-											<a class="btn btn-searchset"><img src="{% static 'img/icons/search-white.svg' %}" alt="img"></a>
-										</div>
-									</div>
-									<div class="wordset">
-										<ul>
-											<li>
-												<a data-bs-toggle="tooltip" data-bs-placement="top" title="pdf"><img src="{% static 'img/icons/pdf.svg' %}" alt="img"></a>
-											</li>
-											<li>
-												<a data-bs-toggle="tooltip" data-bs-placement="top" title="excel"><img src="{% static 'img/icons/excel.svg' %}" alt="img"></a>
-											</li>
-											<li>
-												<a data-bs-toggle="tooltip" data-bs-placement="top" title="print"><img src="{% static 'img/icons/printer.svg' %}" alt="img"></a>
-											</li>
-										</ul>
-									</div>
-								</div>
-								<!-- /Filter -->
-								<div class="card" id="filter_inputs">
-									<div class="card-body pb-0">
-										<div class="row">
-											<div class="col-lg col-sm-6 col-12">
-												<div class="form-group">
-													<input type="text" class="datetimepicker cal-icon" placeholder="Choose Date" >
-												</div>
-											</div>
-											<div class="col-lg col-sm-6 col-12">
-												<div class="form-group">
-													<input type="text" placeholder="Enter Reference">
-												</div>
-											</div>
-											<div class="col-lg col-sm-6 col-12">
-												<div class="form-group">
-													<select class="select">
-														<option>Choose Supplier</option>
-														<option>Supplier</option>
-													</select>
-												</div>
-											</div>
-											<div class="col-lg col-sm-6 col-12">
-												<div class="form-group">
-													<select class="select">
-														<option>Choose Status</option>
-														<option>Inprogress</option>
-													</select>
-												</div>
-											</div>
-											<div class="col-lg col-sm-6 col-12">
-												<div class="form-group">
-													<select class="select">
-														<option>Choose Payment Status</option>
-														<option>Payment Status</option>
-													</select>
-												</div>
-											</div>
-											<div class="col-lg-1 col-sm-6 col-12">
-												<div class="form-group">
-													<a class="btn btn-filters ms-auto"><img src="{% static 'img/icons/search-whites.svg' %}" alt="img"></a>
-												</div>
-											</div>
-										</div>
-									</div>
-								</div>
-								<!-- /Filter -->
-								<div class="table-responsive">
-									<table class="table datanew">
-										<thead>
-											<tr>
-												<th></th>
-												<th>Cliente</th>
-												<th>Identificador de Venda</th>
-												<th>Data</th>
-												<th>Valor de Venda</th>
-												<th>Ação</th>
-												<th>Recebimentos</th>
-											</tr>
-										</thead>
-										<tbody>
-										{% for venda in listarVendas %}
-											<tr>
-												<td></td>
-												<td class="text-bolds">{{ venda.cliente.nomeCliente}}</td>
-												<td>{{ venda.idVenda}}</td>
-												<td>{{ venda.dataVenda }}</td>
-												<td>R${{ venda.valorVenda | floatformat:2}}</td>
-												<td>
-													<a class="me-3" href="/fazervendas/?idVenda={{ venda.idVenda }}">
-														<img src="{% static 'img/icons/edit.svg' %}" alt="img">
-													</a>
-													<a class="me-3 confirm-text" href="/listarvendas/?idVenda={{ venda.idVenda }}&funcao=apagar">
-														<img src="{% static 'img/icons/delete.svg' %}" alt="img">
-													</a>
-												</td>
-												<td>
-													<table>
-													{% for recebimento in venda.recebimentos %}
-														<tr>
-														<td></td>
-														<td></td>
-														<td></td>
-														<td>R${{ recebimento.valor_recebimento | floatformat:2}}</td>
-										             	<td>{{ recebimento.data}}</td>
-													 	<td>{{ recebimento.Credito}}</td>
-														<td><a class="me-3" href="/parcelasareceber/?id={{recebimento.identificador_parcela}}&funcao=apagar">
-														<img src="{% static 'img/icons/delete.svg' %}" alt="img">
-														</a></td>
-														</tr>
-										   			{% endfor %}
-													</table>
-												</td>
-											</tr>
-										{% endfor %}
-										</tbody>
-									</table>
-								</div>
-							</div>
-						</div>
-						<!-- /product list -->
-					</div>
-				</div>
-			</div>
-			<!-- /Main Wrapper -->
-            {% include 'footer.html' %}
+    <div class="page-header">
+      <div class="page-title">
+        <h4>Lista de Vendas</h4>
+        <h6>Gerencie suas Vendas</h6>
+      </div>
+      <div class="page-btn">
+        <a href="{% url 'fazervendasaparelhos'%}" class="btn btn-primary">
+          <img src="{% static 'img/icons/plus.svg' %}" alt="img"> Fazer Nova Venda de Aparelhos
+        </a>
+        <a href="{% url 'fazervendaspecas'%}" class="btn btn-primary">
+          <img src="{% static 'img/icons/plus.svg' %}" alt="img"> Fazer Nova Venda de Peças
+        </a>
+      </div>
+    </div>
 
+    <!-- Filtros e busca -->
+    <div class="row mb-3">
+      <div class="col-lg-3 col-md-4 col-sm-6 mb-2">
+        <input type="text" id="search_text" class="form-control" placeholder="Buscar...">
+      </div>
+      <div class="col-lg-2 col-md-3 col-sm-6 mb-2">
+        <button id="filter_btn" class="btn btn-secondary w-100">Buscar por Datas</button>
+      </div>
+    </div>
 
-		</body>
-	</html>
+    <div class="card" id="filter_inputs" style="display:none;">
+      <div class="card-body">
+        <form method="post" action="{% url 'listarvendas' %}">
+          {% csrf_token %}
+          <div class="row">
+            <div class="col-lg col-sm-6 col-12">
+              <div class="form-group">
+                <label for="data_inicio">Data de Início</label>
+                <input type="date" id="data_inicio" name="data_inicio" class="form-control">
+              </div>
+            </div>
+            <div class="col-lg col-sm-6 col-12">
+              <div class="form-group">
+                <label for="data_fim">Data do Fim</label>
+                <input type="date" id="data_fim" name="data_fim" class="form-control">
+              </div>
+            </div>
+            <div class="col-lg-2 col-sm-6 col-12 d-flex align-items-end">
+              <div class="form-group w-100">
+                <button type="submit" class="btn btn-primary w-100">
+                  Filtrar
+                </button>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- /product list -->
+    <div class="card">
+      <div class="card-body">
+
+        <div class="table-responsive">
+          <table class="table datanew">
+            <thead>
+              <tr>
+                <th></th>
+                <th>Cliente</th>
+                <th>Identificador de Venda</th>
+                <th>Data</th>
+                <th>Valor de Venda</th>
+                <th>Ação</th>
+                <th>Recebimentos</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for venda in listarVendas %}
+              <tr>
+                <td></td>
+                <td class="text-bolds">{{ venda.cliente.nomeCliente}}</td>
+                <td>{{ venda.idVenda}}</td>
+                <td>{{ venda.dataVenda }}</td>
+                <td>R${{ venda.valorVenda | floatformat:2}}</td>
+                <td>
+                  <a class="me-3" href="/fazervendas/?idVenda={{ venda.idVenda }}">
+                    <img src="{% static 'img/icons/edit.svg' %}" alt="img">
+                  </a>
+                  <a class="me-3 confirm-text" href="/listarvendas/?idVenda={{ venda.idVenda }}&funcao=apagar">
+                    <img src="{% static 'img/icons/delete.svg' %}" alt="img">
+                  </a>
+                </td>
+                <td>
+                  <table>
+                    {% for recebimento in venda.recebimentos %}
+                    <tr>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                      <td>R${{ recebimento.valor_recebimento | floatformat:2}}</td>
+                      <td>{{ recebimento.data}}</td>
+                      <td>{{ recebimento.Credito}}</td>
+                      <td>
+                        <a class="me-3" href="/parcelasareceber/?id={{recebimento.identificador_parcela}}&funcao=apagar">
+                          <img src="{% static 'img/icons/delete.svg' %}" alt="img">
+                        </a>
+                      </td>
+                    </tr>
+                    {% endfor %}
+                  </table>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <!-- /product list -->
+
+  </div>
+</div>
+<!-- /Main Wrapper -->
+
+{% include 'footer.html' %}
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const filterBtn = document.getElementById("filter_btn");
+    const filterInputs = document.getElementById("filter_inputs");
+
+    filterBtn.addEventListener("click", function(e) {
+        e.preventDefault();
+        if (filterInputs.style.display === "none" || filterInputs.style.display === "") {
+            filterInputs.style.display = "block";
+        } else {
+            filterInputs.style.display = "none";
+        }
+    });
+
+    // Busca de texto dentro da página
+    const searchInput = document.getElementById("search_text");
+    searchInput.addEventListener("keyup", function() {
+        const filter = searchInput.value.toLowerCase();
+        const rows = document.querySelectorAll("table.datanew tbody tr");
+        rows.forEach(row => {
+            row.style.display = Array.from(row.cells).some(cell =>
+                cell.textContent.toLowerCase().includes(filter)
+            ) ? "" : "none";
+        });
+    });
+});
+</script>
+
+</body>
+</html>
+

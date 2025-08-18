@@ -75,7 +75,7 @@ class RelatorioProdutoView(TemplateView):
                 add_movimento(vendas_qs, "Venda", "identificadorVenda", "cliente")
 
             # Ordena por nota e id
-            movimentos.sort(key=lambda m: (-m["nota"], -m["tipo"], m.get("id", 0)))
+            movimentos.sort(key=lambda m: (-m["nota"], m["tipo"], m.get("id", 0)))
 
             # Ajusta flags para não repetir data/tipo/nota e adiciona linha de total por nota
             final_movimentos = []

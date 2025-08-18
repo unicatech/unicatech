@@ -1,182 +1,120 @@
 {% load static %}
 <!DOCTYPE html>
- 			<!-- Header -->
-			{% include 'head.html' %}
-			<!-- /header -->
-			<!-- Sidebar -->
-			{% include 'sidebar.html' %}
-			<!-- /Sidebar -->
-			
-			<div class="page-wrapper">
-				<div class="content">
-					<div class="page-header">
-						<div class="page-title">
-							<h4>Lista de Produtos</h4>
-							<h6>Gerencie suas Produtos</h6>
-						</div>
-						<div class="page-btn">
-							<a href="/addproduct/" class="btn btn-added"><img src="{% static 'img/icons/plus.svg' %}" alt="img" class="me-1">Adicionar Produto</a>
-						</div>
-					</div>
-					{% if mensagem != "" %}
-					<div class="closebtn">
-						<span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
-						Produto Salvo.
-					</div>
-					{% endif %}
-					
+<html>
+<head>
+  <!-- Header -->
+  {% include 'head.html' %}
+  <!-- /header -->
 
-					<!-- /product list -->
-					<div class="card">
-						<div class="card-body">
-							<div class="table-top">
-								<div class="search-set">
-									<div class="search-path">
-										<a class="btn btn-filter" id="filter_search">
-											<img src="{% static 'img/icons/filter.svg' %}" alt="img">
-											<span><img src="{% static 'img/icons/closes.svg' %}" alt="img"></span>
-										</a>
-									</div>
-									<div class="search-input">
-										<a class="btn btn-searchset"><img src="{% static 'img/icons/search-white.svg' %}" alt="img"></a>
-									</div>
-								</div>
-								<div class="wordset">
-									<ul>
-										<li>
-											<a data-bs-toggle="tooltip" data-bs-placement="top" title="pdf"><img src="{% static 'img/icons/pdf.svg' %}" alt="img"></a>
-										</li>
-										<li>
-											<a data-bs-toggle="tooltip" data-bs-placement="top" title="excel"><img src="{% static 'img/icons/excel.svg' %}" alt="img"></a>
-										</li>
-										<li>
-											<a data-bs-toggle="tooltip" data-bs-placement="top" title="print"><img src="{% static 'img/icons/printer.svg' %}" alt="img"></a>
-										</li>
-									</ul>
-								</div>
-							</div>
-							<!-- /Filter -->
-							<div class="card mb-0" id="filter_inputs">
-								<div class="card-body pb-0">
-									<div class="row">
-										<div class="col-lg-12 col-sm-12">
-											<div class="row">
-												<div class="col-lg col-sm-6 col-12">
-													<div class="form-group">
-														<select class="select">
-															<option>Choose Product</option>
-															<option>Macbook pro</option>
-															<option>Orange</option>
-														</select>
-													</div>
-												</div>
-												<div class="col-lg col-sm-6 col-12">
-													<div class="form-group">
-														<select class="select">
-															<option>Choose Category</option>
-															<option>Computers</option>
-															<option>Fruits</option>
-														</select>
-													</div>
-												</div>
-												<div class="col-lg col-sm-6 col-12">
-													<div class="form-group">
-														<select class="select">
-															<option>Choose Sub Category</option>
-															<option>Computer</option>
-														</select>
-													</div>
-												</div>
-												<div class="col-lg col-sm-6 col-12">
-													<div class="form-group">
-														<select class="select">
-															<option>Brand</option>
-															<option>N/D</option>
-														</select>
-													</div>
-												</div>
-												<div class="col-lg col-sm-6 col-12 ">
-													<div class="form-group">
-														<select class="select">
-															<option>Price</option>
-															<option>150.00</option>
-														</select>
-													</div>
-												</div>
-												<div class="col-lg-1 col-sm-6 col-12">
-													<div class="form-group">
-														<a class="btn btn-filters ms-auto"><img src="{% static 'img/icons/search-whites.svg' %}" alt="img"></a>
-													</div>
-												</div>
-											</div>
-										</div>
-									</div>
-								</div>
-							</div>
-							<!-- /Filter -->
-							<div class="table-responsive">
-								<table class="table  datanew">
-									<thead>
-										<tr>
-											<th>
-												<label class="checkboxs">
-													<input type="checkbox" id="select-all">
-													<span class="checkmarks"></span>
-												</label>
-											</th>
-											<th>Produto</th>
-											<th>SKU</th>
-											<th>Categoria </th>
-											<th>Estoque</th>
-											<th>Ações</th>
-										</tr>
-									</thead>
-									<tbody>
-									<!-- Iteracao Produtos -->
-									{% for p in produtos %}
-										<tr>
-											<td>
-												<label class="checkboxs">
-													<input type="checkbox">
-													<span class="checkmarks"></span>
-												</label>
-											</td>
-											<td class="productimgname">
-												<a href="javascript:void(0);">{{ p.NomeProduto }}</a>
-											</td>
-											<td>{{ p.SKU }}</td>
-											<td>{{ p.categoria }}</td>
-											<td>{{ p.estoque }} peças</td>
-											<td>
-												<a class="me-3" href="{% url 'editproduct' %}?idProduto={{ p.id }}">
-													<img src="{% static 'img/icons/edit.svg' %}" alt="img">
-												</a>
+  <!-- Sidebar -->
+  {% include 'sidebar.html' %}
+  <!-- /Sidebar -->
 
-												<a class="confirm-text"  href="{% url 'productlist' %}?idProduto={{ p.id }}&funcao=apagar" onclick="javascript:void(0);">
-												<img src="{% static 'img/icons/delete.svg' %}" alt="img">
-												</a>
-											</td>
-										</tr>
-										{% endfor %}
-										<!-- /Iteracao Produtos -->
-									</tbody>
-								</table>
-							</div>
-						</div>
-					</div>
-					<!-- /product list -->
-				</div>
-			</div>
+  <style>
+    .page-header { margin-bottom: 1.5rem; }
+    .page-title h4 { font-size: 1.6rem; font-weight: 600; color: #343a40; }
+    .page-title h6 { font-size: 1rem; color: #6c757d; }
+
+    .card {
+      border-radius: 12px; border: 1px solid #e9ecef;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05); margin-bottom: 1.5rem;
+    }
+    .card-body { padding: 1.5rem; }
+
+    .btn-primary {
+      background-color: #fd7e14 !important; border: none; color:#fff;
+      border-radius: 6px; padding: 8px 16px; font-size: .95rem;
+    }
+    .btn-primary:hover { background-color: #e96b0c !important; }
+
+    table.datanew { width:100%; border-collapse: collapse; }
+    table.datanew thead th {
+      background:#fff3e6; color:#fd7e14; font-weight:600;
+      padding:12px; border-bottom:2px solid #fd7e14;
+    }
+    table.datanew tbody td { padding:10px; border-bottom:1px solid #e9ecef; }
+
+    /* DataTables busca esquerda + “Buscar” */
+    div.dataTables_wrapper div.dataTables_filter { float:left !important; text-align:left !important; }
+    div.dataTables_wrapper div.dataTables_filter label {
+      font-weight:500; color:#fd7e14; display:inline-flex; align-items:center; gap:6px;
+      font-size:0; /* esconde “Search:” */
+    }
+    div.dataTables_wrapper div.dataTables_filter label::before {
+      content:"Buscar"; font-size:0.95rem; font-weight:600; color:#fd7e14; margin-right:4px;
+    }
+    div.dataTables_wrapper div.dataTables_filter input {
+      font-size:0.9rem; border-radius:6px; border:1px solid #fd7e14;
+      padding:6px 10px; color:#495057; outline:none;
+    }
+    div.dataTables_wrapper div.dataTables_filter input:focus {
+      border-color:#e96b0c; box-shadow:0 0 0 .2rem rgba(253,126,20,.25);
+    }
+  </style>
+</head>
+<body>
+<div class="page-wrapper">
+  <div class="content">
+    <div class="page-header">
+      <div class="page-title">
+        <h4>Lista de Produtos</h4>
+        <h6>Gerencie seus Produtos</h6>
+      </div>
+      <div class="page-btn">
+        <a href="/addproduct/" class="btn btn-primary">
+          <img src="{% static 'img/icons/plus.svg' %}" alt="img"> Adicionar Produto
+        </a>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-body">
+        {% if mensagem != "" %}
+        <div class="closebtn">
+          <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
+          Produto Salvo.
         </div>
-		<!-- /Main Wrapper -->
-		 
-		<!-- jQuery -->
- 			{% include 'footer.html' %}
-        <!-- Select2 JS -->
-		<script src="{% static 'plugins/select2/js/select2.min.js' %}"></script>
+        {% endif %}
 
-		<!-- Sweetalert 2 -->
-		<script src="{% static 'plugins/sweetalert/sweetalert2.all.min.js' %}"></script>
-		<script src="{% static 'plugins/sweetalert/sweetalerts.min.js' %}"></script>
-    </body>
+        <div class="table-responsive">
+          <table class="table datanew" id="tabela-produtos">
+            <thead>
+              <tr>
+                <th></th>
+                <th>Produto</th>
+                <th>SKU</th>
+                <th>Categoria</th>
+                <th>Estoque</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for p in produtos %}
+              <tr>
+                <td></td>
+                <td class="productimgname"><a href="javascript:void(0);">{{ p.NomeProduto }}</a></td>
+                <td>{{ p.SKU }}</td>
+                <td>{{ p.categoria }}</td>
+                <td>{{ p.estoque }} peças</td>
+                <td>
+                  <a class="me-3" href="{% url 'editproduct' %}?idProduto={{ p.id }}">
+                    <img src="{% static 'img/icons/edit.svg' %}" alt="img">
+                  </a>
+                  <a class="confirm-text" href="{% url 'productlist' %}?idProduto={{ p.id }}&funcao=apagar" onclick="javascript:void(0);">
+                    <img src="{% static 'img/icons/delete.svg' %}" alt="img">
+                  </a>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+{% include 'footer.html' %}
+</body>
 </html>

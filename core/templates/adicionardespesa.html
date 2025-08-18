@@ -1,221 +1,280 @@
 {% load static %}
 <!DOCTYPE html>
+<html>
+<head>
+    <!-- Header -->
+    {% include 'head.html' %}
+    <!-- /header -->
 
- 			<!-- Header -->
-			{% include 'head.html' %}
-			<!-- /header -->
+    <!-- Select2 CSS -->
+    <link rel="stylesheet" href="{% static 'plugins/select2/css/select2.min.css' %}">
+    <!-- Sidebar -->
+    {% include 'sidebar.html' %}
+    <!-- /Sidebar -->
 
-			<!-- Select2 CSS -->
-			<link rel="stylesheet" href="{% static 'plugins/select2/css/select2.min.css' %}">
-			<!-- Sidebar -->
-			{% include 'sidebar.html' %}
-			<!-- /Sidebar -->
+    <style>
+      /* Cabeçalhos */
+      .page-header {
+        margin-bottom: 1.5rem;
+      }
+      .page-title h4 {
+        font-size: 1.6rem;
+        font-weight: 600;
+        color: #343a40;
+      }
+      .page-title h6 {
+        font-size: 1rem;
+        color: #6c757d;
+      }
 
-			<div class="page-wrapper">
-				<div class="content">
-					<div class="page-header">
-						<div class="page-title">
-							<h4>Adicionar Despesa</h4>
-							<h6>Cadastrar Nova Despesa</h6>
-						</div>
-				        {% if mensagem != "" %}
-						 <div class="closebtn">
-							 <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
-							 {{mensagem}}
-						</div>
-						{% endif %}
-					</div>
-					<!-- /add -->
-					<form method="POST" action="{% url 'adicionardespesa' %}">
-						{% csrf_token %}
-					<div class="card">
-						<div class="card-body">
-							<div class="row">
-								<div class="col-lg-3 col-sm-6 col-12">
-									<div class="form-group">
-										<label>Descrição da Despesa</label>
-										<input type="text" name="nome_despesa">
-									</div>
-								</div>
+      /* Card */
+      .card {
+        border-radius: 12px;
+        border: 1px solid #e9ecef;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+        margin-bottom: 1.5rem;
+      }
+      .card-body {
+        padding: 1.5rem;
+      }
 
-								<div class="col-lg-3 col-sm-6 col-12">
-									<div class="form-group">
-										<label>Periodicidade</label>
-										<select name="periodicidade" class="select">
-											<option value="">Escolha a Periodicidade</option>
-											<option value="0">Apenas uma Vez</option>
-											<option value="1">Diária</option>
-											<option value="2">Semanal</option>
-											<option value="3">Quinzenal</option>
-											<option value="4">Mensal</option>
-											<option value="5">Trimestral</option>
-											<option value="6">Semestral</option>
-											<option value="7">Anual</option>
-										</select>
-									</div>
-								</div>
-								<div class="col-lg-3 col-sm-6 col-12">
-									Data de Início
-										<div class="input-groupicon">
-											<input type="text" placeholder="DD-MM-AAAA" class="datetimepicker" name="data_despesa" value="{{data_despesa}}">
-											<div class="addonset">
-												<img src="{% static 'img/icons/calendars.svg' %}" alt="img">
-											</div>
-										</div>
-								</div>
-								<div class="col-lg-3 col-sm-6 col-12">
-									<div class="form-group">
-										<label>Valor da Despesa</label>
-										<input type="text" name="valor_despesa">
-									</div>
-								</div>
-								<div class="col-lg-3 col-sm-6 col-12">
-									<div class="form-group">
-										Conta Débito
-										<select name="conta_despesa" class="select">
-											{% for c in conta_despesa %}
-											<option value="{{ c.id }}">{{ c.nomeConta }}</option>
-											{% endfor %}
-										</select>
-									</div>
-								</div>
-								<div class="col-lg-12">
-									<input type="submit" value="Cadastrar" class="btn btn-submit me-2">
-									<a href="/adicionardespesa/" class="btn btn-cancel">Cancelar</a>
-								</div>
-							</div>
-						</div>
-					</div>
-					</form>
-					<!-- /add -->
+      /* Labels */
+      .form-group label {
+        font-weight: 500;
+        color: #495057;
+      }
 
-		<!-- /Main Wrapper -->
-					<div class="card">
-						<div class="card-body">
-							<div class="table-top">
-								<div class="search-set">
-									<div class="search-path">
-										<a class="btn btn-filter" id="filter_search">
-											<img src="{% static 'img/icons/filter.svg' %}" alt="img">
-											<span><img src="{% static 'img/icons/closes.svg' %}" alt="img"></span>
-										</a>
-									</div>
-									<div class="search-input">
-										<a class="btn btn-searchset"><img src="{% static 'img/icons/search-white.svg' %}" alt="img"></a>
-									</div>
-								</div>
-								<div class="wordset">
-									<ul>
-										<li>
-											<a data-bs-toggle="tooltip" data-bs-placement="top" title="pdf"><img src="{% static 'img/icons/pdf.svg' %}" alt="img"></a>
-										</li>
-										<li>
-											<a data-bs-toggle="tooltip" data-bs-placement="top" title="excel"><img src="{% static 'img/icons/excel.svg' %}" alt="img"></a>
-										</li>
-										<li>
-											<a data-bs-toggle="tooltip" data-bs-placement="top" title="print"><img src="{% static 'img/icons/printer.svg' %}" alt="img"></a>
-										</li>
-									</ul>
-								</div>
-							</div>
-							<!-- /Filter -->
-							<div class="card mb-0" id="filter_inputs">
-											<div class="row">
-												<div class="col-lg col-sm-6 col-12">
-													<div class="form-group">
-														<select class="select">
-															<option>Choose Product</option>
-															<option>Macbook pro</option>
-															<option>Orange</option>
-														</select>
-													</div>
-												</div>
-												<div class="col-lg col-sm-6 col-12">
-													<div class="form-group">
-														<select class="select">
-															<option>Choose Category</option>
-															<option>Computers</option>
-															<option>Fruits</option>
-														</select>
-													</div>
-												</div>
-												<div class="col-lg col-sm-6 col-12">
-													<div class="form-group">
-														<select class="select">
-															<option>Choose Sub Category</option>
-															<option>Computer</option>
-														</select>
-													</div>
-												</div>
-												<div class="col-lg col-sm-6 col-12">
-													<div class="form-group">
-														<select class="select">
-															<option>Brand</option>
-															<option>N/D</option>
-														</select>
-													</div>
-												</div>
-												<div class="col-lg col-sm-6 col-12 ">
-													<div class="form-group">
-														<select class="select">
-															<option>Price</option>
-															<option>150.00</option>
-														</select>
-													</div>
-												</div>
-												<div class="col-lg-1 col-sm-6 col-12">
-													<div class="form-group">
-														<a class="btn btn-filters ms-auto"><img src="{% static 'img/icons/search-whites.svg' %}" alt="img"></a>
-													</div>
-												</div>
-											</div>
-										</div>
-							<!-- /Filter -->
-							<div class="table-responsive">
-								<table class="table  datanew">
-									<thead>
-										<tr>
-											<th></th>
-											<th>Data</th>
-											<th>Despesa</th>
-											<th>Valor</th>
-											<th>Conta</th>
-											<th>Apagar</th>
-										</tr>
-									</thead>
-									<tbody>
-									<!-- Iteracao Produtos -->
-									{% for despesa in despesas %}
-										<tr>
-											<td></td>
-											<td>{{ despesa.data }}</td>
-											<td>{{ despesa.nome_despesa }}</td>
-											<td>{{despesa.moeda}}{{ despesa.valor }}	</td>
-											<td>{{ despesa.conta }}</td>
-											<td><a class="confirm-text"  href="{% url 'adicionardespesa' %}?idDespesa={{ despesa.id }}&funcao=apagar" onclick="javascript:void(0);">
-												<img src="{% static 'img/icons/delete.svg' %}" alt="img">
-												</a>
-											</td>
-										</tr>
-										{% endfor %}
-										<!-- /Iteracao Produtos -->
-									</tbody>
-								</table>
-							</div>
-						</div>
-					</div>
+      /* Inputs */
+      .form-control,
+      .select {
+        border-radius: 6px;
+        border: 1px solid #ced4da;
+        padding: 8px 10px;
+        font-size: 0.95rem;
+      }
 
-		<!-- jQuery -->
- 			{% include 'footer.html' %}
+      /* Botões */
+      .btn-submit {
+        background-color: #fd7e14; /* Laranja */
+        border: none;
+        border-radius: 6px;
+        padding: 8px 16px;
+        font-size: 0.95rem;
+        color: #fff;
+      }
+      .btn-cancel {
+        background-color: #6c757d;
+        border: none;
+        border-radius: 6px;
+        padding: 8px 16px;
+        font-size: 0.95rem;
+        color: #fff;
+      }
 
-        <!-- Select2 JS -->
-		<script src="{% static 'plugins/select2/js/select2.min.js' %}"></script>
+      /* Tabela */
+      table.datanew {
+        border-collapse: collapse;
+        width: 100%;
+      }
+      table.datanew thead th {
+        background: #fff3e6; /* fundo laranja claro */
+        font-weight: 600;
+        color: #fd7e14;
+        padding: 12px;
+        border-bottom: 2px solid #fd7e14;
+      }
+      table.datanew tbody td {
+        padding: 10px;
+        border-bottom: 1px solid #e9ecef;
+      }
 
-		<!-- Sweetalert 2 -->
-		<script src="{% static 'plugins/sweetalert/sweetalert2.all.min.js' %}"></script>
-		<script src="{% static 'plugins/sweetalert/sweetalerts.min.js' %}"></script>
+      /* Estilo busca DataTables */
+      div.dataTables_wrapper div.dataTables_filter label {
+        font-weight: 500;
+        color: #495057;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      div.dataTables_wrapper div.dataTables_filter label::before {
+        content: "🔎 Buscar:";
+        font-weight: 600;
+        color: #fd7e14; /* Laranja */
+        font-size: 0.95rem;
+      }
+      div.dataTables_wrapper div.dataTables_filter input {
+        margin-left: 4px;
+        border-radius: 6px;
+        border: 1px solid #ced4da;
+        padding: 6px 10px;
+        font-size: 0.9rem;
+      }
 
+      /* Alerta */
+      .closebtn {
+        padding: 10px;
+        border-radius: 6px;
+        margin-top: 10px;
+        background-color: #fff4e5;
+        color: #d9480f;
+        font-weight: 500;
+        position: relative;
+      }
+      .closebtn span {
+        position: absolute;
+        right: 12px;
+        top: 8px;
+        cursor: pointer;
+        font-size: 20px;
+      }
 
-		
-    </body>
+      /* Subtítulo da lista */
+      .card-body h5 {
+        font-weight: 600;
+        color: #343a40;
+        border-left: 4px solid #fd7e14;
+        padding-left: 10px;
+        margin-bottom: 1rem;
+      }
+    </style>
+</head>
+<body>
+<div class="page-wrapper">
+  <div class="content">
+    <div class="page-header">
+      <div class="page-title">
+        <h4>Adicionar Despesa</h4>
+        <h6>Cadastrar Nova Despesa</h6>
+      </div>
+      {% if mensagem != "" %}
+      <div class="closebtn">
+        <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
+        {{mensagem}}
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Formulário -->
+    <form method="POST" action="{% url 'adicionardespesa' %}">
+      {% csrf_token %}
+      <div class="card">
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-lg-3 col-sm-6 col-12">
+              <div class="form-group">
+                <label>Descrição da Despesa</label>
+                <input type="text" class="form-control" name="nome_despesa">
+              </div>
+            </div>
+
+            <div class="col-lg-3 col-sm-6 col-12">
+              <div class="form-group">
+                <label>Periodicidade</label>
+                <select name="periodicidade" class="form-control select">
+                  <option value="">Escolha a Periodicidade</option>
+                  <option value="0">Apenas uma Vez</option>
+                  <option value="1">Diária</option>
+                  <option value="2">Semanal</option>
+                  <option value="3">Quinzenal</option>
+                  <option value="4">Mensal</option>
+                  <option value="5">Trimestral</option>
+                  <option value="6">Semestral</option>
+                  <option value="7">Anual</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="col-lg-3 col-sm-6 col-12">
+              <div class="form-group">
+                <label>Data de Início</label>
+                <div class="input-groupicon">
+                  <input type="text" placeholder="DD-MM-AAAA" class="datetimepicker form-control" name="data_despesa" value="{{data_despesa}}">
+                  <div class="addonset">
+                    <img src="{% static 'img/icons/calendars.svg' %}" alt="img">
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-lg-3 col-sm-6 col-12">
+              <div class="form-group">
+                <label>Valor da Despesa</label>
+                <input type="text" class="form-control" name="valor_despesa">
+              </div>
+            </div>
+
+            <div class="col-lg-3 col-sm-6 col-12">
+              <div class="form-group">
+                <label>Conta Débito</label>
+                <select name="conta_despesa" class="form-control select">
+                  {% for c in conta_despesa %}
+                  <option value="{{ c.id }}">{{ c.nomeConta }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+
+            <div class="col-lg-12 d-flex gap-2 mt-2">
+              <input type="submit" value="Cadastrar" class="btn btn-submit">
+              <a href="/adicionardespesa/" class="btn btn-cancel">Cancelar</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+    <!-- /Formulário -->
+
+    <!-- Lista de Despesas -->
+    <div class="card">
+      <div class="card-body">
+        <h5>📋 Despesas Cadastradas</h5>
+        <div class="table-responsive">
+          <table class="table datanew">
+            <thead>
+              <tr>
+                <th></th>
+                <th>Data</th>
+                <th>Despesa</th>
+                <th>Valor</th>
+                <th>Conta</th>
+                <th>Apagar</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for despesa in despesas %}
+              <tr>
+                <td></td>
+                <td>{{ despesa.data }}</td>
+                <td>{{ despesa.nome_despesa }}</td>
+                <td>{{ despesa.moeda }} {{ despesa.valor }}</td>
+                <td>{{ despesa.conta }}</td>
+                <td>
+                  <a class="confirm-text" href="{% url 'adicionardespesa' %}?idDespesa={{ despesa.id }}&funcao=apagar">
+                    <img src="{% static 'img/icons/delete.svg' %}" alt="img">
+                  </a>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <!-- /Lista de Despesas -->
+
+  </div>
+</div>
+<!-- /Main Wrapper -->
+
+<!-- jQuery -->
+{% include 'footer.html' %}
+
+<!-- Select2 JS -->
+<script src="{% static 'plugins/select2/js/select2.min.js' %}"></script>
+
+<!-- Sweetalert 2 -->
+<script src="{% static 'plugins/sweetalert/sweetalert2.all.min.js' %}"></script>
+<script src="{% static 'plugins/sweetalert/sweetalerts.min.js' %}"></script>
+
+</body>
 </html>

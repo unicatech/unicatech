@@ -1,12 +1,70 @@
 {% load static %}
 {% load l10n %}
 <!DOCTYPE html>
-<!-- Header -->
-{% include 'head.html' %}
-<!-- Sidebar -->
-{% include 'sidebar.html' %}
-<!-- /Sidebar -->
+<html>
+<head>
+  <!-- Header -->
+  {% include 'head.html' %}
+  <!-- /header -->
 
+  <!-- Sidebar -->
+  {% include 'sidebar.html' %}
+  <!-- /Sidebar -->
+
+  <style>
+    .page-header { margin-bottom: 1.5rem; }
+    .page-title h4 { font-size: 1.6rem; font-weight: 600; color: #343a40; }
+    .page-title h6 { font-size: 1rem; color: #6c757d; }
+
+    .card {
+      border-radius: 12px; border: 1px solid #e9ecef;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05); margin-bottom: 1.5rem;
+    }
+    .card-body { padding: 1.5rem; }
+
+    .form-group label { font-weight: 500; color: #495057; }
+    .form-control, .select {
+      border-radius: 6px; border: 1px solid #ced4da;
+      padding: 8px 10px; font-size: 0.95rem;
+    }
+
+    .btn-primary {
+      background-color: #fd7e14 !important; border: none; color:#fff;
+      border-radius: 6px; padding: 8px 16px; font-size: .95rem;
+    }
+    .btn-primary:hover { background-color: #e96b0c !important; }
+
+    table.datanew { width:100%; border-collapse: collapse; }
+    table.datanew thead th {
+      background:#fff3e6; color:#fd7e14; font-weight:600;
+      padding:12px; border-bottom:2px solid #fd7e14;
+    }
+    table.datanew tbody td { padding:10px; border-bottom:1px solid #e9ecef; }
+
+    /* DataTables search à esquerda + “Buscar” */
+    div.dataTables_wrapper div.dataTables_filter { float:left !important; text-align:left !important; }
+    div.dataTables_wrapper div.dataTables_filter label {
+      font-weight:500; color:#fd7e14; display:inline-flex; align-items:center; gap:6px;
+      font-size:0; /* esconde “Search:” */
+    }
+    div.dataTables_wrapper div.dataTables_filter label::before {
+      content:"Buscar"; font-size:0.95rem; font-weight:600; color:#fd7e14; margin-right:4px;
+    }
+    div.dataTables_wrapper div.dataTables_filter input {
+      font-size:0.9rem; border-radius:6px; border:1px solid #fd7e14;
+      padding:6px 10px; color:#495057; outline:none;
+    }
+    div.dataTables_wrapper div.dataTables_filter input:focus {
+      border-color:#e96b0c; box-shadow:0 0 0 .2rem rgba(253,126,20,.25);
+    }
+
+    .filter-header {
+      font-weight: 600; color: #343a40; border-left: 4px solid #fd7e14;
+      padding-left: 10px; margin-bottom: 1rem;
+    }
+  </style>
+</head>
+<body>
 <div class="page-wrapper">
   <div class="content">
     <div class="page-header">
@@ -14,28 +72,23 @@
         <h4>Lista de Compras</h4>
         <h6>Gerencie suas Compras</h6>
       </div>
-      <div class="page-btn">
-        <a href="{% url 'fazercompras' %}" class="btn btn-primary">
-          <img src="{% static 'img/icons/plus.svg' %}" alt="img"> Fazer Nova Compra
+        <div class="page-btn">
+        <a href="{% url 'fazercomprasaparelhos'%}" class="btn btn-primary">
+          <img src="{% static 'img/icons/plus.svg' %}" alt="img"> Fazer Nova Compra de Aparelhos
+        </a>
+        <a href="{% url 'fazercompraspecas'%}" class="btn btn-primary">
+          <img src="{% static 'img/icons/plus.svg' %}" alt="img"> Fazer Nova Compra de Peças
         </a>
       </div>
     </div>
 
-    <!-- Filtros e busca -->
-    <div class="row mb-3">
-      <div class="col-lg-3 col-md-4 col-sm-6 mb-2">
-        <input type="text" id="search_text" class="form-control" placeholder="Buscar...">
-      </div>
-      <div class="col-lg-2 col-md-3 col-sm-6 mb-2">
-        <button id="filter_btn" class="btn btn-secondary w-100">Buscar por Datas</button>
-      </div>
-    </div>
-
-    <div class="card" id="filter_inputs" style="display:none;">
+    <!-- 📅 Filtro por datas -->
+    <div class="card mb-3">
       <div class="card-body">
+        <div class="filter-header">📅 Buscar Compra por Datas</div>
         <form method="post" action="{% url 'listarcompras' %}">
           {% csrf_token %}
-          <div class="row">
+          <div class="row g-3">
             <div class="col-lg col-sm-6 col-12">
               <div class="form-group">
                 <label for="data_inicio">Data de Início</label>
@@ -49,23 +102,21 @@
               </div>
             </div>
             <div class="col-lg-2 col-sm-6 col-12 d-flex align-items-end">
-              <div class="form-group w-100">
-                <button type="submit" class="btn btn-primary w-100">
-                  Filtrar
-                </button>
-              </div>
+              <button type="submit" class="btn btn-primary w-100">Filtrar</button>
             </div>
           </div>
         </form>
       </div>
     </div>
 
-    <!-- Lista de Compras -->
+    <!-- 📋 Lista de Compras -->
     <div class="card">
       <div class="card-body">
-
+        <h5 style="font-weight:600;color:#343a40;border-left:4px solid #fd7e14;padding-left:10px;margin-bottom:1rem;">
+          📋 Compras Cadastradas
+        </h5>
         <div class="table-responsive">
-          <table class="table datanew">
+          <table class="table datanew" id="tabela-compras">
             <thead>
               <tr>
                 <th></th>
@@ -102,44 +153,12 @@
             </tbody>
           </table>
         </div>
-
       </div>
     </div>
-    <!-- /Lista de Compras -->
-
+    <!-- /Lista -->
   </div>
 </div>
-<!-- /Main Wrapper -->
 
 {% include 'footer.html' %}
-
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-    const filterBtn = document.getElementById("filter_btn");
-    const filterInputs = document.getElementById("filter_inputs");
-
-    filterBtn.addEventListener("click", function(e) {
-        e.preventDefault();
-        if (filterInputs.style.display === "none" || filterInputs.style.display === "") {
-            filterInputs.style.display = "block";
-        } else {
-            filterInputs.style.display = "none";
-        }
-    });
-
-    // Busca de texto dentro da página
-    const searchInput = document.getElementById("search_text");
-    searchInput.addEventListener("keyup", function() {
-        const filter = searchInput.value.toLowerCase();
-        const rows = document.querySelectorAll("table.datanew tbody tr");
-        rows.forEach(row => {
-            row.style.display = Array.from(row.cells).some(cell =>
-                cell.textContent.toLowerCase().includes(filter)
-            ) ? "" : "none";
-        });
-    });
-});
-</script>
-
 </body>
 </html>

@@ -1,207 +1,211 @@
 {% load static %}
 <!DOCTYPE html>
+<html lang="pt-br">
+  <!-- Header -->
+  {% include 'head.html' %}
+  <!-- /header -->
 
- 			<!-- Header -->
-			{% include 'head.html' %}
-			<!-- /header -->
+  <!-- Select2 CSS -->
+  <link rel="stylesheet" href="{% static 'plugins/select2/css/select2.min.css' %}">
+  <!-- Sidebar -->
+  {% include 'sidebar.html' %}
+  <!-- /Sidebar -->
 
-			<!-- Select2 CSS -->
-			<link rel="stylesheet" href="{% static 'plugins/select2/css/select2.min.css' %}">
-			<!-- Sidebar -->
-			{% include 'sidebar.html' %}
-			<!-- /Sidebar -->
-
-			<div class="page-wrapper">
-				<div class="content">
-					<div class="page-header">
-						<div class="page-title">
-							<h4>Cadastrar Cliente</h4>
-							<h6>Dados do Cliente</h6>
-						</div>
-				        {% if cliente_cadastrado == 1 %}
-						 <div class="closebtn">
-							 <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
-  							Cliente Cadastrado.
-						</div>
-						{% endif %}
-					</div>
-					<!-- /add -->
-					<form method="POST" action="{% url 'cadastrocliente' %}">
-						{% csrf_token %}
-					<div class="card">
-						<div class="card-body">
-							<div class="row">
-								<div class="col-lg-3 col-sm-6 col-12">
-									<div class="form-group">
-										<label>Nome do Cliente</label>
-										<input type="text" name="nomecliente">
-									</div>
-								</div>
-
-								<div class="col-lg-12">
-									<input type="submit" value="Cadastrar" class="btn btn-submit me-2">
-									<a href="/cadastrocliente/" class="btn btn-cancel">Cancelar</a>
-								</div>
-							</div>
-						</div>
-					</div>
-					</form>
-					<!-- /add -->
-				</div>
-			</div>
+  <body>
+    <div class="page-wrapper">
+      <div class="content">
+        <!-- Formulário -->
+        <div class="page-header">
+          <div class="page-title">
+            <h4>Cadastrar Cliente</h4>
+            <h6>Dados do Cliente</h6>
+          </div>
+          {% if cliente_cadastrado == 1 %}
+          <div class="closebtn">
+            <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
+            Cliente Cadastrado.
+          </div>
+          {% endif %}
         </div>
 
-			<div class="page-wrapper">
-				<div class="content">
-					<div class="page-header">
-						<div class="page-title">
-							<h4>Lista de Clientes</h4>
-							<h6>Gerencie seus Clientes</h6>
-						</div>
-						<div class="page-btn">
+        <form method="POST" action="{% url 'cadastrocliente' %}">
+          {% csrf_token %}
+          <div class="card">
+            <div class="card-body">
+              <div class="row g-3">
+                <div class="col-lg-4 col-sm-6 col-12">
+                  <div class="form-group">
+                    <label>Nome do Cliente</label>
+                    <input type="text" class="form-control" name="nomecliente">
+                  </div>
+                </div>
+                <div class="col-lg-12 d-flex gap-2 mt-2">
+                  <input type="submit" value="Cadastrar" class="btn btn-submit">
+                  <a href="/cadastrocliente/" class="btn btn-cancel">Cancelar</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
+        <!-- /Formulário -->
 
-						</div>
-					</div>
-
-
-					<!-- /product list -->
-					<div class="card">
-						<div class="card-body">
-							<div class="table-top">
-								<div class="search-set">
-									<div class="search-path">
-										<a class="btn btn-filter" id="filter_search">
-											<img src="{% static 'img/icons/filter.svg' %}" alt="img">
-											<span><img src="{% static 'img/icons/closes.svg' %}" alt="img"></span>
-										</a>
-									</div>
-									<div class="search-input">
-										<a class="btn btn-searchset"><img src="{% static 'img/icons/search-white.svg' %}" alt="img"></a>
-									</div>
-								</div>
-								<div class="wordset">
-									<ul>
-										<li>
-											<a data-bs-toggle="tooltip" data-bs-placement="top" title="pdf"><img src="{% static 'img/icons/pdf.svg' %}" alt="img"></a>
-										</li>
-										<li>
-											<a data-bs-toggle="tooltip" data-bs-placement="top" title="excel"><img src="{% static 'img/icons/excel.svg' %}" alt="img"></a>
-										</li>
-										<li>
-											<a data-bs-toggle="tooltip" data-bs-placement="top" title="print"><img src="{% static 'img/icons/printer.svg' %}" alt="img"></a>
-										</li>
-									</ul>
-								</div>
-							</div>
-							<!-- /Filter -->
-							<div class="card mb-0" id="filter_inputs">
-								<div class="card-body pb-0">
-									<div class="row">
-										<div class="col-lg-12 col-sm-12">
-											<div class="row">
-												<div class="col-lg col-sm-6 col-12">
-													<div class="form-group">
-														<select class="select">
-															<option>Choose Product</option>
-															<option>Macbook pro</option>
-															<option>Orange</option>
-														</select>
-													</div>
-												</div>
-												<div class="col-lg col-sm-6 col-12">
-													<div class="form-group">
-														<select class="select">
-															<option>Choose Category</option>
-															<option>Computers</option>
-															<option>Fruits</option>
-														</select>
-													</div>
-												</div>
-												<div class="col-lg col-sm-6 col-12">
-													<div class="form-group">
-														<select class="select">
-															<option>Choose Sub Category</option>
-															<option>Computer</option>
-														</select>
-													</div>
-												</div>
-												<div class="col-lg col-sm-6 col-12">
-													<div class="form-group">
-														<select class="select">
-															<option>Brand</option>
-															<option>N/D</option>
-														</select>
-													</div>
-												</div>
-												<div class="col-lg col-sm-6 col-12 ">
-													<div class="form-group">
-														<select class="select">
-															<option>Price</option>
-															<option>150.00</option>
-														</select>
-													</div>
-												</div>
-												<div class="col-lg-1 col-sm-6 col-12">
-													<div class="form-group">
-														<a class="btn btn-filters ms-auto"><img src="{% static 'img/icons/search-whites.svg' %}" alt="img"></a>
-													</div>
-												</div>
-											</div>
-										</div>
-									</div>
-								</div>
-							</div>
-							<!-- /Filter -->
-							<div class="table-responsive">
-								<table class="table  datanew">
-									<thead>
-										<tr>
-											<th>
-											</th>
-											<th></th>
-											<th>Data de Cadastro</th>
-											<th>Nome do Cliente</th>
-											<th>Apagar</th>
-											<th></th>
-										</tr>
-									</thead>
-									<tbody>
-									<!-- Iteracao Clientes -->
-									{% for cliente in clientes %}
-										<tr>
-											<td>
-											</td>
-											<td>
-
-											</td>
-											<td>{{ cliente.data }}</td>
-											<td>{{ cliente.nome_cliente }}</td>
-											<td><a class="confirm-text"  href="{% url 'cadastrocliente' %}?id_cliente={{ cliente.id_cliente }}&funcao=apagar" onclick="javascript:void(0);">
-												<img src="{% static 'img/icons/delete.svg' %}" alt="img">
-												</a></td>
-											<td>
-											</td>
-										</tr>
-										{% endfor %}
-										<!-- /Iteracao Produtos -->
-									</tbody>
-								</table>
-							</div>
-						</div>
-					</div>
-					<!-- /product list -->
-				</div>
-			</div>
+        <!-- Lista de Clientes -->
+        <div class="page-header">
+          <div class="page-title">
+            <h4>Lista de Clientes</h4>
+            <h6>Gerencie seus Clientes</h6>
+          </div>
         </div>
-		<!-- /Main Wrapper -->
 
-		<!-- jQuery -->
- 			{% include 'footer.html' %}
-        <!-- Select2 JS -->
-		<script src="{% static 'plugins/select2/js/select2.min.js' %}"></script>
+        <div class="card">
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table datanew">
+                <thead>
+                  <tr>
+                    <th>Data de Cadastro</th>
+                    <th>Nome do Cliente</th>
+                    <th>Apagar</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for cliente in clientes %}
+                  <tr>
+                    <td>{{ cliente.data }}</td>
+                    <td>{{ cliente.nome_cliente }}</td>
+                    <td>
+                      <a class="confirm-text" href="{% url 'cadastrocliente' %}?id_cliente={{ cliente.id_cliente }}&funcao=apagar">
+                        <img src="{% static 'img/icons/delete.svg' %}" alt="img">
+                      </a>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <!-- /Lista de Clientes -->
+      </div>
+    </div>
+    <!-- /Main Wrapper -->
 
-		<!-- Sweetalert 2 -->
-		<script src="{% static 'plugins/sweetalert/sweetalert2.all.min.js' %}"></script>
-		<script src="{% static 'plugins/sweetalert/sweetalerts.min.js' %}"></script>
-    </body>
+    <!-- jQuery -->
+    {% include 'footer.html' %}
+    <!-- Select2 JS -->
+    <script src="{% static 'plugins/select2/js/select2.min.js' %}"></script>
+    <!-- Sweetalert 2 -->
+    <script src="{% static 'plugins/sweetalert/sweetalert2.all.min.js' %}"></script>
+    <script src="{% static 'plugins/sweetalert/sweetalerts.min.js' %}"></script>
+
+    <style>
+      /* Cabeçalho */
+      .page-title h4 {
+        font-size: 1.6rem;
+        font-weight: 600;
+        color: #343a40;
+      }
+      .page-title h6 {
+        font-size: 1rem;
+        color: #6c757d;
+      }
+
+      /* Card */
+      .card {
+        border-radius: 12px;
+        border: 1px solid #e9ecef;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+        margin-bottom: 1.5rem;
+      }
+      .card-body {
+        padding: 1.5rem;
+      }
+
+      /* Labels */
+      .form-group label {
+        font-weight: 500;
+        color: #495057;
+      }
+
+      /* Inputs */
+      .form-control {
+        border-radius: 6px;
+        border: 1px solid #ced4da;
+        padding: 8px 10px;
+        font-size: 0.95rem;
+      }
+
+      /* Botões */
+      .btn-submit {
+        background-color: #fd7e14;
+        border: none;
+        border-radius: 6px;
+        padding: 8px 16px;
+        font-size: 0.95rem;
+        color: #fff;
+      }
+      .btn-cancel {
+        background-color: #6c757d;
+        border: none;
+        border-radius: 6px;
+        padding: 8px 16px;
+        font-size: 0.95rem;
+        color: #fff;
+      }
+
+      /* Tabela */
+      table.datanew thead th {
+        background: #fff3e6;
+        font-weight: 600;
+        color: #fd7e14;
+        padding: 12px;
+        border-bottom: 2px solid #fd7e14;
+      }
+      table.datanew tbody td {
+        padding: 10px;
+        border-bottom: 1px solid #e9ecef;
+      }
+
+      /* Estilo busca DataTables */
+      div.dataTables_wrapper div.dataTables_filter label {
+        font-weight: 500;
+        color: #495057;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      div.dataTables_wrapper div.dataTables_filter label::before {
+        content: "🔎 Buscar:";
+        font-weight: 600;
+        color: #fd7e14;
+        font-size: 0.95rem;
+      }
+      div.dataTables_wrapper div.dataTables_filter input {
+        margin-left: 4px;
+        border-radius: 6px;
+        border: 1px solid #ced4da;
+        padding: 6px 10px;
+        font-size: 0.9rem;
+      }
+
+      /* Alerta */
+      .closebtn {
+        padding: 10px;
+        border-radius: 6px;
+        margin-top: 10px;
+        background-color: #fff4e5;
+        color: #d9480f;
+        font-weight: 500;
+        position: relative;
+      }
+      .closebtn span {
+        position: absolute;
+        right: 12px;
+        top: 8px;
+        cursor: pointer;
+        font-size: 20px;
+      }
+    </style>
+  </body>
 </html>
+

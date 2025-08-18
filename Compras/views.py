@@ -8,7 +8,8 @@ from .models import Compra, LocalizacaoCompra, Fornecedor, Deslocamento
 from Produtos.models import Produto, CategoriaProduto
 from Contas.models import Conta, MovimentacaoConta
 from Contas.views import MovimentacaoFinanceira
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
+from django.utils import timezone
 import re
 import logging
 
@@ -225,7 +226,9 @@ class ListarComprasView(TemplateView):
                 apagardeslocamento = Deslocamento.objects.filter(identificadorCompra=self.request.GET["idCompra"])
                 apagardeslocamento.delete()
 
-        compras = Compra.objects.order_by('-identificadorCompra').filter(ativo=True)
+        hoje = timezone.now().date()
+        quinze_dias_atras = hoje - timedelta(days=15)
+        compras = Compra.objects.order_by('-identificadorCompra').filter(ativo=True, criados__gte=quinze_dias_atras)
 
         listarComprasTemplate = []
         identificadorCompra = 0
@@ -269,6 +272,61 @@ class ListarComprasView(TemplateView):
         context['listarCompras'] = listarComprasTemplate
 
         return (context)
+
+    def post(self, request, *args, **kwargs):
+        context = super(ListarComprasView, self).get_context_data(**kwargs)
+        data_inicio = self.request.POST.getlist('data_inicio')
+        data_fim = self.request.POST.getlist('data_fim')
+        cliente = self.request.POST.getlist('cliente')
+        data_inicio = datetime.strptime(data_inicio[0], '%Y-%m-%d').date()
+        data_fim = datetime.strptime(data_fim[0], '%Y-%m-%d').date()
+        compras = Compra.objects.order_by('-identificadorCompra').filter(
+            ativo=True,
+            criados__range=[data_inicio,data_fim],
+        )
+
+        listarComprasTemplate = []
+        identificadorCompra = 0
+        moeda = ""
+        for compra in compras:
+            #Se a compra advir de uma venda de aparelho, não listar.
+            if compra.conta_id == -1:
+                continue
+
+            if identificadorCompra != compra.identificadorCompra:
+                compraIdentificada = Compra.objects.filter(identificadorCompra=compra.identificadorCompra, ativo=True)
+                valorCompraTotal = 0
+
+                for compra in compraIdentificada:
+                    valorCompraTotal = valorCompraTotal + compra.quantidadeProduto * compra.precoProduto
+                itinerario_compra = Deslocamento.objects.filter(identificadorCompra=compra.identificadorCompra).order_by('-id')
+                cidade_atual = ""
+
+                for cidade in itinerario_compra:
+                    localizacao = LocalizacaoCompra.objects.get(id=cidade.destino)
+                    cidade_atual = localizacao.localizacaoCompra
+                    break
+
+                if compra.valorDolarMedio == 1:
+                    moeda="R$"
+                else:
+                    moeda="US$"
+
+                listarComprasTemplate.append(
+                    {
+                        'idCompra': compra.identificadorCompra,
+                        'fornecedor': compra.fornecedor,
+                        'dataCompra': compra.criados,
+                        'valorCompra': valorCompraTotal,
+                        'localizacaoCompra': cidade_atual,
+                        'moeda': moeda,
+                    }
+                )
+                valorCompraTotal = 0
+                identificadorCompra = compra.identificadorCompra
+        context['listarCompras'] = listarComprasTemplate
+        return render(request, 'listarcompras.html', context)
+
 
 class LocalizacaoCompraView(TemplateView):
     template_name = 'localizacaocompra.html'

@@ -59,6 +59,36 @@
     cursor: pointer;
 }
 
+/* ===== AJUSTE DE LARGURAS (somente layout) =====
+   Produto: mantém (auto)
+   Quantidade: menor
+   Preço e Total: iguais e maiores
+   Observação: o template possui duas tabelas com o mesmo id (#table_field),
+   então os estilos abaixo se aplicam a ambas — mantendo o comportamento original.
+*/
+#table_field th:nth-child(1),
+#table_field td:nth-child(1) {
+    width: auto; /* Produto mantém tamanho original (flexível) */
+}
+#table_field th:nth-child(2),
+#table_field td:nth-child(2) {
+    width: 10%;
+    min-width: 60px;
+    max-width: 90px; /* Quantidade menor */
+}
+#table_field th:nth-child(3),
+#table_field td:nth-child(3),
+#table_field th:nth-child(4),
+#table_field td:nth-child(4) {
+    width: 22%;
+    min-width: 120px; /* Preço e Total com o mesmo tamanho e maiores */
+}
+
+/* Evita quebra feia em telas pequenas */
+@media (max-width: 768px) {
+    .table-responsive { overflow-x: auto; }
+    #table_field th, #table_field td { white-space: nowrap; }
+}
     </style>
 <head>
     <meta charset="UTF-8">

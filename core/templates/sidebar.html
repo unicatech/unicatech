@@ -60,7 +60,7 @@
 								</ul>
 							</li>
                             {% endif %}
-                            {% pode_ver 'Despesas.view_conta' as pode_ver_despesa %}
+                            {% pode_ver 'Despesas.view_despesa' as pode_ver_despesa %}
                             {% if pode_ver_despesa %}
 							<li class="submenu">
 								<a href="javascript:void(0);"><img src="{% static 'img/icons/quotation1.svg' %}" alt="img"><span> Despesas</span> <span class="menu-arrow"></span></a>
@@ -81,7 +81,7 @@
 								</ul>
 							</li>
                             {% endif %}
-                            {% pode_ver 'Relatorios.view_cadastro' as pode_ver_relatorio %}
+                            {% pode_ver 'Relatorios.view_relatorio' as pode_ver_relatorio %}
                             {% if pode_ver_relatorio %}
 							<li  class="submenu">
 								<a href="javascript:void(0);"><i data-feather="file"></i> <span> Relatórios  </span> <span class="menu-arrow"></span></a>

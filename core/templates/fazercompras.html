@@ -202,7 +202,7 @@
 							{% if editarCompra == 0 %}
 							<div class="row">
                             <td><select name="produto" class="select">
-								<option> Selecione o Produto</option>
+								<option value="0"> Selecione o Produto</>
 								{% for p in produtos %}
 											<option value="{{ p.id }}" >{{ p.NomeProduto }}</option>
 								{% endfor %}
@@ -223,7 +223,7 @@
 
 							<div class="row">
                             <td><select name="produto" class="select">
-								<option> Selecione o Produto</option>
+								<option value="0"> Selecione o Produto</option>
 								{% for p in produtos %}
 											<option value="{{ p.id }}" >{{ p.NomeProduto }}</option>
 								{% endfor %}
@@ -244,7 +244,7 @@
 
 							<div class="row">
                             <td><select name="produto" class="select">
-								<option> Selecione o Produto</option>
+								<option value="0"> Selecione o Produto</option>
 								{% for p in produtos %}
 											<option value="{{ p.id }}" >{{ p.NomeProduto }}</option>
 								{% endfor %}
@@ -269,7 +269,7 @@
 							<div class="row">
 							{% for c in compra_identificada %}
                             <td><select name="produto" class="select">
-								<option> Selecione o Produto</option>
+								<option value="0"> Selecione o Produto</option>
 								{% for p in produtos %}
 											<option value="{{ p.id }}" {% if p.id == c.idProduto %} SELECTED {% endif %}>{{ p.NomeProduto }}</option>
 								{% endfor %}
@@ -377,7 +377,7 @@
 
             $(document).ready(function() {
 
-                var html = '<tr><td><div class="row"><select name="produto" class="select"><option>Selecione o Produto</option>{% for p in produtos %}<option value="{{ p.id }}">{{ p.NomeProduto }}</option>{% endfor %}</select></td><td><input type="text" class="form-control" name="qtde" id="tab1" size="4" maxlength="4" autocomplete="off"></td><td><input type="text" class="form-control" name="preco" id="tab1" size="4" maxlength="9" autocomplete="off"></td><td><input type="text" class="form-control" name="total" id="tab1" size="5" maxlength="5" autocomplete="off"></td><td><input class="btn btn-danger" id="remove" type="button" name="remove" value="Apagar" tabindex="-1"></td></div></tr>';
+                var html = '<tr><td><div class="row"><select name="produto" class="select"><option value="0">Selecione o Produto</option>{% for p in produtos %}<option value="{{ p.id }}">{{ p.NomeProduto }}</option>{% endfor %}</select></td><td><input type="text" class="form-control" name="qtde" id="tab1" size="4" maxlength="4" autocomplete="off"></td><td><input type="text" class="form-control" name="preco" id="tab1" size="4" maxlength="9" autocomplete="off"></td><td><input type="text" class="form-control" name="total" id="tab1" size="5" maxlength="5" autocomplete="off"></td><td><input class="btn btn-danger" id="remove" type="button" name="remove" value="Apagar" tabindex="-1"></td></div></tr>';
 
                 var max = 10;
 
@@ -679,6 +679,58 @@ $(document).ready(function() {
 
 </script>
 <script>
+$(document).ready(function () {
+  $('#formCompra').on('submit', function (e) {
+    let erro = null;
+
+    // ===== 1. Fornecedor =====
+    var fornecedorHidden = $('#fornecedorHidden').val().trim();
+    if (!fornecedorHidden) {
+      erro = "Fornecedor não selecionado.";
+    }
+
+    // ===== 2. Produtos (só executa se não houve erro antes) =====
+    if (!erro) {
+      $('#table_field tr').each(function () {
+        const produtoVal = $(this).find('select[name="produto"]').val();
+        const qtdeVal   = ( $(this).find('input[name="qtde"]').val()  || '' ).trim();
+        const precoVal  = ( $(this).find('input[name="preco"]').val() || '' ).trim();
+
+        const temQtde  = qtdeVal !== '' && qtdeVal !== '0';
+        const temPreco = precoVal !== '' && precoVal !== '0';
+
+        // Caso 1: há quantidade e preço, mas produto não foi selecionado
+        if (temQtde && temPreco && (!produtoVal || produtoVal === '0')) {
+          erro = 'Selecione o produto nas linhas em que Quantidade e Preço foram preenchidos.';
+          return false; // interrompe o .each
+        }
+
+        // Caso 2: produto selecionado, mas faltou qtde/preço
+        if (produtoVal && produtoVal !== '0') {
+          if (!temQtde) { erro = 'Quantidade não preenchida ou inválida.'; return false; }
+          if (!temPreco){ erro = 'Preço não preenchido ou inválido.';     return false; }
+        }
+      });
+    }
+
+    // ===== Se houve erro, exibe alerta e impede envio =====
+    if (erro) {
+      e.preventDefault();
+      Swal.fire({
+        icon: 'warning',
+        title: erro,
+        confirmButtonText: 'OK',
+        customClass: { confirmButton: 'btn btn-primary me-3 confirm-text' },
+        buttonsStyling: false
+      });
+      return false;
+    }
+
+    // Se passou de todas validações, continua com o envio normal
+  });
+});
+</script>
+  <script>
 $(document).ready(function() {
 
     $('#formCompra').on('submit', function(e) {
@@ -701,6 +753,5 @@ $(document).ready(function() {
 
 });
 </script>
-
     </body>
 </html>

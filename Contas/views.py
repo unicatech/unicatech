@@ -642,7 +642,10 @@ class MovimentacaoFinanceira:
                         total_dolar = total_dolar + conta_detalhada["saldo"]
                         total_real = total_real + conta_detalhada["saldo"] * compra_dolar.cotacaoDolar
                         break
-        valor_dolar_medio = total_real / total_dolar
+        if total_dolar == 0:
+            valor_dolar_medio = 0
+        else:
+            valor_dolar_medio = total_real / total_dolar
         logging.warning("Dolar Medio")
         logging.warning(valor_dolar_medio)
         return (valor_dolar_medio)

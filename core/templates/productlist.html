@@ -1,4 +1,5 @@
 {% load static %}
+{% load permissoes_tags %}
 <!DOCTYPE html>
 <html>
 <head>
@@ -97,12 +98,18 @@
                 <td>{{ p.categoria }}</td>
                 <td>{{ p.estoque }} peças</td>
                 <td>
+                    {% pode_ver 'Produtos.change_produto' as pode_editar_produto %}
+                    {% if pode_editar_produto %}
                   <a class="me-3" href="{% url 'editproduct' %}?idProduto={{ p.id }}">
                     <img src="{% static 'img/icons/edit.svg' %}" alt="img">
                   </a>
+                    {% endif %}
+                    {% pode_ver 'Produtos.delete_produto' as pode_apagar_produto %}
+                    {% if pode_apagar_produto %}
                   <a class="confirm-text" href="{% url 'productlist' %}?idProduto={{ p.id }}&funcao=apagar" onclick="javascript:void(0);">
                     <img src="{% static 'img/icons/delete.svg' %}" alt="img">
                   </a>
+                    {% endif %}
                 </td>
               </tr>
               {% endfor %}

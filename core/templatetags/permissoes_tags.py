@@ -10,3 +10,4 @@ def pode_ver(context, perm):
     """
     user = context['request'].user
     return user.has_perm(perm)
+

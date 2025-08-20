@@ -31,6 +31,8 @@
 									<li><a href="/parcelasareceber/">Parcelas a Receber</a></li>
 								</ul>
 							</li>
+                            {% pode_ver 'Compras.view_compra' as pode_ver_compra %}
+                            {% if pode_ver_compra %}
 							<li class="submenu">
 								<a href="javascript:void(0);"><img src="{% static 'img/icons/purchase1.svg' %}" alt="img"><span> Compras</span> <span class="menu-arrow"></span></a>
 								<ul>
@@ -39,6 +41,10 @@
 									<li><a href="/fazercompraspecas/">Fazer Compra Peças</a></li>
 								</ul>
 							</li>
+                            {% endif %}
+
+                            {% pode_ver 'Contas.view_conta' as pode_ver_conta %}
+                            {% if pode_ver_conta %}
 							<li class="submenu">
 								<a href="javascript:void(0);"><img src="{% static 'img/icons/expense1.svg' %}" alt="img"><span> Contas</span> <span class="menu-arrow"></span></a>
 								<ul>
@@ -50,6 +56,9 @@
 									<li><a href="/retirada/">Retirada</a></li>
 								</ul>
 							</li>
+                            {% endif %}
+                            {% pode_ver 'Despesas.view_conta' as pode_ver_despesa %}
+                            {% if pode_ver_despesa %}
 							<li class="submenu">
 								<a href="javascript:void(0);"><img src="{% static 'img/icons/quotation1.svg' %}" alt="img"><span> Despesas</span> <span class="menu-arrow"></span></a>
 								<ul>
@@ -57,6 +66,7 @@
 									<li><a href="/despesasperiodicas/">Listar Despesas Periódicas</a></li>
 								</ul>
 							</li>
+                            {% endif %}
 
 							<li class="submenu">
 								<a href="javascript:void(0);"><img src="{% static 'img/icons/users1.svg' %}" alt="img"><span> Cadastros</span> <span class="menu-arrow"></span></a>

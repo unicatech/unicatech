@@ -364,13 +364,12 @@ class ListarVendasView(TemplateView):
                 compras_em_venda = MovimentacaoConta.objects.filter(identificadorVenda=self.request.GET["idVenda"])
                 for compra in compras_em_venda:
                     if compra.identificadorCompra != "0":
-                        pass
-                        #remover_produto_compra = Compra.objects.filter(identificadorCompra=compra.identificadorCompra)
-                        #for produto_comprado in remover_produto_compra:
-                        #    atualizarEstoque = Produto.objects.get(id=produto_comprado.produto)
-                        #    atualizarEstoque.estoque = atualizarEstoque.estoque - produto_comprado.quantidadeProduto
-                        #    atualizarEstoque.save()
-                        #Compra.objects.filter(identificadorCompra=compra.identificadorCompra).update(ativo=False)
+                        remover_produto_compra = Compra.objects.filter(identificadorCompra=compra.identificadorCompra)
+                        for produto_comprado in remover_produto_compra:
+                            atualizarEstoque = Produto.objects.get(id=produto_comprado.produto_id)
+                            atualizarEstoque.estoque = atualizarEstoque.estoque - produto_comprado.quantidadeProduto
+                            atualizarEstoque.save()
+                        Compra.objects.filter(identificadorCompra=compra.identificadorCompra).update(ativo=False)
 
         hoje = timezone.now().date()
         quinze_dias_atras = hoje - timedelta(days=15)

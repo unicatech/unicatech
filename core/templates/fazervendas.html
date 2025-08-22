@@ -665,27 +665,29 @@ $(document).ready(function () {
 <script src="{% static 'plugins/jquery.mask.min.js' %}"></script>
 <script>
 $(document).ready(function () {
-    // Máscara para preço e total
-    $(document).on("input", "input[name='preco'], input[name='total']", function () {
-        $(this).mask("000.000.000,00", {reverse: true});
+    // Máscara para preço e total (venda e compra)
+    $(document).on("input",
+        "input[name='preco'], input[name='total'], input[name='preco_compra'], input[name='total_compra']",
+        function () {
+            $(this).mask("000.000.000,00", {reverse: true});
     });
 
-    // Apenas números em quantidade
-    $(document).on("input", "input[name='qtde']", function () {
+    // Apenas números em quantidade (venda e compra)
+    $(document).on("input", "input[name='qtde'], input[name='quantidade_compra']", function () {
         this.value = this.value.replace(/[^0-9]/g, '');
         calcularLinha($(this).closest("tr"));
-        calcularTotalGeral();
+        calcularTotaisGerais();
     });
 
-    // Atualiza linha quando preço muda
-    $(document).on("input", "input[name='preco']", function () {
+    // Atualiza linha quando preço muda (venda e compra)
+    $(document).on("input", "input[name='preco'], input[name='preco_compra']", function () {
         calcularLinha($(this).closest("tr"));
-        calcularTotalGeral();
+        calcularTotaisGerais();
     });
 
     function calcularLinha(row) {
-        let qtde = parseInt(row.find("input[name='qtde']").val()) || 0;
-        let precoStr = row.find("input[name='preco']").val().replace(/\./g, '').replace(',', '.');
+        let qtde = parseInt(row.find("input[name='qtde'], input[name='quantidade_compra']").val()) || 0;
+        let precoStr = row.find("input[name='preco'], input[name='preco_compra']").val().replace(/\./g, '').replace(',', '.');
         let preco = parseFloat(precoStr) || 0;
 
         let total = qtde * preco;
@@ -694,52 +696,80 @@ $(document).ready(function () {
             let totalFormatado = total.toFixed(2)
                 .replace('.', ',')
                 .replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-            row.find("input[name='total']").val(totalFormatado);
+            row.find("input[name='total'], input[name='total_compra']").val(totalFormatado);
         } else {
-            row.find("input[name='total']").val('');
+            row.find("input[name='total'], input[name='total_compra']").val('');
         }
     }
 
-    function calcularTotalGeral() {
-        let soma = 0;
+    function calcularTotaisGerais() {
+        let somaVenda = 0;
+        let somaCompra = 0;
 
+        // Só soma os "total" da VENDA
         $("input[name='total']").each(function () {
             let val = $(this).val().replace(/\./g, '').replace(',', '.');
-            let num = parseFloat(val) || 0;
-            soma += num;
+            somaVenda += parseFloat(val) || 0;
         });
 
-        let somaFormatada = soma.toFixed(2)
+        // Só soma os "total_compra" da COMPRA
+        $("input[name='total_compra']").each(function () {
+            let val = $(this).val().replace(/\./g, '').replace(',', '.');
+            somaCompra += parseFloat(val) || 0;
+        });
+
+        // Atualiza os campos separados
+        $("#valorTotalVenda").val(formatarNumero(somaVenda));
+        $("#valorTotalCompra").val(formatarNumero(somaCompra));
+    }
+
+    function formatarNumero(num) {
+        return num.toFixed(2)
             .replace('.', ',')
             .replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-        $("#valorTotalVenda").val(somaFormatada);
     }
 });
 </script>
 
-                    <script>
+<script>
 $(document).ready(function() {
+  $('#formVenda').on('submit', function(e) {
+    $('#table_field tr').each(function() {
+      const $tr = $(this);
 
-    $('#formVenda').on('submit', function(e) {
-        $('#table_field tr').each(function() {
-            let qtdeInput = $(this).find('input[name="qtde"]');
-            let precoInput = $(this).find('input[name="preco"]');
+      // VENDAS
+      const $qtde = $tr.find('input[name="qtde"]');
+      const $preco = $tr.find('input[name="preco"]');
 
-            if(qtdeInput.length && qtdeInput.val()) {
-                // Converte qtde para padrão americano (substitui ',' por '.')
-                qtdeInput.val(qtdeInput.val().replace(',', '.'));
-            }
+      if ($qtde.length && $qtde.val()) {
+        // Converte qtde para padrão americano (troca vírgula por ponto)
+        $qtde.val($qtde.val().replace(',', '.'));
+      }
 
-            if(precoInput.length && precoInput.val()) {
-                // Remove pontos de milhar e converte ',' para '.'
-                let preco = precoInput.val().replace(/\./g, '').replace(',', '.');
-                precoInput.val(preco);
-            }
-        });
+      if ($preco.length && $preco.val()) {
+        // Remove milhares e troca vírgula por ponto
+        $preco.val($preco.val().replace(/\./g, '').replace(',', '.'));
+      }
+
+      // COMPRAS
+      const $qtdeCompra = $tr.find('input[name="quantidade_compra"]');
+      const $precoCompra = $tr.find('input[name="preco_compra"]');
+
+      if ($qtdeCompra.length && $qtdeCompra.val()) {
+        // Mesma regra da qtde de venda
+        $qtdeCompra.val($qtdeCompra.val().replace(',', '.'));
+      }
+
+      if ($precoCompra.length && $precoCompra.val()) {
+        // Remove milhares e troca vírgula por ponto (ex.: 1.234,56 -> 1234.56)
+        $precoCompra.val($precoCompra.val().replace(/\./g, '').replace(',', '.'));
+      }
     });
-
+  });
 });
 </script>
+
+
 <script>
 $(document).ready(function () {
   $('#formVenda').on('submit', function (e) {

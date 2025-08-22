@@ -29,7 +29,6 @@ class FazerVendasView(TemplateView):
         context = super(FazerVendasView, self).get_context_data(**kwargs)
         context['editarVenda'] = 0
         context['dataVenda'] = datetime.now().strftime("%d-%m-%Y")
-        #logging.warning()
         if self.request.GET.__contains__("venda_realizada"):
             context['venda_realizada'] = 1
 
@@ -87,7 +86,6 @@ class FazerVendasView(TemplateView):
             context['produtos_compra'] = Produto.objects.all().filter(categoria_id__lte=4).order_by('NomeProduto')
             context['aparelhos'] = 1
         context['tipo_produto'] = self.request.resolver_match.url_name
-
 
         return context
 
@@ -230,9 +228,6 @@ class FazerVendasView(TemplateView):
 
 
                 #Prevenir quando o estoque foi adicionado no cadastro do produto, pois o valor vai vir menor que zero
-                logging.warning("Formacao preco medio")
-                logging.warning(compra_total_produto)
-                logging.warning(quantidade_produto)
                 if quantidade_produto > 0:
                     preco_medio = compra_total_produto / quantidade_produto
                 else:
@@ -317,17 +312,23 @@ class FazerVendasView(TemplateView):
             dataform.save()
         return HttpResponseRedirect('/'+tipo_produto[0]+'/?venda_realizada=1', context)
 
+
+    def get_template_names(self):
+        if self.request.GET.get("funcao") == "modal":
+            return ["detalhesvendamodal.html"]
+        return [self.template_name]
+
 class ListarVendasView(TemplateView):
 
     template_name = 'listarvendas.html'
 
     def get_context_data(self, **kwargs):
         context = super(ListarVendasView, self).get_context_data(**kwargs)
+
         produtos_repetidos = []
         context['mensagem'] = ''
         if self.request.GET.__contains__("idVenda"):
             if self.request.GET["funcao"] == "apagar":
-                #logging.warning(self.request.GET["idVenda"])
                 apagarvendas = Venda.objects.filter(identificadorVenda=self.request.GET["idVenda"],ativo=True)
                 produto = 0
                 for apagarvenda in apagarvendas:

@@ -1,0 +1,820 @@
+{% load static %}
+{% load l10n %}
+<!DOCTYPE html>
+    <style>
+        .autocomplete-items {
+            border: 1px solid #d4d4d4;
+            border-bottom: none;
+            border-top: none;
+            z-index: 99;
+            /* position the autocomplete items to be the same width as the container: */
+            top: 100%;
+            left: 0;
+            right: 0;
+        }
+
+        .autocomplete-items div {
+            padding: 10px;
+            cursor: pointer;
+            background-color: #fff;
+            border-bottom: 1px solid #d4d4d4;
+        }
+
+        .autocomplete-items div:hover {
+            background-color: #e9e9e9;
+        }
+
+        .autocomplete-active {
+            background-color: DodgerBlue !important;
+            color: #ffffff;
+        }
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 10;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+    background-color: white;
+    margin: 10% auto;
+    padding: 20px;
+    width: 50%;
+    height: 70%;
+    overflow-y: auto;
+    position: relative;
+}
+
+.close-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 30px;
+    color: #aaa;
+    cursor: pointer;
+}
+
+/* ===== AJUSTE DE LARGURAS (somente layout) =====
+   Produto: mantém (auto)
+   Quantidade: menor
+   Preço e Total: iguais e maiores
+   Observação: o template possui duas tabelas com o mesmo id (#table_field),
+   então os estilos abaixo se aplicam a ambas — mantendo o comportamento original.
+*/
+#table_field th:nth-child(1),
+#table_field td:nth-child(1) {
+    width: auto; /* Produto mantém tamanho original (flexível) */
+}
+#table_field th:nth-child(2),
+#table_field td:nth-child(2) {
+    width: 10%;
+    min-width: 60px;
+    max-width: 90px; /* Quantidade menor */
+}
+#table_field th:nth-child(3),
+#table_field td:nth-child(3),
+#table_field th:nth-child(4),
+#table_field td:nth-child(4) {
+    width: 22%;
+    min-width: 120px; /* Preço e Total com o mesmo tamanho e maiores */
+}
+
+/* Evita quebra feia em telas pequenas */
+@media (max-width: 768px) {
+    .table-responsive { overflow-x: auto; }
+    #table_field th, #table_field td { white-space: nowrap; }
+}
+    </style>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vendas</title>
+ 			<!-- Header -->
+			{% include 'head.html' %}
+			<!-- /header -->
+
+			<!-- Select2 CSS -->
+			<link rel="stylesheet" href="{% static 'plugins/select2/css/select2.min.css' %}">
+			<!-- Sidebar -->
+			{% include 'sidebar.html' %}
+			<!-- /Sidebar -->
+
+		<!-- Main Wrapper -->
+			<div class="page-wrapper">
+				<div class="content">
+					<div class="page-header">
+						<div class="page-title">
+							<h4>Vendas</h4>
+							<h6>Adicione/Edite sua Venda</h6>
+						</div>
+						{% if venda_realizada == 1 %}
+						 <div class="closebtn">
+							 <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
+							 Venda Realizada
+						</div>
+						{% endif %}
+						{% if cliente_sem_cadastro == 1%}
+						     <div class="closebtn">
+						     <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
+							 Cliente Não Cadastrado
+							 </div>
+						{% endif %}
+					</div>
+					<form id="formVenda" method="POST" action="{% url 'fazervendas' %}">
+					{% csrf_token %}
+					<input type="hidden" name="identificadorVenda" value="{{identificadorVenda}}">
+					<input type="hidden" name="tipo_produto" value="{{tipo_produto}}">
+					<div class="card">
+						<div class="card-body">
+							<div class="row">
+								<div class="col-lg-3 col-sm-6 col-12">
+									<div class="form-group">
+										<label>Cliente</label>
+										{% if idCliente  %}
+											<input type="hidden" name="cliente" value="{{idCliente}}" >
+											{% for c in clientes %}
+												{% if c.id == idCliente %} <font size="16"> <b>{{ c.nomeCliente }}</b> </font> {% endif %}
+											{% endfor %}
+										{% else %}
+
+										<div class="row">
+											<div class="col-lg-10 col-sm-10 col-10">
+												<div class="autocomplete" style="width:300px;">
+           										 <input id="clienteInput" type="text" placeholder="Cliente" autocomplete="off"
+												 {% for c in clientes %}
+													 {% if c.id == id_cliente_cadastro %} value="{{c.nomeCliente}}"{% endif %}
+												{% endfor %}
+            									>
+												<input type="hidden" id="clienteHidden" name="cliente"
+												{% for c in clientes %}
+														   {% if c.id == id_cliente_cadastro %} value="{{c.id}}" {% endif %}
+												{% endfor %}
+												>
+													<div id="clienteAutocompleteList" class="autocomplete-items"></div>
+        								</div>
+										{% endif %}
+										</div>
+											<div class="col-lg-2 col-sm-2 col-2 ps-0">
+												<div class="add-icon">
+													<a href="javascript:void(0);" onclick="openModal()"><img src="{% static 'img/icons/plus1.svg' %} " alt="img"></a>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+								<div class="col-lg-3 col-sm-6 col-12">
+									<div class="form-group">
+										<label>Data da Venda </label>
+										<div class="input-groupicon">
+											<input type="text" placeholder="DD-MM-AAAA" class="datetimepicker" name="dataVenda" value="{{dataVenda}}">
+											<div class="addonset">
+												<img src="{% static 'img/icons/calendars.svg' %}" alt="img">
+											</div>
+										</div>
+									</div>
+								</div>
+
+
+		<!-- parte do indiano -->
+
+
+            <div class="input-field">
+
+                <div class="table-responsive">
+
+                    <table class="table table-bordered text-center" id="table_field">
+
+                        <tr>
+
+                            <th>Produto</th>
+
+                            <th>Quantidade</th>
+
+                            <th>Preço</th>
+
+							<th> Total </th>
+
+                        </tr>
+
+                        <tr>
+							{% if editarVenda == 0 %}
+							<div class="row">
+                            <td><select name="produto" class="select">
+								<option value="0"> Selecione o Produto</option>
+								{% for p in produtos %}
+											<option value="{{ p.id }}" >{{ p.NomeProduto }} - Estoque {{p.estoque}}</option>
+								{% endfor %}
+
+							</select></td>
+
+                            <td><input type="text" class="form-control" name="qtde" id="tab1" size="2" maxlength="3" autocomplete="off"></td>
+
+							<td><input type="text" class="form-control" name="preco" id="tab1" size="2" maxlength="9" autocomplete="off"></td>
+
+							<td><input type="text" class="form-control" name="total" id="tab1" size="2" autocomplete="off"></td>
+
+							<td><input class="btn btn-danger" name="remove" id="remove" value="Apagar" type="button">
+							</td>
+							</div>
+						</tr>
+						     <tr>
+
+							<div class="row">
+                            <td><select name="produto" class="select">
+								<option value="0"> Selecione o Produto</option>
+								{% for p in produtos %}
+											<option value="{{ p.id }}" >{{ p.NomeProduto }} - Estoque {{p.estoque}}</option>
+								{% endfor %}
+
+							</select></td>
+
+                            <td><input type="text" class="form-control" name="qtde" id="tab1" size="2" maxlength="3" autocomplete="off"></td>
+
+							<td><input type="text" class="form-control" name="preco" id="tab1" size="2" maxlength="9" autocomplete="off" ></td>
+
+							<td><input type="text" class="form-control" name="total" id="tab1" size="2" autocomplete="off"></td>
+
+							<td><input class="btn btn-danger" name="remove" id="remove" value="Apagar" type="button">
+							</td>
+							</div>
+						</tr>
+						                        <tr>
+
+							<div class="row">
+                            <td><select name="produto" class="select">
+								<option value="0"> Selecione o Produto</option>
+								{% for p in produtos %}
+											<option value="{{ p.id }}" >{{ p.NomeProduto }} - Estoque {{p.estoque}}</option>
+								{% endfor %}
+
+							</select></td>
+
+                            <td><input type="text" class="form-control" name="qtde" id="tab1" size="2" maxlength="3" autocomplete="off"></td>
+
+							<td><input type="text" class="form-control" name="preco" id="tab1" size="2" maxlength="9" autocomplete="off"></td>
+
+							<td><input type="text" class="form-control" name="total" id="tab1" size="2" autocomplete="off"></td>
+
+							<td><input class="btn btn-danger" name="remove" id="remove" value="Apagar" type="button">
+							</td>
+							</div>
+						</tr>
+
+
+
+							{% endif %}
+
+							<div class="row">
+							{% for c in venda_identificada %}
+                            <td><select name="produto" class="select">
+								<option> Selecione o Produto</option>
+								{% for p in produtos %}
+											<option value="{{ p.id }}" {% if p.id == c.idProduto %} SELECTED {% endif %}>{{ p.NomeProduto }} - Estoque {{p.estoque}}</option>
+								{% endfor %}
+
+							</select></td>
+
+                            <td><input type="text" class="form-control" name="qtde" id="tab1" size="2" maxlength="3" value="{{ c.quantidadeProduto }}"></td>
+
+							<td><input type="text" class="form-control" name="preco" id="tab1" size="2" maxlength="5" value="{{ c.precoProduto }}"></td>
+
+							<td><input type="text" class="form-control" name="total" id="tab1" size="2"></td>
+
+							<td><input class="btn btn-danger" name="remove" id="remove" value="Apagar" type="button">
+							</td>
+							</div>
+						</tr>
+						{% endfor %}
+						<tr></tr>
+
+                    </table>
+
+					<div class="row">
+
+            <div class="row mt-4">
+                <div class="col-lg-4 col-sm-6 col-12">
+                    <div class="form-group text-center p-3" style="background: #f8f9fa; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.1);">
+                    <label class="form-label" style="font-size: 1.1rem; font-weight: 600; color: #333;">
+                    💰 Valor Total da Venda
+                    </label>
+                    <input type="text" id="valorTotalVenda" class="form-control text-center"
+                    style="font-size: 1.2rem; font-weight: bold; color: #198754;"
+                   readonly>
+                    </div>
+                </div>
+            </div>
+					</div>
+                    <div class="row">
+
+                        <div class="col-12 text-right">
+
+                            <input type="button" name="add" id="add" value="Adicionar Linha" class="btn btn-success">
+
+                        </div>
+						{% if aparelhos == 1 %}
+						<div><h4>
+						<input type="checkbox" name="gerar_compra"> Essa venda gerou compra?
+						</h4>
+                        </div>
+
+            <div class="input-field">
+
+                <div class="table-responsive">
+					<div id="purchaseSection" style="display: none;">
+                    <table class="table table-bordered text-center" id="table_field">
+
+                        <tr>
+
+                            <th>Produto</th>
+
+                            <th>Quantidade</th>
+
+                            <th>Preço</th>
+
+							<th> Total </th>
+
+                        </tr>
+
+							<tr>
+								<div class="row">
+						        <td>			<select name="produto_compra" class="select">
+
+								{% for p in produtos_compra %}
+											<option value="{{ p.id }}" >{{ p.NomeProduto }}</option>
+								{% endfor %}
+								</select>
+									</td>
+
+                            <td><input type="text" class="form-control" name="quantidade_compra" id="tab1" size="2" maxlength="3"></td>
+
+							<td><input type="text" class="form-control" name="preco_compra" id="tab1" size="2" maxlength="5"></td>
+
+							<td><input type="text" class="form-control" name="total_compra" id="tab1" size="2"></td>
+
+							<td><input class="btn btn-danger" name="remove" id="remove" value="Apagar" type="button">
+							</td>
+								</div>
+						</tr>
+						{%endif%}
+						</table>
+						</div>
+						<div class="row">
+								<div class="col-lg-12">
+									<div class="form-group">
+										<label>Descrição</label>
+										<textarea name=descricao class="form-control">{{descricao}}</textarea>
+									</div>
+								</div>
+								<div class="col-lg-12">
+                        		    <input type="submit" name="save" id="save" value="Cadastrar Venda" class="btn btn-primary btn-block">
+								</div>
+							</div>
+                    </div>
+
+                </div>
+
+            </div>
+
+		<!-- /parte do indiano -->
+
+
+        </div>
+		</form>
+					<select id="clienteSelect" style="display:none;">
+						{% for c in clientes %}
+						<option value="{{ c.id }}">{{ c.nomeCliente }}</option>
+						{% endfor %}
+					</select>
+
+					<div id="cadastrarClienteModal" class="modal" style="display: none;">
+   											 <div class="modal-content">
+      										  <span class="close" onclick="closeModal()">&times;</span>
+      										  {% include 'cadastroclientemodal.html' %}
+    											</div>
+					</div>
+
+		<!-- /Main Wrapper -->
+
+
+		<!-- jQuery -->
+ 			{% include 'footer.html' %}
+
+        <!-- Select2 JS -->
+		<script src="{% static 'plugins/select2/js/select2.min.js' %}"></script>
+
+		<!-- Sweetalert 2 -->
+		<script src="{% static 'plugins/sweetalert/sweetalert2.all.min.js' %}"></script>
+		<script src="{% static 'plugins/sweetalert/sweetalerts.min.js' %}"></script>
+
+
+    <script type="text/javascript">
+
+            $(document).ready(function() {
+
+                var html = '<tr><td><select name="produto" class="select"><option value="0">Selecione o Produto</option>{% for p in produtos %}<option value="{{ p.id }}">{{ p.NomeProduto }} - Estoque {{p.estoque}}</option>{% endfor %}</select></td><td><input type="text" class="form-control" name="qtde" id="tab1" size="4" maxlength="4" autocomplete="off"></td><td><input type="text" class="form-control" name="preco" id="tab1" size="4" maxlength="9" autocomplete="off"></td><td><input type="text" class="form-control" name="total" id="tab1" size="5" maxlength="5"></td><td><input class="btn btn-danger" id="remove" type="button" name="remove" value="Apagar" tabindex="-1"></td></tr>';
+
+                var max = 10;
+
+                var x = 1;
+
+                $("#add").click(function(){
+
+                    if(x <= max){
+
+                        $("#table_field").append(html);
+
+                        x++;
+
+                    }
+
+                })
+
+
+
+                $("#table_field").on('click', '#remove', function() {
+
+                    $(this).closest('tr').remove();
+
+                    x--;
+
+                })
+
+
+
+                $('#tab1').on('keydown', function(e){
+
+                    if(e.keyCode == 9){
+
+                        if(x <= max) {
+
+                            $("#table_field").append(html);
+
+                            x++
+
+                        }
+
+                    }
+
+                })
+
+
+
+                $("#table_field").on('keydown', '#tab2', function(e) {
+
+                    if(e.keyCode == 9){
+
+                        if (x <= max){
+
+                            $("#table_field").append(html)
+
+                            x++
+
+                        }
+
+                    }
+
+                })
+
+            })
+
+        </script>
+
+		<script>
+			var shownVal = document.getElementById("cliente").value;
+			var value2send = document.querySelector("#cliente option[value='"+shownVal+"']").dataset.value;
+		</script>
+
+    <script>
+    function autocomplete(inp, selectElem, hiddenInput) {
+        var currentFocus;
+
+        // Show all options when the input field is focused
+        inp.addEventListener("focus", function() {
+            var a, b, i;
+            closeAllLists();
+            a = document.createElement("DIV");
+            a.setAttribute("id", this.id + "autocomplete-list");
+            a.setAttribute("class", "autocomplete-items");
+            this.parentNode.appendChild(a);
+
+            // Show all options
+            for (i = 0; i < selectElem.options.length; i++) {
+                b = document.createElement("DIV");
+                b.innerHTML = selectElem.options[i].textContent;
+                b.innerHTML += "<input type='hidden' value='" + selectElem.options[i].value + "'>";
+                b.innerHTML += "<input type='hidden' data-text='" + selectElem.options[i].textContent + "'>";
+                b.addEventListener("click", function(e) {
+                    inp.value = this.getElementsByTagName("input")[1].getAttribute("data-text");
+                    hiddenInput.value = this.getElementsByTagName("input")[0].value;
+                    closeAllLists();
+                });
+                a.appendChild(b);
+            }
+        });
+
+        // Filter options as the user types
+        inp.addEventListener("input", function(e) {
+            var a, b, i, val = this.value;
+            closeAllLists();
+
+            a = document.createElement("DIV");
+            a.setAttribute("id", this.id + "autocomplete-list");
+            a.setAttribute("class", "autocomplete-items");
+            this.parentNode.appendChild(a);
+
+            // If input is not empty, filter options
+            if (val) {
+                for (i = 0; i < selectElem.options.length; i++) {
+                    if (selectElem.options[i].textContent.toUpperCase().includes(val.toUpperCase())) {
+                        b = document.createElement("DIV");
+                        b.innerHTML = "<strong>" + selectElem.options[i].textContent.substr(0, val.length) + "</strong>";
+                        b.innerHTML += selectElem.options[i].textContent.substr(val.length);
+                        b.innerHTML += "<input type='hidden' value='" + selectElem.options[i].value + "'>";
+                        b.innerHTML += "<input type='hidden' data-text='" + selectElem.options[i].textContent + "'>";
+                        b.addEventListener("click", function(e) {
+                            inp.value = this.getElementsByTagName("input")[1].getAttribute("data-text");
+                            hiddenInput.value = this.getElementsByTagName("input")[0].value;
+                            closeAllLists();
+                        });
+                        a.appendChild(b);
+                    }
+                }
+            }
+        });
+
+        // Handle keyboard navigation (up/down arrow keys)
+        inp.addEventListener("keydown", function(e) {
+            var x = document.getElementById(this.id + "autocomplete-list");
+            if (x) x = x.getElementsByTagName("div");
+            if (e.keyCode === 40) {
+                currentFocus++;
+                addActive(x);
+            } else if (e.keyCode === 38) {
+                currentFocus--;
+                addActive(x);
+            } else if (e.keyCode === 13) {
+                e.preventDefault();
+                if (currentFocus > -1) {
+                    if (x) x[currentFocus].click();
+                }
+            }
+        });
+
+        // Add active class to highlighted item
+        function addActive(x) {
+            if (!x) return false;
+            removeActive(x);
+            if (currentFocus >= x.length) currentFocus = 0;
+            if (currentFocus < 0) currentFocus = (x.length - 1);
+            x[currentFocus].classList.add("autocomplete-active");
+        }
+
+        // Remove active class from all items
+        function removeActive(x) {
+            for (var i = 0; i < x.length; i++) {
+                x[i].classList.remove("autocomplete-active");
+            }
+        }
+
+        // Close all autocomplete lists
+        function closeAllLists(elmnt) {
+            var x = document.getElementsByClassName("autocomplete-items");
+            for (var i = 0; i < x.length; i++) {
+                if (elmnt !== x[i] && elmnt !== inp) {
+                    x[i].parentNode.removeChild(x[i]);
+                }
+            }
+        }
+
+        // Close autocomplete lists when clicking outside
+        document.addEventListener("click", function(e) {
+            closeAllLists(e.target);
+        });
+    }
+
+    autocomplete(
+        document.getElementById("clienteInput"),
+        document.getElementById("clienteSelect"),
+        document.getElementById("clienteHidden")
+    );
+</script>
+<script>
+
+	document.addEventListener("DOMContentLoaded", function () {
+    var checkbox = document.querySelector("input[name='gerar_compra']");
+    var sectionToToggle = document.getElementById("purchaseSection");
+
+    if (checkbox && sectionToToggle) {
+        checkbox.addEventListener("change", function () {
+            if (this.checked) {
+                sectionToToggle.style.display = "block";
+            } else {
+                sectionToToggle.style.display = "none";
+            }
+        });
+
+        // Initialize visibility based on checkbox state
+        sectionToToggle.style.display = checkbox.checked ? "block" : "none";
+    }
+});
+
+</script>
+
+<script>
+    function openModal() {
+        document.getElementById("cadastrarClienteModal").style.display = "block";
+    }
+
+    function closeModal() {
+        document.getElementById("cadastrarClienteModal").style.display = "none";
+    }
+
+    window.onclick = function(event) {
+        const modal = document.getElementById("cadastrarClienteModal");
+        if (event.target == modal) {
+            closeModal();
+        }
+    }
+</script>
+<script>
+$(document).ready(function () {
+    $('#formVenda').on('submit', function (e) {
+        var clienteHidden = $('#clienteHidden').val().trim();
+
+        if (!clienteHidden) {
+            e.preventDefault(); // Impede o envio do formulário
+
+            Swal.fire({
+                icon: 'warning',
+                title: 'Cliente Não Cadastrado',
+                confirmButtonText: 'OK',
+                customClass: {
+                    confirmButton: 'btn btn-primary me-3 confirm-text'
+                },
+                buttonsStyling: false
+            });
+        }
+    });
+});
+</script>
+<script src="{% static 'plugins/jquery.mask.min.js' %}"></script>
+<script>
+$(document).ready(function () {
+    // Máscara para preço e total (venda e compra)
+    $(document).on("input",
+        "input[name='preco'], input[name='total'], input[name='preco_compra'], input[name='total_compra']",
+        function () {
+            $(this).mask("000.000.000,00", {reverse: true});
+    });
+
+    // Apenas números em quantidade (venda e compra)
+    $(document).on("input", "input[name='qtde'], input[name='quantidade_compra']", function () {
+        this.value = this.value.replace(/[^0-9]/g, '');
+        calcularLinha($(this).closest("tr"));
+        calcularTotaisGerais();
+    });
+
+    // Atualiza linha quando preço muda (venda e compra)
+    $(document).on("input", "input[name='preco'], input[name='preco_compra']", function () {
+        calcularLinha($(this).closest("tr"));
+        calcularTotaisGerais();
+    });
+
+    function calcularLinha(row) {
+        let qtde = parseInt(row.find("input[name='qtde'], input[name='quantidade_compra']").val()) || 0;
+        let precoStr = row.find("input[name='preco'], input[name='preco_compra']").val().replace(/\./g, '').replace(',', '.');
+        let preco = parseFloat(precoStr) || 0;
+
+        let total = qtde * preco;
+
+        if (!isNaN(total)) {
+            let totalFormatado = total.toFixed(2)
+                .replace('.', ',')
+                .replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+            row.find("input[name='total'], input[name='total_compra']").val(totalFormatado);
+        } else {
+            row.find("input[name='total'], input[name='total_compra']").val('');
+        }
+    }
+
+    function calcularTotaisGerais() {
+        let somaVenda = 0;
+        let somaCompra = 0;
+
+        // Só soma os "total" da VENDA
+        $("input[name='total']").each(function () {
+            let val = $(this).val().replace(/\./g, '').replace(',', '.');
+            somaVenda += parseFloat(val) || 0;
+        });
+
+        // Só soma os "total_compra" da COMPRA
+        $("input[name='total_compra']").each(function () {
+            let val = $(this).val().replace(/\./g, '').replace(',', '.');
+            somaCompra += parseFloat(val) || 0;
+        });
+
+        // Atualiza os campos separados
+        $("#valorTotalVenda").val(formatarNumero(somaVenda));
+        $("#valorTotalCompra").val(formatarNumero(somaCompra));
+    }
+
+    function formatarNumero(num) {
+        return num.toFixed(2)
+            .replace('.', ',')
+            .replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    }
+});
+</script>
+
+<script>
+$(document).ready(function() {
+  $('#formVenda').on('submit', function(e) {
+    $('#table_field tr').each(function() {
+      const $tr = $(this);
+
+      // VENDAS
+      const $qtde = $tr.find('input[name="qtde"]');
+      const $preco = $tr.find('input[name="preco"]');
+
+      if ($qtde.length && $qtde.val()) {
+        // Converte qtde para padrão americano (troca vírgula por ponto)
+        $qtde.val($qtde.val().replace(',', '.'));
+      }
+
+      if ($preco.length && $preco.val()) {
+        // Remove milhares e troca vírgula por ponto
+        $preco.val($preco.val().replace(/\./g, '').replace(',', '.'));
+      }
+
+      // COMPRAS
+      const $qtdeCompra = $tr.find('input[name="quantidade_compra"]');
+      const $precoCompra = $tr.find('input[name="preco_compra"]');
+
+      if ($qtdeCompra.length && $qtdeCompra.val()) {
+        // Mesma regra da qtde de venda
+        $qtdeCompra.val($qtdeCompra.val().replace(',', '.'));
+      }
+
+      if ($precoCompra.length && $precoCompra.val()) {
+        // Remove milhares e troca vírgula por ponto (ex.: 1.234,56 -> 1234.56)
+        $precoCompra.val($precoCompra.val().replace(/\./g, '').replace(',', '.'));
+      }
+    });
+  });
+});
+</script>
+
+
+<script>
+$(document).ready(function () {
+  $('#formVenda').on('submit', function (e) {
+    // ... mantém sua validação de cliente aqui em cima ...
+
+    // ===== Validação Produtos =====
+    let erro = null;
+
+    $('#table_field tr').each(function () {
+      const produtoVal = $(this).find('select[name="produto"]').val();
+      const qtdeVal   = ( $(this).find('input[name="qtde"]').val()  || '' ).trim();
+      const precoVal  = ( $(this).find('input[name="preco"]').val() || '' ).trim();
+
+      const temQtde  = qtdeVal !== '' && qtdeVal !== '0';
+      const temPreco = precoVal !== '' && precoVal !== '0';
+
+      // NOVO: há quantidade e preço, mas produto não foi selecionado
+      if (temQtde && temPreco && (!produtoVal || produtoVal === '0')) {
+        erro = 'Selecione o produto nas linhas em que Quantidade e Preço foram preenchidos.';
+        return false; // interrompe o .each
+      }
+
+      // Já havia: produto selecionado, mas faltou qtde/preço
+      if (produtoVal && produtoVal !== '0') {
+        if (!temQtde) { erro = 'Quantidade não preenchida ou inválida.'; return false; }
+        if (!temPreco){ erro = 'Preço não preenchido ou inválido.';     return false; }
+      }
+    });
+
+    if (erro) {
+      e.preventDefault();
+      Swal.fire({
+        icon: 'warning',
+        title: erro,
+        confirmButtonText: 'OK',
+        customClass: { confirmButton: 'btn btn-primary me-3 confirm-text' },
+        buttonsStyling: false
+      });
+      return;
+    }
+
+    // ... mantém o resto do seu submit (conversões etc.) ...
+  });
+});
+</script>
+
+    </body>
+</html>

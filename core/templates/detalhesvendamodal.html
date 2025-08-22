@@ -1,0 +1,45 @@
+<div class="container-fluid px-0">
+  <!-- Cabeçalho da venda -->
+  <div class="mb-3">
+    <h5 style="font-weight:600;color:#343a40;border-left:4px solid #fd7e14;padding-left:10px;">
+      🧾 Venda #{{ identificadorVenda }}
+    </h5>
+    <p><strong>Cliente:</strong> {{ venda.cliente.nomeCliente }}</p>
+    <p><strong>Data:</strong> {{ venda.dataVenda|date:"d/m/Y" }}</p>
+  </div>
+
+  <!-- Tabela de itens -->
+  <div class="table-responsive mb-3">
+    <table id="tabela-itens" class="table datanew">
+      <thead>
+        <tr>
+          <th>Produto</th>
+          <th class="text-end">Qtd</th>
+          <th class="text-end">Preço</th>
+          <th class="text-end">Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for c in venda_identificada %}
+          {% for p in produtos %}
+            {% if p.id == c.idProduto %}
+              <tr>
+                <td>{{ p.NomeProduto }}</td>
+                <td class="text-end">{{ c.quantidadeProduto }}</td>
+                <td class="text-end">{{ c.precoProduto }}</td>
+                <td class="text-end subtotal">
+                  {% widthratio c.quantidadeProduto 1 c.precoProduto %}
+                </td>
+              </tr>
+            {% endif %}
+          {% endfor %}
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Total -->
+  <div class="text-end fw-bold p-2" style="background:#fff3e6;border-top:2px solid #fd7e14;border-radius:6px;">
+    Total: {{ venda.moeda }} <span id="totalVenda">0,00</span>
+  </div>
+</div>

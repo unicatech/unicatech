@@ -167,6 +167,9 @@
                   <a class="me-3 confirm-text" href="/listarvendas/?idVenda={{ venda.idVenda }}&funcao=apagar">
                     <img src="{% static 'img/icons/delete.svg' %}" alt="img">
                   </a>
+                    <a href="#"  class="me-3 view-sale" data-url="/fazervendas/?idVenda={{ venda.idVenda }}&funcao=modal">
+                    <img src="{% static 'img/icons/eye.svg' %}" alt="img">
+                  </a>
                 </td>
               </tr>
               {% endfor %}
@@ -178,7 +181,74 @@
     <!-- /Lista -->
   </div>
 </div>
-
+<!-- Modal genérico -->
+<div class="modal fade" id="modalVenda" tabindex="-1" aria-labelledby="modalVendaLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-body">
+        <div class="text-center p-3">Carregando...</div>
+      </div>
+    </div>
+  </div>
+</div>
 {% include 'footer.html' %}
+<script>
+function somarSubtotaisDaModal(modalElement) {
+  let total = 0;
+
+  // Soma os subtotais (tratando vírgula/ponto e valores vazios)
+  modalElement.querySelectorAll(".subtotal").forEach(td => {
+    const txt = (td.textContent || td.innerText || "").trim();
+    const num = parseFloat(txt.replace(/\./g, '').replace(',', '.'));
+    if (!isNaN(num)) total += num;
+  });
+
+  const span = modalElement.querySelector("#totalVenda");
+  if (span) {
+    span.textContent = total.toFixed(2).replace('.', ',');
+  }
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+  const modalEl = document.getElementById("modalVenda");
+  const modal = bootstrap.Modal.getOrCreateInstance(modalEl, {
+    backdrop: true,   // permite fechar clicando fora
+    keyboard: true    // permite fechar com ESC
+  });
+
+  // Quando clicar em "ver venda"
+  document.querySelectorAll(".view-sale").forEach(link => {
+    link.addEventListener("click", function (e) {
+      e.preventDefault();
+
+      const url = this.dataset.url;
+      const modalBody = modalEl.querySelector(".modal-body");
+      modalBody.innerHTML = '<div class="text-center p-3">Carregando...</div>';
+
+      fetch(url)
+        .then(r => r.text())
+        .then(html => {
+          modalBody.innerHTML = html;
+          // recalcula total depois do conteúdo carregado
+          somarSubtotaisDaModal(modalEl);
+        })
+        .catch(() => {
+          modalBody.innerHTML = "<div class='text-danger p-3'>Erro ao carregar dados.</div>";
+        });
+
+      modal.show();
+    });
+  });
+
+  // Limpa corretamente ao fechar (evita overlay preso)
+  modalEl.addEventListener("hidden.bs.modal", function () {
+    document.querySelectorAll(".modal-backdrop").forEach(el => el.remove());
+    document.body.classList.remove("modal-open");
+    document.body.style.removeProperty("padding-right");
+    document.body.style.removeProperty("overflow");
+  });
+});
+</script>
+
 </body>
 </html>

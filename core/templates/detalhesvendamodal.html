@@ -4,12 +4,17 @@
     <h5 style="font-weight:600;color:#343a40;border-left:4px solid #fd7e14;padding-left:10px;">
       🧾 Venda #{{ identificadorVenda }}
     </h5>
-    <p><strong>Cliente:
-        {% if idCliente  %}
-			{% for c in clientes %}
-			{% if c.id == idCliente %} <b>{{ c.nomeCliente }}</b> </font> {% endif %}
-			{% endfor %}
-        {% endif %}</strong> </p>
+    <p>
+      <strong>Cliente:
+        {% if idCliente %}
+          {% for c in clientes %}
+            {% if c.id == idCliente %}
+              <b>{{ c.nomeCliente }}</b>
+            {% endif %}
+          {% endfor %}
+        {% endif %}
+      </strong>
+    </p>
     <p><strong>Data:</strong> {{ dataVenda }}</p>
   </div>
 
@@ -42,6 +47,13 @@
       </tbody>
     </table>
   </div>
+
+  <!-- Descrição -->
+  {% if descricao %}
+  <div class="p-2 mb-2" style="background:#f8f9fa;border:1px solid #e9ecef;border-radius:6px;">
+    <strong>Descrição:</strong> {{ descricao }}
+  </div>
+  {% endif %}
 
   <!-- Total -->
   <div class="text-end fw-bold p-2" style="background:#fff3e6;border-top:2px solid #fd7e14;border-radius:6px;">

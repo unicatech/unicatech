@@ -422,19 +422,23 @@ class ListarVendasView(TemplateView):
         context = super(ListarVendasView, self).get_context_data(**kwargs)
         data_inicio = self.request.POST.getlist('data_inicio')
         data_fim = self.request.POST.getlist('data_fim')
-        cliente = self.request.POST.getlist('cliente')
-        data_inicio = datetime.strptime(data_inicio[0], '%Y-%m-%d').date()
-        data_fim = datetime.strptime(data_fim[0], '%Y-%m-%d').date()
-        logging.warning("Data início: %s", data_inicio)
-        logging.warning("Data fim: %s", data_fim)
+        descricao = self.request.POST.get('descricao')
         identificadorVenda = 0
         valor_recebido_venda = 0
         listarVendasTemplate = []
         recebimentos = []
         vendas = Venda.objects.filter(
             ativo=True,
-            criados__range=[data_inicio,data_fim],
         ).order_by('-identificadorVenda')
+        if data_inicio[0] and data_fim[0]:
+            data_inicio = datetime.strptime(data_inicio[0], '%Y-%m-%d').date()
+            data_fim = datetime.strptime(data_fim[0], '%Y-%m-%d').date()
+            vendas = vendas.filter(
+                criados__range=[data_inicio, data_fim]
+            )
+        logging.warning(descricao)
+        if descricao:
+            vendas = vendas.filter(descricao__icontains=descricao)
         for venda in vendas:
             if identificadorVenda != venda.identificadorVenda:
                 vendaIdentificada = Venda.objects.filter(identificadorVenda=venda.identificadorVenda,ativo=True).order_by('-identificadorVenda')

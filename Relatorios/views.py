@@ -3,6 +3,9 @@ from django.views.generic import TemplateView
 from Compras.models import Compra
 from Vendas.models import Venda
 from Produtos.models import Produto
+from Contas.models import RecebimentoCartao
+from django.db.models import Sum
+from django.utils.dateparse import parse_date
 
 class RelatorioProdutoView(TemplateView):
     template_name = "relatorioprodutos.html"
@@ -139,3 +142,56 @@ class RelatorioProdutoView(TemplateView):
 
         return context
 
+class RelatorioRecebimentoCartaoView(TemplateView):
+    template_name = "relatoriocartoes.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # Filtros recebidos
+        data_inicial = self.request.GET.get("data_inicial")
+        data_final = self.request.GET.get("data_final")
+        bandeira = self.request.GET.get("bandeira")
+
+        # Query base
+        recebimentos = RecebimentoCartao.objects.all()
+
+        # Filtro por datas
+        if data_inicial:
+            recebimentos = recebimentos.filter(criados__gte=parse_date(data_inicial))
+        if data_final:
+            recebimentos = recebimentos.filter(criados__lte=parse_date(data_final))
+
+        # Filtro por bandeira
+        if bandeira:
+            recebimentos = recebimentos.filter(bandeira__icontains=bandeira)
+
+        # Lista de bandeiras únicas (para o datalist)
+        bandeiras_lista = (
+            RecebimentoCartao.objects.values_list("bandeira", flat=True)
+            .distinct()
+            .order_by("bandeira")
+        )
+
+        # Resumo agrupado
+        resumo = (
+            recebimentos.values("bandeira")
+            .annotate(
+                total_valor=Sum("valor"),
+                total_liquido=Sum("valor_liquido")
+            )
+            .order_by("bandeira")
+        )
+
+        context.update({
+            "recebimentos": recebimentos,
+            "data_inicial": data_inicial or "",
+            "data_final": data_final or "",
+            "bandeira": bandeira or "",
+            "resumo": resumo,
+            "bandeiras_lista": bandeiras_lista,
+            "total_bruto": sum(r.valor for r in recebimentos),
+            "total_liquido": sum(r.valor_liquido for r in recebimentos),
+        })
+
+        return context

@@ -4,8 +4,13 @@
     <h5 style="font-weight:600;color:#343a40;border-left:4px solid #fd7e14;padding-left:10px;">
       🧾 Venda #{{ identificadorVenda }}
     </h5>
-    <p><strong>Cliente:</strong> {{ venda.cliente.nomeCliente }}</p>
-    <p><strong>Data:</strong> {{ venda.dataVenda|date:"d/m/Y" }}</p>
+    <p><strong>Cliente:
+        {% if idCliente  %}
+			{% for c in clientes %}
+			{% if c.id == idCliente %} <b>{{ c.nomeCliente }}</b> </font> {% endif %}
+			{% endfor %}
+        {% endif %}</strong> </p>
+    <p><strong>Data:</strong> {{ dataVenda }}</p>
   </div>
 
   <!-- Tabela de itens -->

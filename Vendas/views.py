@@ -41,21 +41,26 @@ class FazerVendasView(TemplateView):
             identificadorVenda = 0
             valorCompraVenda = 0
             context['editarVenda'] = 1
-
+            valor_total_venda = 0
+            preco_produto_subtotal = 0
             for venda in vendas:
+                preco_produto_subtotal = venda.quantidadeProduto * venda.precoProduto
                 listarProdutosTemplate.append(
                     {
                      'idProduto': venda.produto_id,
                      'quantidadeProduto': venda.quantidadeProduto,
                      'precoProduto': venda.precoProduto,
+                     'precoProdutoSubtotal': preco_produto_subtotal,
                      }
                 )
+                valor_total_venda = valor_total_venda + preco_produto_subtotal
                 context['dataVenda'] = venda.criados.strftime('%d-%m-%Y')
                 context['idCliente'] = venda.cliente_id
                 context['identificadorVenda'] = venda.identificadorVenda
                 context['venda_identificada'] = listarProdutosTemplate
                 context['descricao'] = venda.descricao
                 context['produtos'] = Produto.objects.all().order_by('NomeProduto')
+                context['valor_total_venda'] = valor_total_venda
 
         if self.request.GET.__contains__("id_cliente_cadastro"):
             listarProdutosTemplate = []
@@ -232,7 +237,10 @@ class FazerVendasView(TemplateView):
                     preco_medio = compra_total_produto / quantidade_produto
                 else:
                     preco_medio = 0
-                lucro = float(quantidades[contador]) * (float(precos[contador]) - preco_medio)
+                logging.warning(precos[contador])
+                preco = re.sub(r'\.', '', precos[contador]).replace(',', '.')
+                logging.warning(preco)
+                lucro = float(quantidades[contador]) * (float(preco) - preco_medio)
                 # Prevenir quando a quantidade comprada não estiver cadastrada, pois o valor vai vir menor que zero
                 if quantidade_produto > 0:
                     lucro = lucro - frete_medio_produto * float(quantidades[contador])
@@ -241,7 +249,7 @@ class FazerVendasView(TemplateView):
                     formVenda = Venda(
                                  criados=str(dataModificada),
                                  quantidadeProduto=quantidades[contador],
-                                 precoProduto=precos[contador],
+                                 precoProduto=preco,
                                  identificadorVenda=str(proximaVenda),
                                  cliente_id=cliente[0],
                                  produto_id=produto,
@@ -250,7 +258,7 @@ class FazerVendasView(TemplateView):
                     )
                     formVenda.save()
 
-                valorVenda = valorVenda + float(precos[contador])*float(quantidades[contador])
+                valorVenda = valorVenda + float(preco)*float(quantidades[contador])
                 contador = contador + 1
 
         context['mensagem'] = 'Venda Salva'

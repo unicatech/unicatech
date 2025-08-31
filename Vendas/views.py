@@ -42,7 +42,6 @@ class FazerVendasView(TemplateView):
             valorCompraVenda = 0
             context['editarVenda'] = 1
             valor_total_venda = 0
-            preco_produto_subtotal = 0
             for venda in vendas:
                 preco_produto_subtotal = venda.quantidadeProduto * venda.precoProduto
                 listarProdutosTemplate.append(
@@ -237,7 +236,6 @@ class FazerVendasView(TemplateView):
                     preco_medio = compra_total_produto / quantidade_produto
                 else:
                     preco_medio = 0
-                logging.warning(precos[contador])
                 preco = re.sub(r'\.', '', precos[contador]).replace(',', '.')
                 logging.warning(preco)
                 lucro = float(quantidades[contador]) * (float(preco) - preco_medio)

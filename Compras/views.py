@@ -26,14 +26,18 @@ class FazerComprasView(TemplateView):
             compras = Compra.objects.filter(identificadorCompra=self.request.GET["idCompra"], ativo=True)
             listarProdutosTemplate = []
             context['editarCompra'] = 1
+            valor_total_compra = 0
             for compra in compras:
+                preco_produto_subtotal = compra.quantidadeProduto * compra.precoProduto
                 listarProdutosTemplate.append(
                     {
                         'idProduto': compra.produto_id,
                         'quantidadeProduto': compra.quantidadeProduto,
                         'precoProduto': compra.precoProduto,
+                        'precoProdutoSubtotal': preco_produto_subtotal,
                     }
                 )
+                valor_total_compra = valor_total_compra + preco_produto_subtotal
                 #context['frete'] = compra.frete
                 context['idLocalizacao'] = compra.idLocalizacao_id
                 context['dataCompra'] = compra.criados.strftime('%d-%m-%Y')
@@ -43,6 +47,7 @@ class FazerComprasView(TemplateView):
                 context['compra_identificada'] = listarProdutosTemplate
                 context['dolarMedio'] = compra.valorDolarMedio
                 context['produtos'] = Produto.objects.all().order_by('NomeProduto')
+                context['valorTotalCompra'] = valor_total_compra
 
         if self.request.GET.__contains__("id_fornecedor_cadastro"):
             listarProdutosTemplate = []
@@ -96,31 +101,38 @@ class FazerComprasView(TemplateView):
 
         # Desabilitando registro de Compra Salva caso função seja editar
         if identificadorCompra[0] != "":
-            logging.warning(identificadorCompra[0])
             compraDesabilitada = Compra.objects.filter(identificadorCompra=identificadorCompra[0],ativo=True)
             #Devolvendo o dinheiro da Compra para a conta especifica
             for compra in compraDesabilitada:
                 valorEstornoCompra = valorEstornoCompra + compra.quantidadeProduto*compra.precoProduto
             itinerario_compra = Deslocamento.objects.filter(identificadorCompra=identificadorCompra[0],ativo=True)
-            proximaCompra = identificadorCompra[0]
             for cidade in itinerario_compra:
-                estorno_frete = MovimentacaoConta.objects.filter(id=cidade.idMovimentacaoConta)
-                estorno_frete_movimentacao_conta = MovimentacaoConta (
-                    criados=str(dataModificada),
-                    contaCredito_id=estorno_frete.contaDebito,
-                    valorCredito=estorno_frete.valorDebito,
-                    identificadorCompra=str(proximaCompra),
-                    descricao=descricao,
-                )
-                estorno_frete_movimentacao_conta.save()
-                estorno_frete.delete()
+                if cidade.idMovimentacaoConta != None:
+                    try:
+                        estorno_frete = MovimentacaoConta.objects.get(id=int(cidade.idMovimentacaoConta))
+                        logging.warning(estorno_frete.contaDebito)
+                    except:
+                        logging.warning("Não deu pra puxar do banco")
+
+                    estorno_frete_movimentacao_conta = MovimentacaoConta (
+                        criados=str(dataModificada),
+                        contaCredito_id=estorno_frete.contaDebito,
+                        valorCredito=estorno_frete.valorDebito,
+                        identificadorCompra=str(proximaCompra),
+                        descricao=descricao,
+                    )
+                    logging.warning(estorno_frete.contaDebito)
+                    logging.warning(estorno_frete.valorDebito)
+                    estorno_frete_movimentacao_conta.save()
+                    estorno_frete.delete()
             formMovimentacao = MovimentacaoConta(
                 criados=str(dataModificada),
                 contaCredito_id=contaOrigemOriginal[0],
-                valorCredito=valorEstorno,
+                valorCredito=valorEstornoCompra,
                 identificadorCompra=str(proximaCompra),
                 descricao=descricao,
             )
+            logging.warning(valorEstornoCompra)
             formMovimentacao.save()
             #Atualizando o estoque
             logging.warning("Removendo")
@@ -146,10 +158,11 @@ class FazerComprasView(TemplateView):
 
         for produto in produtos:
             if precos[contador] != "" and quantidades[contador] != "":
+                preco = re.sub(r'\.', '', precos[contador]).replace(',', '.')
                 formCompra = Compra(
                     criados=str(dataModificada),
                     quantidadeProduto=quantidades[contador],
-                    precoProduto=precos[contador],
+                    precoProduto=preco,
                     identificadorCompra=str(proximaCompra),
                     fornecedor_id=fornecedor[0],
                     produto_id=produto,
@@ -158,7 +171,7 @@ class FazerComprasView(TemplateView):
                     conta_id=contaOrigem[0],
                     valorDolarMedio=float(cotacaoDolar)
                 )
-                valorCompra = valorCompra + float(precos[contador]) * float(quantidades[contador])
+                valorCompra = valorCompra + float(preco) * float(quantidades[contador])
                 formCompra.save()
                 contador = contador + 1
         # Debitando da conta
@@ -186,8 +199,6 @@ class FazerComprasView(TemplateView):
 
         # Popular template
         context['fornecedores'] = Fornecedor.objects.all()
-        logging.warning("Tipo Produto")
-        logging.warning(tipo_produto)
         if tipo_produto[0] == "fazercompraspecas":
             context['produtos'] = Produto.objects.all().filter(categoria_id=5).order_by('NomeProduto')
         if tipo_produto[0] == "fazercomprasaparelhos":

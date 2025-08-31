@@ -143,6 +143,12 @@
 								<div class="col-lg-3 col-sm-6 col-12">
 									<div class="form-group">
 										<label>Fornecedor</label>
+                                        {% if idFornecedor  %}
+											<input type="hidden" name="fornecedor" value="{{idFornecedor}}" >
+											{% for f in fornecedores %}
+												{% if f.id == idFornecedor %} <font size="16"> <b>{{ f.nomeFornecedor }}</b> </font> {% endif %}
+											{% endfor %}
+										{% else %}
 										<div class="row">
 											<div class="col-lg-10 col-sm-10 col-10">
            										 <input id="fornecedorInput" type="text" placeholder="Fornecedor" autocomplete="off"
@@ -156,6 +162,7 @@
                                                 <div id="fornecedorAutocompleteList" class="autocomplete-items">
         								        </div>
 										</div>
+                                        {%endif%}
 									<div class="col-lg-2 col-sm-2 col-2 ps-0">
 										<div class="add-icon">
 											<a href="javascript:void(0);" onclick="openModal()"><img src="{% static 'img/icons/plus1.svg' %} " alt="img"></a>
@@ -276,11 +283,11 @@
 
 							</select></td>
 
-                            <td><input type="text" class="form-control" name="qtde" id="tab1" size="2" maxlength="3" value="{{ c.quantidadeProduto }}"></td>
+                            <td><input type="text" class="form-control" name="qtde" id="tab1" size="2" maxlength="3" value="{{ c.quantidadeProduto|floatformat:0 }}"></td>
 
-							<td><input type="text" class="form-control" name="preco" id="tab1" size="2" maxlength="9" value="{{ c.precoProduto }}"></td>
+							<td><input type="text" class="form-control" name="preco" id="tab1" size="2" maxlength="9" value="{{ c.precoProduto|floatformat:2 }}"></td>
 
-							<td><input type="text" class="form-control" name="total" id="tab1" size="2"></td>
+							<td><input type="text" class="form-control" name="total" id="tab1" size="2" value="{{ c.precoProdutoSubtotal|floatformat:2 }}"></td>
 
 							<td><input class="btn btn-danger" name="remove" id="remove" value="Apagar" type="button">
 							</td>
@@ -297,7 +304,7 @@
             <label class="form-label" style="font-size: 1.1rem; font-weight: 600; color: #333;">
                 💰 Valor Total da Compra
             </label>
-            <input type="text" id="valorTotalCompra" class="form-control text-center"
+            <input type="text" id="valorTotalCompra" class="form-control text-center" value="{{valorTotalCompra|floatformat:2}}"
                    style="font-size: 1.2rem; font-weight: bold; color: #198754;"
                    readonly>
         </div>
@@ -745,8 +752,8 @@ $(document).ready(function() {
 
             if(precoInput.length && precoInput.val()) {
                 // Remove pontos de milhar e converte ',' para '.'
-                let preco = precoInput.val().replace(/\./g, '').replace(',', '.');
-                precoInput.val(preco);
+                //let preco = precoInput.val().replace(/\./g, '').replace(',', '.');
+                //precoInput.val(preco);
             }
         });
     });

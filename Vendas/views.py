@@ -135,20 +135,28 @@ class FazerVendasView(TemplateView):
         # Desabilitando registro de Venda Salva caso função seja editar
         if identificadorVenda[0] != "":
             #Verificando se há algum produto que foi vendido e foi removido
+            logging.warning("identificador venda")
+            logging.warning(identificadorVenda[0])
+
             produtos_vendidos = Venda.objects.filter(identificadorVenda=identificadorVenda[0],
                                                   ativo=True)
             for produto_vendido in produtos_vendidos:
                 produto_encontrado = 0
                 for produto in produtos:
-                    if produto_vendido.produto_id == produto:
-                        #logging.warning("Produto encontrado")
+                    if produto_vendido.produto_id == int(produto):
                         produto_encontrado = 1
                 if produto_encontrado == 0:
+                    logging.warning("Produto removido da venda")
+                    logging.warning(produto_vendido.produto_id)
+                    quantidadeOriginalEstoque = Venda.objects.get(identificadorVenda=identificadorVenda[0],
+                                                              produto_id=produto_vendido.produto_id,ativo=True)
+                    atualizarEstoque = Produto.objects.get(id=produto_vendido.produto_id)
+                    atualizarEstoque.estoque = atualizarEstoque.estoque + quantidadeOriginalEstoque.quantidadeProduto
+                    atualizarEstoque.save()
                     produtos_removidos_venda.append(produto_vendido.produto_id)
 
             for produto in produtos:
                 try:
-                    #logging.warning("Try")
                     for produto_repetido_unico in produtos_repetidos_unicos:
                         if produto_repetido_unico == produto:
                             produto = -1

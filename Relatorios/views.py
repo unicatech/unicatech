@@ -69,12 +69,12 @@ class RelatorioProdutoView(TemplateView):
 
             # Compras
             if tipo_movimento in ["compra", "ambos"]:
-                compras_qs = Compra.objects.filter(**compra_filters).select_related("produto", "fornecedor").order_by("identificadorCompra", "id")
+                compras_qs = Compra.objects.filter(**compra_filters).filter(ativo=True).select_related("produto", "fornecedor").order_by("identificadorCompra", "id")
                 add_movimento(compras_qs, "Compra", "identificadorCompra", "fornecedor")
 
             # Vendas
             if tipo_movimento in ["venda", "ambos"]:
-                vendas_qs = Venda.objects.filter(**venda_filters).select_related("produto", "cliente").order_by("identificadorVenda", "id")
+                vendas_qs = Venda.objects.filter(**venda_filters).filter(ativo=True).select_related("produto", "cliente").order_by("identificadorVenda", "id")
                 add_movimento(vendas_qs, "Venda", "identificadorVenda", "cliente")
 
             # Ordena por nota e id

@@ -154,7 +154,7 @@ class RelatorioRecebimentoCartaoView(TemplateView):
         bandeira = self.request.GET.get("bandeira")
 
         # Query base
-        recebimentos = RecebimentoCartao.objects.all().order_by("-criados")
+        recebimentos = RecebimentoCartao.objects.all().order_by("-criados").filter(ativo=Truese)
 
         # Filtro por datas
         if data_inicial:

@@ -23,7 +23,7 @@ services:
       sh -c "chmod +x /wait-for-it.sh &&
              /wait-for-it.sh db:5432 --
              python manage.py migrate &&
-             python manage.py runserver 0.0.0.0:8000"
+             gunicorn -w 4 -b 0.0.0.0:8000 meu_projeto.wsgi:application"
     volumes:
       - .:/app
     ports:

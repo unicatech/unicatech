@@ -54,6 +54,36 @@ class FazerComprasView(TemplateView):
             identificadorCompra = 0
             context['id_fornecedor_cadastro'] = int(self.request.GET["id_fornecedor_cadastro"])
 
+        #Visualização da Compra apenas. Mostrar os fretes parciais.
+        if self.request.GET.get("funcao") == "modal":
+            localizacao_compra = Deslocamento.objects.filter(identificadorCompra=self.request.GET["idCompra"]).order_by(
+                '-id')
+            compra_deslocada = 0
+            apagar_apenas_ultimo = 1
+            localizacao_detalhada = []
+            for localizacao in localizacao_compra:
+                if compra_deslocada == 0:
+                    origem = localizacao.destino
+                    compra_deslocada = 1
+                try:
+                    origem_itinerario = LocalizacaoCompra.objects.get(id=localizacao.origem)
+                    destino_itinerario = LocalizacaoCompra.objects.get(id=localizacao.destino)
+                    localizacao_detalhada.append(
+                        {
+                            "id": localizacao.id,
+                            "origem": origem_itinerario.localizacaoCompra,
+                            "destino": destino_itinerario.localizacaoCompra,
+                            "frete": localizacao.frete,
+                            "data": localizacao.criados,
+                            "id_movimentacao_conta": localizacao.idMovimentacaoConta,
+                            "apagar_apenas_ultimo": apagar_apenas_ultimo,
+                        }
+                    )
+                except:
+                    pass
+                apagar_apenas_ultimo = 0
+            context['itinerario'] = localizacao_detalhada
+
         context['compras'] = Compra.objects.all()
         context['mensagem'] = ''
         # Popular template
@@ -210,7 +240,10 @@ class FazerComprasView(TemplateView):
         context['dolarMedio'] = financeiro.dolarMedio
         return HttpResponseRedirect('/'+tipo_produto[0]+'/?venda_realizada=1', context)
 
-
+    def get_template_names(self):
+        if self.request.GET.get("funcao") == "modal":
+            return ["detalhescompramodal.html"]
+        return [self.template_name]
 
 class ListarComprasView(TemplateView):
     template_name = 'listarcompras.html'

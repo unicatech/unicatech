@@ -1,0 +1,81 @@
+{% load math_extras %}
+<div class="container-fluid px-0">
+  <!-- Cabeçalho da venda -->
+  <div class="mb-3">
+    <h5 style="font-weight:600;color:#343a40;border-left:4px solid #fd7e14;padding-left:10px;">
+      🧾 Compra #{{ identificadorCompra }}
+    </h5>
+    <p>
+      <strong>Fornecedor:
+        {% if idFornecedor %}
+          {% for f in fornecedor %}
+            {% if f.id == idFornecedor %}
+              <b>{{ f.nomeFornecedor }}</b>
+            {% endif %}
+          {% endfor %}
+        {% endif %}
+      </strong>
+    </p>
+    <p><strong>Data:</strong> {{ dataCompra }}</p>
+  </div>
+
+  <!-- Tabela de itens -->
+  <div class="table-responsive mb-3">
+    <table id="tabela-itens" class="table datanew">
+      <thead>
+        <tr>
+          <th>Produto</th>
+          <th class="text-end">Qtd</th>
+          <th class="text-end">Preço</th>
+          <th class="text-end">Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for c in compra_identificada %}
+          {% for p in produtos %}
+            {% if p.id == c.idProduto %}
+              <tr>
+                <td>{{ p.NomeProduto }}</td>
+                <td class="text-end">{{ c.quantidadeProduto }}</td>
+                <td class="text-end">{{ c.precoProduto | floatformat:2 }}</td>
+                <td class="text-end subtotal">
+                 {{ c.quantidadeProduto|multiply:c.precoProduto|floatformat:2 }}
+                </td>
+              </tr>
+            {% endif %}
+          {% endfor %}
+        {% endfor %}
+        {% if itinerario %}
+        <thead>
+        <tr>
+          <th>Data do Frete</th>
+          <th class="text-end">Origem</th>
+          <th class="text-end">Destino</th>
+          <th class="text-end">Total</th>
+        </tr>
+        </thead>
+        {%endif%}
+        {% for localizacao in itinerario %}
+       <tr>
+          <td>{{ localizacao.data }}</td>
+          <td class="text-end">{{ localizacao.origem }}</td>
+          <td class="text-end">{{ localizacao.destino }}</td>
+          <td class="text-end subtotal">{{ localizacao.frete | floatformat:2}}</td>
+       </tr>
+       {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Descrição -->
+  {% if descricao %}
+  <div class="p-2 mb-2" style="background:#f8f9fa;border:1px solid #e9ecef;border-radius:6px;">
+    <strong>Descrição:</strong> {{ descricao }}
+  </div>
+  {% endif %}
+
+  <!-- Total -->
+  <div class="text-end fw-bold p-2" style="background:#fff3e6;border-top:2px solid #fd7e14;border-radius:6px;">
+    Total: {{ compra.moeda }} <span id="totalCompra">0,00</span>
+  </div>
+</div>

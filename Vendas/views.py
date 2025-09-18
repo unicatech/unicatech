@@ -338,7 +338,6 @@ class ListarVendasView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(ListarVendasView, self).get_context_data(**kwargs)
-
         produtos_repetidos = []
         context['mensagem'] = ''
         if self.request.GET.__contains__("idVenda"):
@@ -387,9 +386,9 @@ class ListarVendasView(TemplateView):
                         Compra.objects.filter(identificadorCompra=compra.identificadorCompra).update(ativo=False)
 
         hoje = timezone.now().date()
-        quinze_dias_atras = hoje - timedelta(days=15)
-        vendas = Venda.objects.filter(ativo=True, criados__gte=quinze_dias_atras).order_by('-identificadorVenda')
-        #vendas = Venda.objects.filter(ativo=True).order_by('-identificadorVenda')
+        seis_meses_atras = hoje - timedelta(days=180)
+        logging.warning(seis_meses_atras)
+        vendas = Venda.objects.filter(ativo=True, criados__gte=seis_meses_atras).order_by('-identificadorVenda')
 
         listarVendasTemplate = []
         recebimentos = []

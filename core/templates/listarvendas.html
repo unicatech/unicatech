@@ -153,7 +153,9 @@
                 <th>Identificador</th>
                 <th>Data</th>
                 <th>Valor</th>
+                <th>Recebimentos</th>
                 <th>Ação</th>
+
               </tr>
             </thead>
             <tbody>
@@ -165,16 +167,34 @@
                 <td>{{ venda.dataVenda }}</td>
                 <td>{{ venda.moeda }} {{ venda.valorVenda|floatformat:2 }}</td>
                 <td>
-                  <a class="me-3" href="/fazervendas/?idVenda={{ venda.idVenda }}">
-                    <img src="{% static 'img/icons/edit.svg' %}" alt="img">
+                        <table>
+                        {% for recebimento in venda.recebimentos %}
+						<tr>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td>R${{ recebimento.valor_recebimento | floatformat:2}}</td>
+						<td>{{ recebimento.data}}</td>
+						<td>{{ recebimento.Credito}}</td>
+						<td><a class="me-3" href="/parcelasareceber/?id={{recebimento.identificador_parcela}}&funcao=apagar">
+						<img src="{% static 'img/icons/delete.svg' %}" alt="img">
+						</a></td>
+						</tr>
+						{% endfor %}
+						</table>
+
+                </td>
+                <td>
+                  <a class="me-3" href="/fazervendas/?idVenda={{ venda.idVenda }}" >
+                    <img src="{% static 'img/icons/edit.svg' %}" alt="Editar">
                   </a>
                   <a class="me-3 confirm-text" href="/listarvendas/?idVenda={{ venda.idVenda }}&funcao=apagar">
-                    <img src="{% static 'img/icons/delete.svg' %}" alt="img">
+                    <img src="{% static 'img/icons/delete.svg' %}" alt="Apagar">
                   </a>
                     <a href="#"  class="me-3 view-sale" data-url="/fazervendas/?idVenda={{ venda.idVenda }}&funcao=modal">
-                    <img src="{% static 'img/icons/eye.svg' %}" alt="img">
+                    <img src="{% static 'img/icons/eye.svg' %}" alt="Visualizar">
                   </a>
-                </td>
+                  </td>
               </tr>
               {% endfor %}
             </tbody>

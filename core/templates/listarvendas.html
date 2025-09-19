@@ -47,18 +47,17 @@
       background: #fff3e6; color: #fd7e14; font-weight: 600;
       padding: 12px; border-bottom: 2px solid #fd7e14;
     }
-    table.datanew tbody td { padding: 10px; border-bottom: 1px solid #e9ecef; }
+    table.datanew tbody td { padding: 10px; border-bottom: 1px solid #e9ecef; vertical-align: top; }
 
     /* DataTables: mover busca p/ esquerda e estilizar */
     div.dataTables_wrapper div.dataTables_filter {
-      float: left !important; /* força à esquerda */
+      float: left !important;
       text-align: left !important;
     }
-    /* Esconde “Search:” original e injeta “Buscar” */
     div.dataTables_wrapper div.dataTables_filter label {
       font-weight: 500; color: #fd7e14;
       display: inline-flex; align-items: center; gap: 6px;
-      font-size: 0; /* esconde texto original do label */
+      font-size: 0;
     }
     div.dataTables_wrapper div.dataTables_filter label::before {
       content: "Buscar";
@@ -97,7 +96,7 @@
         <h4>Lista de Vendas</h4>
         <h6>Gerencie suas Vendas</h6>
       </div>
-        <div class="page-btn">
+      <div class="page-btn">
         <a href="{% url 'fazervendasaparelhos'%}" class="btn btn-primary">
           <img src="{% static 'img/icons/plus.svg' %}" alt="img"> Fazer Nova Venda de Aparelhos
         </a>
@@ -126,10 +125,10 @@
                 <input type="date" id="data_fim" name="data_fim" class="form-control">
               </div>
             </div>
-           <div class="col-lg-4 col-sm-6 col-12">
-                <label class="form-label">IMEI</label>
-                <input type="text" class="form-control" name="descricao" placeholder="">
-           </div>
+            <div class="col-lg-4 col-sm-6 col-12">
+              <label class="form-label">IMEI</label>
+              <input type="text" class="form-control" name="descricao" placeholder="">
+            </div>
             <div class="col-lg-2 col-sm-6 col-12 d-flex align-items-end">
               <button type="submit" class="btn btn-primary w-100">Filtrar</button>
             </div>
@@ -155,7 +154,6 @@
                 <th>Valor</th>
                 <th>Recebimentos</th>
                 <th>Ação</th>
-
               </tr>
             </thead>
             <tbody>
@@ -166,35 +164,35 @@
                 <td>{{ venda.idVenda }}</td>
                 <td>{{ venda.dataVenda }}</td>
                 <td>{{ venda.moeda }} {{ venda.valorVenda|floatformat:2 }}</td>
-                <td>
-                        <table>
-                        {% for recebimento in venda.recebimentos %}
-						<tr>
-						<td></td>
-						<td></td>
-						<td></td>
-						<td>R${{ recebimento.valor_recebimento | floatformat:2}}</td>
-						<td>{{ recebimento.data}}</td>
-						<td>{{ recebimento.Credito}}</td>
-						<td><a class="me-3" href="/parcelasareceber/?id={{recebimento.identificador_parcela}}&funcao=apagar">
-						<img src="{% static 'img/icons/delete.svg' %}" alt="img">
-						</a></td>
-						</tr>
-						{% endfor %}
-						</table>
-
+                <td style="max-width:220px; vertical-align:top; padding:5px;">
+                  <div style="max-height:140px; overflow-y:auto;">
+                    <table style="width:100%; border-collapse: separate; border-spacing: 4px 6px;">
+                      {% for recebimento in venda.recebimentos %}
+                      <tr>
+                        <td>R${{ recebimento.valor_recebimento|floatformat:2 }}</td>
+                        <td>{{ recebimento.data }}</td>
+                        <td>{{ recebimento.Credito }}</td>
+                        <td>
+                          <a href="/parcelasareceber/?id={{recebimento.identificador_parcela}}&funcao=apagar">
+                            <img src="{% static 'img/icons/delete.svg' %}" alt="Apagar">
+                          </a>
+                        </td>
+                      </tr>
+                      {% endfor %}
+                    </table>
+                  </div>
                 </td>
                 <td>
-                  <a class="me-3" href="/fazervendas/?idVenda={{ venda.idVenda }}" >
+                  <a class="me-3" href="/fazervendas/?idVenda={{ venda.idVenda }}">
                     <img src="{% static 'img/icons/edit.svg' %}" alt="Editar">
                   </a>
                   <a class="me-3 confirm-text" href="/listarvendas/?idVenda={{ venda.idVenda }}&funcao=apagar">
                     <img src="{% static 'img/icons/delete.svg' %}" alt="Apagar">
                   </a>
-                    <a href="#"  class="me-3 view-sale" data-url="/fazervendas/?idVenda={{ venda.idVenda }}&funcao=modal">
+                  <a href="#" class="me-3 view-sale" data-url="/fazervendas/?idVenda={{ venda.idVenda }}&funcao=modal">
                     <img src="{% static 'img/icons/eye.svg' %}" alt="Visualizar">
                   </a>
-                  </td>
+                </td>
               </tr>
               {% endfor %}
             </tbody>
@@ -205,6 +203,7 @@
     <!-- /Lista -->
   </div>
 </div>
+
 <!-- Modal genérico -->
 <div class="modal fade" id="modalVenda" tabindex="-1" aria-labelledby="modalVendaLabel" aria-hidden="true">
   <div class="modal-dialog modal-xl">
@@ -215,56 +214,42 @@
     </div>
   </div>
 </div>
+
 {% include 'footer.html' %}
+
 <script>
 function somarSubtotaisDaModal(modalElement) {
   let total = 0;
-
-  // Soma os subtotais (tratando vírgula/ponto e valores vazios)
   modalElement.querySelectorAll(".subtotal").forEach(td => {
     const txt = (td.textContent || td.innerText || "").trim();
     const num = parseFloat(txt.replace(/\./g, '').replace(',', '.'));
     if (!isNaN(num)) total += num;
   });
-
   const span = modalElement.querySelector("#totalVenda");
-  if (span) {
-    span.textContent = total.toFixed(2).replace('.', ',');
-  }
+  if (span) { span.textContent = total.toFixed(2).replace('.', ','); }
 }
 
 document.addEventListener("DOMContentLoaded", function () {
   const modalEl = document.getElementById("modalVenda");
-  const modal = bootstrap.Modal.getOrCreateInstance(modalEl, {
-    backdrop: true,   // permite fechar clicando fora
-    keyboard: true    // permite fechar com ESC
-  });
+  const modal = bootstrap.Modal.getOrCreateInstance(modalEl, { backdrop: true, keyboard: true });
 
-  // Quando clicar em "ver venda"
   document.querySelectorAll(".view-sale").forEach(link => {
     link.addEventListener("click", function (e) {
       e.preventDefault();
-
       const url = this.dataset.url;
       const modalBody = modalEl.querySelector(".modal-body");
       modalBody.innerHTML = '<div class="text-center p-3">Carregando...</div>';
-
       fetch(url)
         .then(r => r.text())
         .then(html => {
           modalBody.innerHTML = html;
-          // recalcula total depois do conteúdo carregado
           somarSubtotaisDaModal(modalEl);
         })
-        .catch(() => {
-          modalBody.innerHTML = "<div class='text-danger p-3'>Erro ao carregar dados.</div>";
-        });
-
+        .catch(() => { modalBody.innerHTML = "<div class='text-danger p-3'>Erro ao carregar dados.</div>"; });
       modal.show();
     });
   });
 
-  // Limpa corretamente ao fechar (evita overlay preso)
   modalEl.addEventListener("hidden.bs.modal", function () {
     document.querySelectorAll(".modal-backdrop").forEach(el => el.remove());
     document.body.classList.remove("modal-open");
@@ -273,6 +258,5 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 });
 </script>
-
 </body>
 </html>

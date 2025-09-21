@@ -2,8 +2,6 @@
   font-family: 'typicons';
   font-weight: normal;
   font-style: normal;
-  src: url("fonts/typicons.eot");
-  src: url("fonts/typicons.eot?#iefix") format("embedded-opentype"), url("fonts/typicons.woff") format("woff"), url("fonts/typicons.ttf") format("truetype"), url("fonts/typicons.svg#typicons") format("svg"); }
 /* :before psuedo-selector inserts and styles icon */
 .typcn:before {
   font-family: 'typicons';

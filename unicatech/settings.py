@@ -26,7 +26,7 @@ LOGIN_REDIRECT_URL = '/'        # para onde o usuário vai após logar
 SECRET_KEY = 'django-insecure-5bln)qy2@9^6wemx&@(v1to+j4qnmocxm+-8n1jkt7#&*8&vcd'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 
@@ -60,6 +60,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # 👈
 ]
 
 ROOT_URLCONF = 'unicatech.urls'
@@ -137,7 +138,8 @@ STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 

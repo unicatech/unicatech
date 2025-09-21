@@ -16,6 +16,11 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copia o projeto inteiro
 COPY . /app/
 
+ENV DJANGO_SETTINGS_MODULE=unicatech.settings
+ENV PYTHONUNBUFFERED=1
+
+RUN python manage.py collectstatic --noinput --settings=unicatech.settings
+
 # Copia script de espera
 COPY wait-for-it.sh /wait-for-it.sh
 RUN chmod +x /wait-for-it.sh
@@ -26,5 +31,6 @@ EXPOSE 8000
 # Comando padrão ao iniciar o container
 #CMD [ "sh", "-c", "/wait-for-it.sh db:5432 -- python manage.py migrate && python manage.py runserver 0.0.0.0:8000" ]
 CMD [ "sh", "-c", "/wait-for-it.sh db:5432 -- python manage.py migrate" ]
+CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:8000", "unicatech.wsgi:application"]
 
 

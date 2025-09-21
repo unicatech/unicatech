@@ -30,7 +30,6 @@ EXPOSE 8000
 
 # Comando padrão ao iniciar o container
 #CMD [ "sh", "-c", "/wait-for-it.sh db:5432 -- python manage.py migrate && python manage.py runserver 0.0.0.0:8000" ]
-CMD [ "sh", "-c", "/wait-for-it.sh db:5432 -- python manage.py migrate" ]
-CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:8000", "unicatech.wsgi:application"]
+CMD ["sh", "-c", "/wait-for-it.sh db:5432 -- python manage.py migrate && gunicorn -w 4 -b 0.0.0.0:8000 unicatech.wsgi:application"]
 
 

@@ -2660,7 +2660,6 @@ body[data-layout-mode=dark] .alertify .ajs-content .ajs-input {
   transform: translateX(-50%) translateY(-50%);
   -webkit-transform: translateX(-50%) translateY(-50%);
   -ms-transform: translateX(-50%) translateY(-50%);
-  background: url(../img/arrow.svg) no-repeat 0 0;
 }
 
 .cd-timeline-navigation a.prev {
@@ -2990,7 +2989,6 @@ table.dataTable > thead .sorting_desc_disabled:before {
 
 .custom-select {
   min-width: 80px;
-  background: url(../img/icons/dropdown.svg) no-repeat 95% 50%;
 }
 
 .pagination li {
@@ -6916,7 +6914,6 @@ span.select2-container.select2-container--default.select2-container--open {
 }
 
 .cal-icon {
-  background-image: url(../img/icons/calendars.svg);
   background-repeat: no-repeat;
   background-position: 95% 50%;
 }

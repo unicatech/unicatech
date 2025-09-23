@@ -1,7 +1,7 @@
 (function ($) {
     "use strict";
 
-    $.fn.raty.defaults.path = 'assets/plugins/raty/images/'
+    $.fn.raty.defaults.path = 'static/plugins/raty/images/'
 
     // Default
     if( $('.rating-default').length ) {
@@ -89,7 +89,7 @@
     // Path
     if( $('.rating-path').length ) {
         $('.rating-path').raty({
-            path: 'assets/images/rating/'
+            path: 'static/images/rating/'
         });
     }
 

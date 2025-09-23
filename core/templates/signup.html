@@ -10,17 +10,17 @@
         <title>Login - Pos admin template</title>
 		
 		<!-- Favicon -->
-        <link rel="shortcut icon" type="image/x-icon" href="assets/img/favicon.png">
+        <link rel="shortcut icon" type="image/x-icon" href="{% static 'img/favicon.png' %}"">
 		
 		<!-- Bootstrap CSS -->
-        <link rel="stylesheet" href="assets/css/bootstrap.min.css">
+        <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}"">
 		
         <!-- Fontawesome CSS -->
-		<link rel="stylesheet" href="assets/plugins/fontawesome/css/fontawesome.min.css">
-		<link rel="stylesheet" href="assets/plugins/fontawesome/css/all.min.css">
+		<link rel="stylesheet" href="{% static 'plugins/fontawesome/css/fontawesome.min.css' %}"">
+		<link rel="stylesheet" href="{% static 'plugins/fontawesome/css/all.min.css' %}"">
 		
 		<!-- Main CSS -->
-        <link rel="stylesheet" href="assets/css/style.css">
+        <link rel="stylesheet" href="{% static 'css/style.css' %}"">
 		
     </head>
     <body class="account-page">
@@ -33,10 +33,10 @@
                     <div class="login-content">
                         <div class="login-userset">
                             <div class="login-logo logo-normal">
-                                <img src="assets/img/logo.png" alt="img">
+                                <img src="{% static 'img/logo.png' %}"" alt="img">
                             </div>
 							<a href="index.html" class="login-logo logo-white">
-								<img src="assets/img/logo-white.png"  alt="">
+								<img src="{% static 'img/logo-white.png' %}""  alt="">
 							</a>
                             <div class="login-userheading">
                                 <h3>Create an Account</h3>
@@ -46,14 +46,14 @@
                                 <label>Full Name</label>
                                 <div class="form-addons">
                                     <input type="text" placeholder="Enter your full name">
-                                    <img src="assets/img/icons/users1.svg" alt="img">
+                                    <img src="{% static 'img/icons/users1.svg' %}"" alt="img">
                                 </div>
                             </div>
                             <div class="form-login">
                                 <label>Email</label>
                                 <div class="form-addons">
                                     <input type="text" placeholder="Enter your email address">
-                                    <img src="assets/img/icons/mail.svg" alt="img">
+                                    <img src="{% static 'img/icons/mail.svg' %}"" alt="img">
                                 </div>
                             </div>
                             <div class="form-login">
@@ -76,13 +76,13 @@
                                 <ul>
                                     <li>
                                         <a href="javascript:void(0);">
-                                            <img src="assets/img/icons/google.png" class="me-2" alt="google">
+                                            <img src="{% static 'img/icons/google.png' %}"" class="me-2" alt="google">
                                             Sign Up using Google
                                         </a>
                                     </li>
                                     <li>
                                         <a href="javascript:void(0);">
-                                            <img src="assets/img/icons/facebook.png" class="me-2" alt="google">
+                                            <img src="{% static 'img/icons/facebook.png' %}"" class="me-2" alt="google">
                                             Sign Up using Facebook
                                         </a>
                                     </li>
@@ -91,7 +91,7 @@
                         </div>
                     </div>
                     <div class="login-img">
-                        <img src="assets/img/login.jpg" alt="img">
+                        <img src="{% static 'img/login.jpg' %}"" alt="img">
                     </div>
                 </div>
 			</div>
@@ -99,16 +99,16 @@
 		<!-- /Main Wrapper -->
 		
 		<!-- jQuery -->
-        <script src="assets/js/jquery-3.6.0.min.js"></script>
+        <script src="{% static 'js/jquery-3.6.0.min.js' %}""></script>
 
         <!-- Feather Icon JS -->
-		<script src="assets/js/feather.min.js"></script>
+		<script src="{% static 'js/feather.min.js' %}""></script>
 		
 		<!-- Bootstrap Core JS -->
-        <script src="assets/js/bootstrap.bundle.min.js"></script>
+        <script src="{% static 'js/bootstrap.bundle.min.js' %}""></script>
 		
 		<!-- Custom JS -->
-		<script src="assets/js/script.js"></script>
+		<script src="{% static 'js/script.js' %}""></script>
 		
     </body>
 </html>

@@ -271,7 +271,7 @@ class ListarComprasView(TemplateView):
                 apagardeslocamento.delete()
 
         hoje = timezone.now().date()
-        quinze_dias_atras = hoje - timedelta(days=15)
+        quinze_dias_atras = hoje - timedelta(days=180)
         compras = Compra.objects.order_by('-identificadorCompra').filter(ativo=True, criados__gte=quinze_dias_atras)
 
         listarComprasTemplate = []

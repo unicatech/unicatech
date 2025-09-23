@@ -26,7 +26,7 @@ LOGIN_REDIRECT_URL = '/'        # para onde o usuário vai após logar
 SECRET_KEY = 'django-insecure-5bln)qy2@9^6wemx&@(v1to+j4qnmocxm+-8n1jkt7#&*8&vcd'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 

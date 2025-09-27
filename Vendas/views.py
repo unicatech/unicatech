@@ -281,10 +281,11 @@ class FazerVendasView(TemplateView):
             valorCompra = 0
             for produto in produtos_compra:
                 if precos_compra[contador] != "" and quantidades_compra[contador] != "":
+                    preco = re.sub(r'\.', '', precos_compra[contador]).replace(',', '.')
                     formCompra = Compra(
                     criados=str(dataModificada),
                     quantidadeProduto=quantidades_compra[contador],
-                    precoProduto=precos_compra[contador],
+                    precoProduto=preco,
                     identificadorCompra=str(proximaCompra),
                     fornecedor_id=0,
                     produto_id=produto,
@@ -293,7 +294,7 @@ class FazerVendasView(TemplateView):
                     conta_id=-1, #recebimento de aparelho
                     valorDolarMedio=float(cotacaoDolar)
                     )
-                    valorCompra = valorCompra + float(precos_compra[contador]) * float(quantidades_compra[contador])
+                    valorCompra = valorCompra + float(preco) * float(quantidades_compra[contador])
                     formCompra.save()
                     #Atualizando o estoque
                     #logging.warning("Adicionando")

@@ -123,8 +123,9 @@
                 <table class="table table-striped align-middle">
                   <thead>
                     <tr>
+                                              <th>Identificador da Venda</th>
                       <th>ID</th>
-                      <th>Identificador da Venda</th>
+
                       <th>Data de Criação</th>
                       <th class="text-end">Valor da Parcela</th>
                       <th class="text-end">Valor Total</th>
@@ -133,10 +134,19 @@
                     </tr>
                   </thead>
                   <tbody>
+                    {% with None as ultimo_idVenda %}
                     {% for mov in movimentacoes %}
                       <tr>
-                        <td>{{ mov.id }}</td>
-                          <td>{{ mov.identificadorVenda }}<a href="#" class="me-3 view-sale" data-url="/fazervendas/?idVenda={{ mov.identificadorVenda }}&funcao=modal"><img src="{% static 'img/icons/eye.svg' %}" alt="Visualizar"></a></td>
+
+<td>
+  {% ifchanged mov.identificadorVenda %}
+    {{ mov.identificadorVenda }}   <a href="#" class="me-3 view-sale" data-url="/fazervendas/?idVenda={{ mov.identificadorVenda }}&funcao=modal">
+    <img src="{% static 'img/icons/eye.svg' %}" alt="Visualizar">
+  </a>
+  {% endifchanged %}
+
+</td>
+                                                  <td>{{ mov.id }}</td>
                           <td>{{ mov.data_criacao|date:"d/m/Y" }}</td>
 <td class="text-end">R$ {{ mov.valorCredito|floatformat:2 }}</td>
 <td class="text-end">R$ {{ mov.total_credito_venda|floatformat:2 }}</td>
@@ -144,6 +154,7 @@
                         <td>{{mov.descricao}}</td>
                       </tr>
                     {% endfor %}
+                    {% endwith %}
                   </tbody>
                 </table>
               </div>

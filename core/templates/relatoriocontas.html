@@ -1,0 +1,212 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+  <!-- Header -->
+  {% include 'head.html' %}
+  <body>
+    <!-- Sidebar -->
+    {% include 'sidebar.html' %}
+    <!-- /Sidebar -->
+
+    <style>
+      .page-header { margin-bottom: 1.5rem; }
+      .page-title h4 { font-size: 1.6rem; font-weight: 600; color: #343a40; }
+      .page-title h6 { font-size: 1rem; color: #6c757d; }
+
+      .card {
+        border-radius: 12px;
+        border: 1px solid #e9ecef;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+        margin-bottom: 1.5rem;
+      }
+      .card-body { padding: 1.5rem; }
+
+      .form-label { font-weight: 500; color: #495057; }
+
+      .form-control, .form-select {
+        border-radius: 6px;
+        border: 1px solid #ced4da;
+        padding: 8px 10px;
+        font-size: 0.95rem;
+      }
+
+      .btn-submit {
+        background-color: #fd7e14;
+        border: none;
+        border-radius: 6px;
+        padding: 8px 16px;
+        font-size: 0.95rem;
+        color: #fff;
+        font-weight: 500;
+      }
+      .btn-submit:hover {
+        background-color: #e96b0c;
+        color: #fff;
+      }
+
+      table.table thead th {
+        background: #fff3e6;
+        font-weight: 600;
+        color: #fd7e14;
+        padding: 12px;
+        border-bottom: 2px solid #fd7e14;
+      }
+      table.table tbody td {
+        padding: 10px;
+        border-bottom: 1px solid #e9ecef;
+      }
+
+      .card-body h5 {
+        font-weight: 600;
+        color: #343a40;
+        border-left: 4px solid #fd7e14;
+        padding-left: 10px;
+        margin-bottom: 1rem;
+      }
+
+      .alert-info {
+        border-radius: 6px;
+        border: 1px solid #bee5eb;
+        background: #e8f7fa;
+        color: #0c5460;
+        font-weight: 500;
+      }
+    </style>
+
+    <div class="page-wrapper">
+      <div class="content">
+        <div class="page-header">
+          <div class="page-title">
+            <h4>Relatório de Recebimentos por Contas</h4>
+            <h6>Detalhamento de Créditos por Venda</h6>
+          </div>
+        </div>
+
+        <!-- 📅 Filtros -->
+        <div class="card mb-4">
+          <div class="card-body">
+            <h5>📅 Filtros</h5>
+            <form method="get" class="row g-3">
+              <div class="col-lg-3 col-sm-6 col-12">
+                <label class="form-label">Data inicial</label>
+                <input type="date" class="form-control" name="data_inicio" value="{{ data_inicio|date:'Y-m-d' }}">
+              </div>
+              <div class="col-lg-3 col-sm-6 col-12">
+                <label class="form-label">Data final</label>
+                <input type="date" class="form-control" name="data_fim" value="{{ data_fim|date:'Y-m-d' }}">
+              </div>
+              <div class="col-lg-4 col-sm-6 col-12">
+                <label class="form-label">Conta</label>
+                <select class="form-select" name="conta">
+                  <option value="">-- Todas as Contas --</option>
+                  {% for conta in contas %}
+                    <option value="{{ conta.id }}" {% if conta.id == conta_selecionada %}selected{% endif %}>
+                      {{ conta.nomeConta }}
+                    </option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="col-lg-2 col-sm-6 col-12 d-flex align-items-end">
+                <button class="btn btn-submit w-100">Filtrar</button>
+              </div>
+            </form>
+          </div>
+        </div>
+        <!-- /Filtros -->
+
+        {% if movimentacoes %}
+          <!-- 📋 Tabela de Movimentações -->
+          <div class="card mb-4">
+            <div class="card-body">
+              <h5>📋 Movimentações</h5>
+              <div class="table-responsive">
+                <table class="table table-striped align-middle">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Identificador da Venda</th>
+                      <th>Data de Criação</th>
+                      <th class="text-end">Valor da Parcela</th>
+                      <th class="text-end">Valor Total</th>
+                      <th>Conta de Crédito</th>
+                      <th>Descrição</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for mov in movimentacoes %}
+                      <tr>
+                        <td>{{ mov.id }}</td>
+                          <td>{{ mov.identificadorVenda }}<a href="#" class="me-3 view-sale" data-url="/fazervendas/?idVenda={{ mov.identificadorVenda }}&funcao=modal"><img src="{% static 'img/icons/eye.svg' %}" alt="Visualizar"></a></td>
+                          <td>{{ mov.data_criacao|date:"d/m/Y" }}</td>
+<td class="text-end">R$ {{ mov.valorCredito|floatformat:2 }}</td>
+<td class="text-end">R$ {{ mov.total_credito_venda|floatformat:2 }}</td>
+                        <td>{{ mov.contaCredito_nome }}</td>
+                        <td>{{mov.descricao}}</td>
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          <!-- /Tabela -->
+        {% else %}
+          <div class="alert alert-info">
+            Nenhuma movimentação encontrada. Ajuste os filtros acima e tente novamente.
+          </div>
+        {% endif %}
+
+      </div>
+    </div>
+
+<div class="modal fade" id="modalVenda" tabindex="-1" aria-labelledby="modalVendaLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-body">
+        <div class="text-center p-3">Carregando...</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    {% include 'footer.html' %}
+
+  <script>
+function somarSubtotaisDaModal(modalElement) {
+  let total = 0;
+  modalElement.querySelectorAll(".subtotal").forEach(td => {
+    const txt = (td.textContent || td.innerText || "").trim();
+    const num = parseFloat(txt.replace(/\./g,'').replace(',','.'));
+    if (!isNaN(num)) total += num;
+  });
+  const span = modalElement.querySelector("#totalVenda");
+  if(span) span.textContent = total.toFixed(2).replace('.',',');
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+  const modalEl = document.getElementById("modalVenda");
+  const modal = bootstrap.Modal.getOrCreateInstance(modalEl, {backdrop:true, keyboard:true});
+  document.querySelectorAll(".view-sale").forEach(link=>{
+    link.addEventListener("click", function(e){
+      e.preventDefault();
+      const url = this.dataset.url;
+      const modalBody = modalEl.querySelector(".modal-body");
+      modalBody.innerHTML = '<div class="text-center p-3">Carregando...</div>';
+      fetch(url).then(r=>r.text()).then(html=>{
+        modalBody.innerHTML = html;
+        somarSubtotaisDaModal(modalEl);
+      }).catch(()=>{ modalBody.innerHTML = "<div class='text-danger p-3'>Erro ao carregar dados.</div>"; });
+      modal.show();
+    });
+  });
+  modalEl.addEventListener("hidden.bs.modal", function(){
+    document.querySelectorAll(".modal-backdrop").forEach(el=>el.remove());
+    document.body.classList.remove("modal-open");
+    document.body.style.removeProperty("padding-right");
+    document.body.style.removeProperty("overflow");
+  });
+});
+</script>
+
+  </body>
+</html>

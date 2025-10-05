@@ -3,7 +3,9 @@ from django.views.generic import TemplateView
 from Compras.models import Compra
 from Vendas.models import Venda
 from Produtos.models import Produto
-from Contas.models import RecebimentoCartao
+from django.db.models import F, Sum, Min, Count
+from django.utils.dateparse import parse_date
+from Contas.models import RecebimentoCartao, MovimentacaoConta, Conta
 from django.db.models import Sum
 from django.utils.dateparse import parse_date
 
@@ -195,3 +197,77 @@ class RelatorioRecebimentoCartaoView(TemplateView):
         })
 
         return context
+
+class RelatorioRecebimentosContasView(TemplateView):
+    template_name = 'relatoriocontas.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # ====== FILTROS ======
+        data_inicio = self.request.GET.get('data_inicio')
+        data_fim = self.request.GET.get('data_fim')
+        conta_id = self.request.GET.get('conta')
+
+        # ====== QUERY BASE ======
+        movimentacoes = MovimentacaoConta.objects.filter(
+            identificadorVenda__gt=0,
+            valorDebito=0,
+            valorCredito__gt=0,
+            ativo=True
+        ).select_related('contaCredito').order_by('-identificadorVenda','-criados')
+
+        # Filtro por data
+        if data_inicio:
+            data_inicio_parsed = parse_date(data_inicio)
+            if data_inicio_parsed:
+                movimentacoes = movimentacoes.filter(criados__gte=data_inicio_parsed)
+
+        if data_fim:
+            data_fim_parsed = parse_date(data_fim)
+            if data_fim_parsed:
+                movimentacoes = movimentacoes.filter(criados__lte=data_fim_parsed)
+
+        # Filtro por conta
+        if conta_id and conta_id.isdigit():
+            movimentacoes = movimentacoes.filter(contaCredito_id=int(conta_id))
+
+        # ====== AGRUPAMENTO PARA SOMAR VALORES POR identificadorVenda ======
+        # Calcula o total de cada venda
+        totais_por_venda = movimentacoes.values('identificadorVenda').annotate(
+            total_credito=Sum('valorCredito')
+        )
+        totais_dict = {item['identificadorVenda']: item['total_credito'] for item in totais_por_venda}
+
+        # Prepara a lista final de registros, mantendo todos os movimentos
+        lista_final = []
+        for mov in movimentacoes:
+            conta_nome = mov.contaCredito.nomeConta if mov.contaCredito else 'N/A'
+            lista_final.append({
+                'id': mov.id,
+                'data_criacao': mov.criados,
+                'identificadorVenda': mov.identificadorVenda,
+                'valorCredito': mov.valorCredito,
+                'total_credito_venda': totais_dict.get(mov.identificadorVenda, mov.valorCredito),
+                'contaCredito_nome': conta_nome,
+                'descricao': mov.descricao,
+            })
+
+        # Todas as contas para o select
+        contas = Conta.objects.all().order_by('nomeConta')
+
+        # Atualiza o contexto
+        context.update({
+            'movimentacoes': lista_final,
+            'contas': contas,
+            'data_inicio': data_inicio,
+            'data_fim': data_fim,
+            'conta_selecionada': int(conta_id) if conta_id and conta_id.isdigit() else None,
+        })
+
+        return context
+
+    def get_template_names(self):
+        if self.request.GET.get("funcao") == "modal":
+            return ["detalhesvendamodal.html"]
+        return [self.template_name]

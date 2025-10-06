@@ -2,8 +2,9 @@ from datetime import datetime
 from django.views.generic import TemplateView
 from Compras.models import Compra
 from Vendas.models import Venda
-from Produtos.models import Produto
-from django.db.models import F, Sum, Min, Count
+from Produtos.models import Produto, CategoriaProduto
+from django.db.models import F, Sum, Min, Count, FloatField, Q
+from django.db.models.functions import Lower
 from django.utils.dateparse import parse_date
 from Contas.models import RecebimentoCartao, MovimentacaoConta, Conta
 from django.db.models import Sum
@@ -271,3 +272,84 @@ class RelatorioRecebimentosContasView(TemplateView):
         if self.request.GET.get("funcao") == "modal":
             return ["detalhesvendamodal.html"]
         return [self.template_name]
+
+
+class RelatorioRecebimentoProdutosView(TemplateView):
+    template_name = 'relatoriorecebimentoprodutos.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # Filtros
+        data_inicio = self.request.GET.get('data_inicio')
+        data_fim = self.request.GET.get('data_fim')
+        categoria_id = self.request.GET.get('categoria_id')
+
+        vendas = Venda.objects.filter(ativo=True).select_related('produto', 'produto__categoria')
+
+        # Filtrar por datas
+        if data_inicio and data_fim:
+            try:
+                dt_inicio = datetime.strptime(data_inicio, '%Y-%m-%d')
+                dt_fim = datetime.strptime(data_fim, '%Y-%m-%d')
+                vendas = vendas.filter(criados__range=[dt_inicio, dt_fim])
+            except:
+                pass
+
+        # Filtrar por categoria
+        if categoria_id:
+            vendas = vendas.filter(produto__categoria_id=categoria_id)
+
+        total_vendas = 0
+        total_lucro = 0
+
+        agrupados = {}
+
+        for venda in vendas:
+            nome_produto = venda.produto.NomeProduto.strip()
+            categoria_nome = venda.produto.categoria.categoria
+
+            # Agrupamento especial para iPhone (remover última palavra = cor)
+            if categoria_nome.lower() == 'iphone':
+                palavras = nome_produto.split()
+                if len(palavras) > 1:
+                    modelo_base = " ".join(palavras[:-1])
+                else:
+                    modelo_base = palavras[0]
+            else:
+                modelo_base = nome_produto
+
+            chave = modelo_base.lower()
+
+            if chave not in agrupados:
+                agrupados[chave] = {
+                    'produto': modelo_base,
+                    'valor_venda': 0,
+                    'lucro': 0
+                }
+
+            valor_venda = venda.quantidadeProduto * venda.precoProduto
+            agrupados[chave]['valor_venda'] += valor_venda
+            agrupados[chave]['lucro'] += venda.lucro
+
+            total_vendas += valor_venda
+            total_lucro += venda.lucro
+
+        # Calcular percentuais
+        listarVendasTemplate = []
+        for item in agrupados.values():
+            listarVendasTemplate.append({
+                'produto': item['produto'],
+                'valor_venda': item['valor_venda'],
+                'lucro': item['lucro'],
+                'percentual_venda': (item['valor_venda'] / total_vendas * 100) if total_vendas else 0,
+                'percentual_lucro': (item['lucro'] / total_lucro * 100) if total_lucro else 0
+            })
+
+        context['listarVendasTemplate'] = listarVendasTemplate
+        context['total_vendas'] = total_vendas
+        context['total_lucro'] = total_lucro
+        context['categorias'] = CategoriaProduto.objects.all()
+        context['request'] = self.request
+
+        return context

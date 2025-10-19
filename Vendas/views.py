@@ -206,14 +206,13 @@ class FazerVendasView(TemplateView):
                 #Calculando o lucro
                 compras_produto = Compra.objects.filter(produto_id=atualizarEstoque.id, ativo=True).order_by('-id')
                 #Calculando preço médio do estoque (média móvel)
-                compra_total_produto = 0
-                estoque_preco_medio = estoque_anterior
-                quantidade_produto = 0
-                quantidade_produto_total_compra = []
-
+                estoque = estoque_anterior
+                quantidade_produto_venda = float(quantidades[contador])
+                preco_venda = re.sub(r'\.', '', precos[contador]).replace(',', '.')
+                lucro = 0
                 for compra in compras_produto:
+                    #Se o estoque estiver apenas com produtos da última compra
                     frete_deslocamento = 0
-                    frete_medio_produto = 0
                     try:
                         deslocamentos = Deslocamento.objects.filter(identificadorCompra=compra.identificadorCompra)
                         for deslocamento in deslocamentos:
@@ -222,40 +221,28 @@ class FazerVendasView(TemplateView):
                                 frete_deslocamento = frete_deslocamento + trecho_frete.valorDebito * trecho_frete.cotacaoDolar
                     except:
                         pass
+                    #Calcule o frete médio dividindo a quantidade total de produtos pelo frete
                     quantidade_produto_total_compra = Compra.objects.filter(
-                        identificadorCompra=compra.identificadorCompra).aggregate(Sum('quantidadeProduto'))
+                            identificadorCompra=compra.identificadorCompra).aggregate(Sum('quantidadeProduto'))
                     frete_medio_produto = frete_deslocamento / quantidade_produto_total_compra["quantidadeProduto__sum"]
 
-                    if compra.quantidadeProduto >= estoque_preco_medio:
-                        compra_total_produto = (compra_total_produto +
-                                                estoque_preco_medio *
-                                                float(compra.precoProduto) * compra.valorDolarMedio)
-                        quantidade_produto = quantidade_produto + estoque_preco_medio
+                    if (estoque <= compra.quantidadeProduto):
+                        lucro = lucro + quantidade_produto_venda  * (float(preco_venda) -
+                                                                (compra.precoProduto + frete_medio_produto) * compra.valorDolarMedio)
                         break
                     else:
-                        compra_total_produto = (compra_total_produto +
-                                                compra.quantidadeProduto * compra.precoProduto * compra.valorDolarMedio)
-                        estoque_preco_medio = estoque_preco_medio - compra.quantidadeProduto
-                        quantidade_produto = quantidade_produto + compra.quantidadeProduto
+                        if(quantidade_produto_venda >= compra.quantidadeProduto):
+                            lucro = lucro + (quantidade_produto_venda - compra.quantidadeProduto)  * (float(preco_venda) -
+                                                                (compra.precoProduto + frete_medio_produto) * compra.valorDolarMedio)
+                            estoque = estoque - compra.quantidadeProduto
+                            quantidade_produto_venda = compra.quantidadeProduto
 
-
-                #Prevenir quando o estoque foi adicionado no cadastro do produto, pois o valor vai vir menor que zero
-                if quantidade_produto > 0:
-                    preco_medio = compra_total_produto / quantidade_produto
-                else:
-                    preco_medio = 0
-                preco = re.sub(r'\.', '', precos[contador]).replace(',', '.')
-                logging.warning(preco)
-                lucro = float(quantidades[contador]) * (float(preco) - preco_medio)
-                # Prevenir quando a quantidade comprada não estiver cadastrada, pois o valor vai vir menor que zero
-                if quantidade_produto > 0:
-                    lucro = lucro - frete_medio_produto * float(quantidades[contador])
                 #Cadastrando Venda
                 if produto != 0:
                     formVenda = Venda(
                                  criados=str(dataModificada),
                                  quantidadeProduto=quantidades[contador],
-                                 precoProduto=preco,
+                                 precoProduto=preco_venda,
                                  identificadorVenda=str(proximaVenda),
                                  cliente_id=cliente[0],
                                  produto_id=produto,
@@ -264,7 +251,7 @@ class FazerVendasView(TemplateView):
                     )
                     formVenda.save()
 
-                valorVenda = valorVenda + float(preco)*float(quantidades[contador])
+                valorVenda = valorVenda + float(preco_venda)*float(quantidades[contador])
                 contador = contador + 1
 
         context['mensagem'] = 'Venda Salva'

@@ -210,8 +210,8 @@ class FazerVendasView(TemplateView):
                 quantidade_produto_venda = float(quantidades[contador])
                 preco_venda = re.sub(r'\.', '', precos[contador]).replace(',', '.')
                 lucro = 0
+                dados_compras = []
                 for compra in compras_produto:
-                    #Se o estoque estiver apenas com produtos da última compra
                     frete_deslocamento = 0
                     try:
                         deslocamentos = Deslocamento.objects.filter(identificadorCompra=compra.identificadorCompra)
@@ -221,21 +221,36 @@ class FazerVendasView(TemplateView):
                                 frete_deslocamento = frete_deslocamento + trecho_frete.valorDebito * trecho_frete.cotacaoDolar
                     except:
                         pass
-                    #Calcule o frete médio dividindo a quantidade total de produtos pelo frete
                     quantidade_produto_total_compra = Compra.objects.filter(
                             identificadorCompra=compra.identificadorCompra).aggregate(Sum('quantidadeProduto'))
                     frete_medio_produto = frete_deslocamento / quantidade_produto_total_compra["quantidadeProduto__sum"]
 
-                    if (estoque <= compra.quantidadeProduto):
+                    if (estoque > compra.quantidadeProduto):
+                        dados_compras.append({
+                            'id_compra': compra.id,
+                            'quantidade_produto': compra.quantidadeProduto,
+                            'preco_produto': compra.precoProduto,
+                            'valor_dolar_medio': compra.valorDolarMedio,
+                        })
+                        estoque = estoque - compra.quantidadeProduto
+                    else:
+                        dados_compras.append({
+                            'id_compra': compra.id,
+                            'quantidade_produto': estoque,
+                            'preco_produto': compra.precoProduto,
+                            'valor_dolar_medio': compra.valorDolarMedio,
+                        })
+                        break
+
+                for dado_compra in reversed(dados_compras):
+                    if (quantidade_produto_venda <= dado_compra['quantidade_produto']):
                         lucro = lucro + quantidade_produto_venda  * (float(preco_venda) -
-                                                                (compra.precoProduto + frete_medio_produto) * compra.valorDolarMedio)
+                                                                (dado_compra['preco_produto'] + frete_medio_produto) * dado_compra['valor_dolar_medio'])
                         break
                     else:
-                        if(quantidade_produto_venda >= compra.quantidadeProduto):
-                            lucro = lucro + (quantidade_produto_venda - compra.quantidadeProduto)  * (float(preco_venda) -
-                                                                (compra.precoProduto + frete_medio_produto) * compra.valorDolarMedio)
-                            estoque = estoque - compra.quantidadeProduto
-                            quantidade_produto_venda = compra.quantidadeProduto
+                        lucro = lucro + dado_compra['quantidade_produto']  * (float(preco_venda) -
+                                                                (dado_compra['preco_produto'] + frete_medio_produto) * dado_compra['valor_dolar_medio'])
+                        quantidade_produto_venda = quantidade_produto_venda - dado_compra['quantidade_produto']
 
                 #Cadastrando Venda
                 if produto != 0:

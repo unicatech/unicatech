@@ -33,7 +33,7 @@ class AdicionarDespesa(TemplateView):
         context['despesas'] = lista_despesas.despesas_registradas()
         context['data_despesa'] = datetime.now().strftime("%d-%m-%Y")
         #context["categoria"] = CategoriaConta.objects.all()
-        #context["mensagem"] = ""
+        #context["mensagem"] = "1"
         return context
 
     def post(self, request, *args, **kwargs):

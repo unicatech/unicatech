@@ -7,27 +7,28 @@ class MostrarAlertas:
 
     def __call__(self, request):
         # Executa ANTES da view
-        #logging.warning("Requisição recebida:", request.path)
-        #logging.warning("Alimentando Alertas")
-
         alertas = Alertas.objects.all().order_by('-id')[:10]
         alertas_template=[]
         alertas_novos = 0
-        for alerta in alertas:
-            if alerta.novo == 1:
-                alertas_novos = alertas_novos + 1
-            alertas_template.append({
-                'alerta': alerta.evento,
-                'novidade': alerta.novo,
-            })
-            alerta.novo = 0
-            alerta.save()
-        request.alertas = alertas
-        request.novidades = alertas_novos
 
+        user = request.user
+        if user.is_authenticated:
+            for alerta in alertas:
+                # Se o usuário ainda não viu
+                if not alerta.usuarios_vistos.filter(id=user.id).exists():
+                    alertas_novos += 1
+
+                alertas_template.append({
+                    'evento': alerta.evento,
+                    'novo': not alerta.usuarios_vistos.filter(id=user.id).exists(),
+                })
+
+                # Marcar como visto
+                alerta.usuarios_vistos.add(user)
+
+        request.alertas = alertas_template
+        request.novidades = alertas_novos
         response = self.get_response(request)
 
         # Executa DEPOIS da view (opcional)
-        #print("Resposta enviada")
-
         return response

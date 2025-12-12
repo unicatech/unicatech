@@ -6,4 +6,5 @@ psycopg==3.2.12
 psycopg-binary==3.2.12
 django-stdimage>=1.8.0
 gunicorn>=21.2.0
+django-extensions==4.1
 whitenoise

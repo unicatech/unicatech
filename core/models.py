@@ -16,5 +16,6 @@ class Base(models.Model):
 class Alertas(Base):
     id = models.AutoField(primary_key=True)
     evento = models.CharField('Localização', max_length=200)
+    novo = models.BooleanField('Ativo?', default=True)
     def __str__(self):
         return self.id

@@ -119,12 +119,12 @@
 					<!-- Notifications -->
 					<li class="nav-item dropdown">
 						<a href="javascript:void(0);" class="dropdown-toggle nav-link" data-bs-toggle="dropdown">
-							<img src="{% static 'img/icons/notification-bing.svg' %}"   alt="img"> <span class="badge rounded-pill">4</span>
+							<img src="{% static 'img/icons/notification-bing.svg' %}"   alt="img"> <span class="badge rounded-pill">{{request.novidades}}</span>
 						</a>
 						<div class="dropdown-menu notifications">
 							<div class="topnav-dropdown-header">
-								<span class="notification-title">Notifications</span>
-								<a href="javascript:void(0)" class="clear-noti"> Clear All </a>
+								<span class="notification-title">Notificações</span>
+								<a href="javascript:void(0)" class="clear-noti"> Apagar Tudo </a>
 							</div>
 							<div class="noti-content">
 								<ul class="notification-list">
@@ -146,7 +146,7 @@
 								</ul>
 							</div>
 							<div class="topnav-dropdown-footer">
-								<a href="activities.html">View all Notifications</a>
+								<a href="activities.html">Ver todas as Notificações</a>
 							</div>
 						</div>
 					</li>

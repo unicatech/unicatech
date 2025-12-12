@@ -133,8 +133,7 @@ class IndexView(LoginRequiredMixin,UserPassesTestMixin,TemplateView):
             ).filter(
                 ativo=True
             ).count()
-            #logging.warning(verificar_registro_despesa)
-            #logging.warning(str(ano_anterior) + " " + str(mes_anterior))
+
             if verificar_registro_despesa == 0 and despesa.periodicidade > 0 and dados_data_por_link == 0:
                 conta_em_dolar=0
                 cotacao_dolar=0
@@ -276,3 +275,4 @@ class IndexView(LoginRequiredMixin,UserPassesTestMixin,TemplateView):
     def handle_no_permission(self):
         from django.shortcuts import redirect
         return redirect('/productlist/')  # ou outra página de acesso negado
+

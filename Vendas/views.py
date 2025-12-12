@@ -5,6 +5,7 @@ from django.shortcuts import render
 from django.http import HttpResponseRedirect
 from django.contrib import messages
 from django.db.models import Sum
+from django.db.models import F, ExpressionWrapper, DecimalField
 
 from datetime import date, datetime, timedelta
 from django.utils import timezone
@@ -16,6 +17,7 @@ from Produtos.models import Produto
 from Contas.models import MovimentacaoConta, Conta, Cartao, RecebimentoCartao
 from Vendas.models import Cliente
 from Compras.models import Compra, Deslocamento
+from core.models import Alertas
 
 # vendas/views.py
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -135,8 +137,6 @@ class FazerVendasView(TemplateView):
         # Desabilitando registro de Venda Salva caso função seja editar
         if identificadorVenda[0] != "":
             #Verificando se há algum produto que foi vendido e foi removido
-            logging.warning("identificador venda")
-            logging.warning(identificadorVenda[0])
 
             produtos_vendidos = Venda.objects.filter(identificadorVenda=identificadorVenda[0],
                                                   ativo=True)
@@ -146,8 +146,6 @@ class FazerVendasView(TemplateView):
                     if produto_vendido.produto_id == int(produto):
                         produto_encontrado = 1
                 if produto_encontrado == 0:
-                    logging.warning("Produto removido da venda")
-                    logging.warning(produto_vendido.produto_id)
                     quantidadeOriginalEstoque = Venda.objects.get(identificadorVenda=identificadorVenda[0],
                                                               produto_id=produto_vendido.produto_id,ativo=True)
                     atualizarEstoque = Produto.objects.get(id=produto_vendido.produto_id)
@@ -263,12 +261,27 @@ class FazerVendasView(TemplateView):
                                  produto_id=produto,
                                  lucro=lucro,
                                  descricao=descricao[0],
+                                 usuario=request.user,
                     )
                     formVenda.save()
 
                 valorVenda = valorVenda + float(preco_venda)*float(quantidades[contador])
                 contador = contador + 1
+        # Criando alerta
+        mes_selecionado = str(timezone.now().month)
+        ano_selecionado = str(timezone.now().year)
+        vendas = Venda.objects.annotate(total=ExpressionWrapper(F("precoProduto") * F("quantidadeProduto"), output_field=DecimalField())).filter(criados__month=mes_selecionado).filter(criados__year=ano_selecionado).filter(usuario=request.user).filter(ativo=True).order_by('-id')
+        faturado = 0
+        for venda in vendas:
+            logging.warning(venda.total)
+            faturado = faturado + venda.total
 
+        evento_venda = f"Venda feita por {request.user.first_name} no valor de R${valorVenda}. O total faturado do mês é de R${faturado}"
+        alerta = Alertas(
+                criados=str(dataModificada),
+                evento=evento_venda,
+        )
+        alerta.save()
         context['mensagem'] = 'Venda Salva'
 
         if gerar_compra == "on":
@@ -327,6 +340,7 @@ class FazerVendasView(TemplateView):
                                          identificadorDolar=False,
                                          )
             dataform.save()
+
         return HttpResponseRedirect('/'+tipo_produto[0]+'/?venda_realizada=1', context)
 
 

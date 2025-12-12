@@ -13,3 +13,8 @@ class Base(models.Model):
     class Meta:
         abstract = True
 
+class Alertas(Base):
+    id = models.AutoField(primary_key=True)
+    evento = models.CharField('Localização', max_length=200)
+    def __str__(self):
+        return self.id

@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     "django.contrib.humanize",
+    'django_extensions',
 #    'django_celery_beat',
     'core',
     'Vendas',
@@ -60,7 +61,9 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # 👈
+    'whitenoise.middleware.WhiteNoiseMiddleware',
+    'unicatech.middleware.MostrarAlertas',  # <-- SEU MIDDLEWARE AQUI
+    # 👈
 ]
 
 ROOT_URLCONF = 'unicatech.urls'

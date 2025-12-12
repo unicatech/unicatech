@@ -199,7 +199,8 @@ class FazerComprasView(TemplateView):
                     descricao=descricao,
                     idLocalizacao_id=localizacaoCompra.localizacaoCompra_id,
                     conta_id=contaOrigem[0],
-                    valorDolarMedio=float(cotacaoDolar)
+                    valorDolarMedio=float(cotacaoDolar),
+                    usuario=request.user,
                 )
                 valorCompra = valorCompra + float(preco) * float(quantidades[contador])
                 formCompra.save()

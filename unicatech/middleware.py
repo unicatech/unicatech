@@ -21,6 +21,7 @@ class MostrarAlertas:
                 alertas_template.append({
                     'evento': alerta.evento,
                     'novo': not alerta.usuarios_vistos.filter(id=user.id).exists(),
+                    'data': alerta.criados,
                 })
 
                 # Marcar como visto

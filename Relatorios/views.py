@@ -9,6 +9,9 @@ from django.utils.dateparse import parse_date
 from Contas.models import RecebimentoCartao, MovimentacaoConta, Conta
 from django.db.models import Sum
 from django.utils.dateparse import parse_date
+from django.contrib.auth.models import User
+from core.models import Alertas
+from datetime import datetime, time
 
 class RelatorioProdutoView(TemplateView):
     template_name = "relatorioprodutos.html"
@@ -351,5 +354,46 @@ class RelatorioRecebimentoProdutosView(TemplateView):
         context['total_lucro'] = total_lucro
         context['categorias'] = CategoriaProduto.objects.all()
         context['request'] = self.request
+
+        return context
+
+
+class RelatorioEventosView(TemplateView):
+    template_name = 'relatorioeventos.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        alertas = Alertas.objects.all()
+
+        data_inicio = self.request.GET.get('data_inicio')
+        data_fim = self.request.GET.get('data_fim')
+        usuario_id = self.request.GET.get('usuario')
+
+        # ===== FILTRO POR DATA =====
+        if data_inicio:
+            alertas = alertas.filter(
+                criados__gte=datetime.strptime(data_inicio, '%Y-%m-%d')
+            )
+
+        if data_fim:
+            alertas = alertas.filter(
+                criados__lte=datetime.combine(
+                    datetime.strptime(data_fim, '%Y-%m-%d'),
+                    time.max
+                )
+            )
+
+        # ===== FILTRO POR USUÁRIO =====
+        if usuario_id:
+            alertas = alertas.filter(usuario_id=usuario_id)
+
+        alertas = alertas.order_by('-criados')
+
+        context.update({
+            'alertas': alertas,
+            'usuarios': User.objects.all().order_by('first_name'),
+            'total_alertas': alertas.count(),
+        })
 
         return context

@@ -7,7 +7,7 @@ from django.contrib.auth.models import User
 # Create your models here.
 
 class Base(models.Model):
-    criados = models.DateField('Criação', auto_now_add=False)
+    criados = models.DateTimeField('Criação', auto_now_add=True)
     modificado = models.DateField('Atualização', auto_now_add=True)
     ativo = models.BooleanField('Ativo?', default=True)
 
@@ -18,6 +18,18 @@ class Alertas(Base):
     id = models.AutoField(primary_key=True)
     evento = models.CharField('Localização', max_length=200)
     novo = models.BooleanField('Ativo?', default=True)
-    usuarios_vistos = models.ManyToManyField(User, blank=True, related_name='alertas_vistos')
+
+    usuarios_vistos = models.ManyToManyField(
+        User, blank=True, related_name='alertas_vistos'
+    )
+
+    usuario = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='alertas_criados'
+    )
+
     def __str__(self):
-        return self.id
+        return str(self.id)

@@ -22,6 +22,7 @@ class MostrarAlertas:
                     'evento': alerta.evento,
                     'novo': not alerta.usuarios_vistos.filter(id=user.id).exists(),
                     'data': alerta.criados,
+                    'icone': alerta.icone,
                 })
 
                 # Marcar como visto

@@ -10,6 +10,7 @@ from Contas.models import Conta, MovimentacaoConta
 from Contas.views import MovimentacaoFinanceira
 from datetime import date, datetime, timedelta
 from django.utils import timezone
+from core.models import Alertas
 import re
 import logging
 
@@ -225,6 +226,15 @@ class FazerComprasView(TemplateView):
             identificadorCompra=str(proximaCompra),
         )
         formDeslocamento.save()
+
+        fornecedor = Fornecedor.objects.get(id=fornecedor[0])
+        evento_venda = f"Compra feita por {request.user.first_name} no valor de R${valorCompra} da empresa {fornecedor.nomeFornecedor}."
+        alerta = Alertas(
+                criados=str(dataModificada),
+                evento=evento_venda,
+                icone="purchase.svg"
+        )
+        alerta.save()
 
         context['mensagem'] = 'Compra Salva'
 
@@ -449,8 +459,7 @@ class LocalizacaoCompraView(TemplateView):
             identificadorDolar=conta_em_dolar,
         )
         formMovimentacao.save()
-        logging.warning("Movimentacao id")
-        logging.warning(formMovimentacao.id)
+
         formDeslocamento = Deslocamento(
             criados=hoje,
             origem=self.request.POST.get('origem'),
@@ -460,6 +469,16 @@ class LocalizacaoCompraView(TemplateView):
             idMovimentacaoConta=formMovimentacao.id,
         )
         formDeslocamento.save()
+
+        origem = LocalizacaoCompra.objects.get(id=self.request.POST.get('origem'))
+        destino = LocalizacaoCompra.objects.get(id=self.request.POST.get('destino'))
+        evento_venda = f"Movimentação de produtos comprados feita por {request.user.first_name} de {origem.localizacaoCompra} para {destino.localizacaoCompra}."
+        alerta = Alertas(
+                evento=evento_venda,
+                icone="transfer1.svg"
+        )
+        alerta.save()
+
 
         # Atualizando o estoque Destino Sobral (7) modificar para ficar dinâmico
         if self.request.POST.get('destino') == "7":

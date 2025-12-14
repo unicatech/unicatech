@@ -273,13 +273,13 @@ class FazerVendasView(TemplateView):
         vendas = Venda.objects.annotate(total=ExpressionWrapper(F("precoProduto") * F("quantidadeProduto"), output_field=DecimalField())).filter(criados__month=mes_selecionado).filter(criados__year=ano_selecionado).filter(usuario=request.user).filter(ativo=True).order_by('-id')
         faturado = 0
         for venda in vendas:
-            logging.warning(venda.total)
             faturado = faturado + venda.total
 
         evento_venda = f"Venda feita por {request.user.first_name} no valor de R${valorVenda}. O total faturado do mês é de R${faturado}"
         alerta = Alertas(
-                criados=str(dataModificada),
-                evento=evento_venda,
+                criados = str(dataModificada),
+                evento = evento_venda,
+                icone = "sale.svg"
         )
         alerta.save()
         context['mensagem'] = 'Venda Salva'

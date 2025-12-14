@@ -18,6 +18,7 @@ class Alertas(Base):
     id = models.AutoField(primary_key=True)
     evento = models.CharField('Localização', max_length=200)
     novo = models.BooleanField('Ativo?', default=True)
+    icone = models.CharField('Icone', max_length=200)
 
     usuarios_vistos = models.ManyToManyField(
         User, blank=True, related_name='alertas_vistos'

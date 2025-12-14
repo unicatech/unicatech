@@ -279,6 +279,7 @@ class FazerVendasView(TemplateView):
         alerta = Alertas(
                 criados = str(dataModificada),
                 evento = evento_venda,
+                usuario_id = request.user.id,
                 icone = "sale.svg"
         )
         alerta.save()

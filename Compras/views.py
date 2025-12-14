@@ -232,6 +232,7 @@ class FazerComprasView(TemplateView):
         alerta = Alertas(
                 criados=str(dataModificada),
                 evento=evento_venda,
+                usuario_id=request.user.id,
                 icone="purchase.svg"
         )
         alerta.save()
@@ -475,6 +476,7 @@ class LocalizacaoCompraView(TemplateView):
         evento_venda = f"Movimentação de produtos comprados feita por {request.user.first_name} de {origem.localizacaoCompra} para {destino.localizacaoCompra}."
         alerta = Alertas(
                 evento=evento_venda,
+                usuario_id=request.user.id,
                 icone="transfer1.svg"
         )
         alerta.save()

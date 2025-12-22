@@ -141,7 +141,7 @@ class IndexView(LoginRequiredMixin,UserPassesTestMixin,TemplateView):
                 tipo_movimentacao = Conta.objects.get(id=despesa.conta_debito_id)
                 if tipo_movimentacao.categoria_id > 3:
                     conta_em_dolar = 1
-                    valor_dolar = MovimentacaoFinanceira()
+                    valor_dolar = MovimentacaoFinanceira(0,0)
                     cotacao_dolar = valor_dolar.dolarMedio()
                 else:
                     conta_em_dolar = 0

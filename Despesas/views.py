@@ -44,8 +44,8 @@ class AdicionarDespesa(TemplateView):
         tipo_movimentacao = Conta.objects.get(id=self.request.POST.get("conta_despesa"))
         if tipo_movimentacao.categoria_id > 3:
             conta_em_dolar = 1
-            valor_dolar = MovimentacaoFinanceira()
-            cotacao_dolar = valor_dolar.dolarMedio()
+            valor_dolar = MovimentacaoFinanceira(int(self.request.POST.get("conta_despesa")),float(self.request.POST.get("valor_despesa")))
+            cotacao_dolar = valor_dolar.dolarMedioParaCompra()
         else:
             conta_em_dolar = 0
             cotacao_dolar = 1

@@ -209,7 +209,7 @@ class ComprarDolarView(TemplateView):
                 context["mensagem"] = "Conta Apagada"
 
         # Popular template
-        informacoes_financeiras = MovimentacaoFinanceira()
+        informacoes_financeiras = MovimentacaoFinanceira(0,0)
         context["cartaoCreditoValorTotal"] = informacoes_financeiras.valores_cartao_credito
         context["especieValorTotal"] = informacoes_financeiras.valores_especie
         context["depositoRealValorTotal"] = informacoes_financeiras.valores_conta_real
@@ -244,7 +244,7 @@ class ComprarDolarView(TemplateView):
         dataform.save()
         context["mensagem"] = "Compra Efetuada"
         # Popular template
-        informacoes_financeiras = MovimentacaoFinanceira()
+        informacoes_financeiras = MovimentacaoFinanceira(0,0)
         context["cartaoCreditoValorTotal"] = informacoes_financeiras.valores_cartao_credito
         context["especieValorTotal"] = informacoes_financeiras.valores_especie
         context["depositoRealValorTotal"] = informacoes_financeiras.valores_conta_real
@@ -276,7 +276,7 @@ class AdicionarFundosView(TemplateView):
                 context["mensagem"] = "Movimento Financeiro Apagado"
 
         # Popular template
-        informacoes_financeiras = MovimentacaoFinanceira()
+        informacoes_financeiras = MovimentacaoFinanceira(0,0)
         context["cartaoCreditoValorTotal"] = informacoes_financeiras.valores_cartao_credito
         context["especieValorTotal"] = informacoes_financeiras.valores_especie
         context["depositoRealValorTotal"] = informacoes_financeiras.valores_conta_real
@@ -309,7 +309,7 @@ class AdicionarFundosView(TemplateView):
         context["mensagem"] = "Aporte Efetuado"
 
         # Popular template
-        informacoes_financeiras = MovimentacaoFinanceira()
+        informacoes_financeiras = MovimentacaoFinanceira(0,0)
         context["cartaoCreditoValorTotal"] = informacoes_financeiras.valores_cartao_credito
         context["especieValorTotal"] = informacoes_financeiras.valores_especie
         context["depositoRealValorTotal"] = informacoes_financeiras.valores_conta_real
@@ -338,7 +338,7 @@ class RetiradaView(TemplateView):
                 context["mensagem"] = "Conta Apagada"
 
         # Popular template
-        informacoes_financeiras = MovimentacaoFinanceira()
+        informacoes_financeiras = MovimentacaoFinanceira(0,0)
         context["cartaoCreditoValorTotal"] = informacoes_financeiras.valores_cartao_credito
         context["especieValorTotal"] = informacoes_financeiras.valores_especie
         context["depositoRealValorTotal"] = informacoes_financeiras.valores_conta_real
@@ -371,7 +371,7 @@ class RetiradaView(TemplateView):
         context["mensagem"] = "Retirada Efetuada"
 
         # Popular template
-        informacoes_financeiras = MovimentacaoFinanceira()
+        informacoes_financeiras = MovimentacaoFinanceira(0,0)
         context["cartaoCreditoValorTotal"] = informacoes_financeiras.valores_cartao_credito
         context["especieValorTotal"] = informacoes_financeiras.valores_especie
         context["depositoRealValorTotal"] = informacoes_financeiras.valores_conta_real
@@ -432,6 +432,11 @@ class ListarMovimentacoesView(TemplateView):
         return movimentacaoContasTemplate
 
 class MovimentacaoFinanceira:
+
+    def __init__(self, conta, valor_compra):
+        self.conta = conta
+        self.valor_compra = valor_compra
+
     def valores_cartao_credito(self):
         cartaoCredito = Conta.objects.filter(categoria_id=1)
         cartaoCreditoValorTotal = 0
@@ -642,11 +647,63 @@ class MovimentacaoFinanceira:
                         total_dolar = total_dolar + conta_detalhada["saldo"]
                         total_real = total_real + conta_detalhada["saldo"] * compra_dolar.cotacaoDolar
                         break
-        if total_dolar == 0:
+
+        if total_dolar < 1:
             valor_dolar_medio = 0
         else:
             valor_dolar_medio = total_real / total_dolar
-        logging.warning("Dolar Medio")
-        logging.warning(valor_dolar_medio)
         return (valor_dolar_medio)
 
+    def dolarMedioParaCompra(self):
+        total_dolar = 0
+        total_real = 0
+        saldo_conta = 0
+        dados_compras_dolar = []
+        valor_compra = self.valor_compra
+        contas_detalhadas = self.saldo_conta()
+
+        for conta_detalhada in contas_detalhadas:
+            if int(conta_detalhada["id"]) == int(self.conta):
+                saldo_conta = conta_detalhada["saldo"]
+
+        compras_dolar = MovimentacaoConta.objects.filter(
+                    identificadorDolar=True,
+                    identificadorCompra=0,
+                    contaCredito_id=self.conta
+        ).order_by("-id")
+
+        for compra_dolar in compras_dolar:
+            logging.warning("Valor Credito x Saldo Conta")
+            logging.warning(compra_dolar.valorCredito)
+            logging.warning(saldo_conta)
+            if (compra_dolar.valorCredito <= saldo_conta):
+                dados_compras_dolar.append({
+                    'id_compra': compra_dolar.id,
+                    'quantidade_dolar': compra_dolar.valorCredito,
+                    'preco_dolar': compra_dolar.cotacaoDolar,
+                })
+                saldo_conta = saldo_conta - compra_dolar.valorCredito
+            else:
+                dados_compras_dolar.append({
+                    'id_compra': compra_dolar.id,
+                    'quantidade_dolar': saldo_conta,
+                    'preco_dolar': compra_dolar.cotacaoDolar,
+                })
+                break
+
+        for dado_compra_dolar in reversed(dados_compras_dolar):
+            if dado_compra_dolar['quantidade_dolar'] > valor_compra:
+                total_dolar = total_dolar + valor_compra
+                total_real = total_real + valor_compra * dado_compra_dolar['preco_dolar']
+                break
+            else:
+                total_dolar = total_dolar + dado_compra_dolar['quantidade_dolar']
+                total_real = total_real + dado_compra_dolar['quantidade_dolar'] * dado_compra_dolar['preco_dolar']
+                valor_compra = valor_compra - dado_compra_dolar['quantidade_dolar']
+
+        if total_dolar < 1:
+            valor_dolar_medio = 0
+        else:
+            valor_dolar_medio = total_real / total_dolar
+
+        return (valor_dolar_medio)

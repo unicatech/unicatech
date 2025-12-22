@@ -21,7 +21,7 @@ class FazerComprasView(TemplateView):
         context = super(FazerComprasView, self).get_context_data(**kwargs)
         context['editarCompra'] = 0
         context['dataCompra'] = datetime.now().strftime("%d-%m-%Y")
-        financeiro = MovimentacaoFinanceira()
+        financeiro = MovimentacaoFinanceira(0,0)
         context['dolarMedio'] = financeiro.dolarMedio
         if self.request.GET.__contains__("idCompra"):
             compras = Compra.objects.filter(identificadorCompra=self.request.GET["idCompra"], ativo=True)
@@ -102,7 +102,7 @@ class FazerComprasView(TemplateView):
 
     def post(self, request, *args, **kwargs):
         context = super(FazerComprasView, self).get_context_data(**kwargs)
-        financeiro = MovimentacaoFinanceira()
+
         try:
             ultimaCompra = Compra.objects.last()
             proximaCompra = ultimaCompra.identificadorCompra + 1
@@ -119,9 +119,7 @@ class FazerComprasView(TemplateView):
         #Se a função for "Editar Compra" o valor será estornado para a conta de origem original da compra
         contaOrigemOriginal = self.request.POST.getlist('idConta')
         identificadorCompra = self.request.POST.getlist('identificadorCompra')
-        cotacaoDolar = self.request.POST.getlist('dolarMedio')
         tipo_produto = self.request.POST.getlist('tipo_produto')
-        #cotacaoDolar = financeiro.dolarMedio(,contaOrigemOriginal)
         descricao = self.request.POST.getlist('descricao')
         localizacaoCompra = Fornecedor.objects.get(id=fornecedor[0])
 
@@ -178,14 +176,25 @@ class FazerComprasView(TemplateView):
 
         # Salvando Compra
         contador = 0
-        cotacaoDolar = cotacaoDolar[0].replace(',','.')
+
         tipoConta = Conta.objects.get(id=contaOrigem[0])
         identificadorDolar = False
         if tipoConta.categoria_id == 4 or tipoConta.categoria_id == 5:
             identificadorDolar = True
+            for produto in produtos:
+                if precos[contador] != "" and quantidades[contador] != "":
+                    preco = re.sub(r'\.', '', precos[contador]).replace(',', '.')
+                    valorCompra = valorCompra + float(preco) * float(quantidades[contador])
+                    contador = contador + 1
         else:
             #Compra em real
             cotacaoDolar = 1
+
+        financeiro = MovimentacaoFinanceira(contaOrigem[0],valorCompra)
+        valorCompra = 0
+        contador = 0
+        if identificadorDolar == True:
+            cotacaoDolar = financeiro.dolarMedioParaCompra()
 
         for produto in produtos:
             if precos[contador] != "" and quantidades[contador] != "":
@@ -203,8 +212,8 @@ class FazerComprasView(TemplateView):
                     valorDolarMedio=float(cotacaoDolar),
                     usuario=request.user,
                 )
-                valorCompra = valorCompra + float(preco) * float(quantidades[contador])
                 formCompra.save()
+                valorCompra = valorCompra + float(preco) * float(quantidades[contador])
                 contador = contador + 1
         # Debitando da conta
         formMovimentacao = MovimentacaoConta(
@@ -388,7 +397,7 @@ class LocalizacaoCompraView(TemplateView):
     template_name = 'localizacaocompra.html'
     def get_context_data(self, **kwargs):
         context = super(LocalizacaoCompraView, self).get_context_data(**kwargs)
-        financeiro = MovimentacaoFinanceira()
+        financeiro = MovimentacaoFinanceira(0,0)
         if self.request.GET.__contains__("idDeslocamento"):
             if self.request.GET["funcao"] == "apagar":
                 apagarMovimentacao = MovimentacaoConta(id=self.request.GET["idMovimentacaoConta"])
@@ -438,7 +447,6 @@ class LocalizacaoCompraView(TemplateView):
 
     def post(self, request, *args, **kwargs):
         context = super(LocalizacaoCompraView, self).get_context_data(**kwargs)
-        financeiro = MovimentacaoFinanceira()
         agora = datetime.now()
         hoje = agora.strftime("%Y-%m-%d")
         # Debitando frete da conta
@@ -446,10 +454,14 @@ class LocalizacaoCompraView(TemplateView):
         #cotacao_dolar = 1 indica pagamento em real
         cotacao_dolar = 1
         conta_debito = Conta.objects.get(id=self.request.POST.get('conta'))
+        financeiro = MovimentacaoFinanceira(self.request.POST.get('conta'),float(self.request.POST.get('valor_frete')))
+
         if conta_debito.categoria_id == 4 or conta_debito.categoria_id == 5:
             conta_em_dolar = 1
-            cotacao_dolar = financeiro.dolarMedio()
+            cotacao_dolar = financeiro.dolarMedioParaCompra()
 
+        logging.warning("Cotacao Dolar")
+        logging.warning(cotacao_dolar)
         formMovimentacao = MovimentacaoConta(
             criados=hoje,
             contaDebito=self.request.POST.get('conta'),

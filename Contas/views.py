@@ -263,6 +263,81 @@ class ComprarDolarView(TemplateView):
         return super(TemplateView, self).render_to_response(context)
 
 
+class MovimentacaoContasView(TemplateView):
+    template_name = "movimentacaocontas.html"
+
+    def get_context_data(self, **kwargs):
+        context = super(MovimentacaoContasView, self).get_context_data(**kwargs)
+        context["mensagem"] = ""
+        if self.request.GET.__contains__("idMovimento"):
+            if self.request.GET["funcao"] == "apagar":
+                apagarproduto = MovimentacaoConta(id=self.request.GET["idMovimento"])
+                apagarproduto.delete()
+                context["mensagem"] = "Conta Apagada"
+
+        # Popular template
+        informacoes_financeiras = MovimentacaoFinanceira(0,0)
+        context["cartaoCreditoValorTotal"] = informacoes_financeiras.valores_cartao_credito
+        context["especieValorTotal"] = informacoes_financeiras.valores_especie
+        context["depositoRealValorTotal"] = informacoes_financeiras.valores_conta_real
+        context["depositoDolarValorTotal"] = informacoes_financeiras.valores_dolar
+        context["depositoDolarPyValorTotal"] = informacoes_financeiras.valores_dolar_paraguai
+
+        # Popular template com dados de conta
+        contas = informacoes_financeiras.contas_origem_e_detalhadas()
+        context["contasDetalhadas"] = contas["contasDetalhadasTemplate"]
+        context["contaReal"] = contas["contaOrigem"]
+        context["contaDolar"] = contas["contaDestino"]
+
+        # popular movimentações
+        context["movimentacaoContas"] = informacoes_financeiras.movimentacoes_contas
+
+        return context
+
+    def post(self, request, *args, **kwargs):
+        context = super(MovimentacaoContasView, self).get_context_data(**kwargs)
+        agora = datetime.now()
+        hoje = agora.strftime("%Y-%m-%d")
+        informacoes_da_conta = MovimentacaoFinanceira(self.request.POST.get("contaOrigem"),float(self.request.POST.get("valor_transferencia")))
+        valor_dolar_medio = informacoes_da_conta.dolarMedioParaCompra()
+        identificador_dolar = True
+
+        if self.request.POST.get("tipo") == "real":
+            identificador_dolar = False
+            valor_dolar_medio = 1
+
+        dataform = MovimentacaoConta(
+            contaCredito_id=self.request.POST.get("contaDestino"),
+            contaDebito=self.request.POST.get("contaOrigem"),
+            valorCredito=float(self.request.POST.get("valor_transferencia")),
+            valorDebito=self.request.POST.get("valor_transferencia"),
+            criados=hoje,
+            cotacaoDolar=valor_dolar_medio,
+            identificadorDolar=identificador_dolar,
+        )
+        dataform.save()
+        context["mensagem"] = "Transferência Efetuada"
+
+        # Popular template
+        informacoes_financeiras = MovimentacaoFinanceira(0,0)
+        context["cartaoCreditoValorTotal"] = informacoes_financeiras.valores_cartao_credito
+        context["especieValorTotal"] = informacoes_financeiras.valores_especie
+        context["depositoRealValorTotal"] = informacoes_financeiras.valores_conta_real
+        context["depositoDolarValorTotal"] = informacoes_financeiras.valores_dolar
+        context["depositoDolarPyValorTotal"] = informacoes_financeiras.valores_dolar_paraguai
+
+        # Popular template com dados de conta
+        contas = informacoes_financeiras.contas_origem_e_detalhadas()
+        context["contasDetalhadas"] = contas["contasDetalhadasTemplate"]
+        context["contaReal"] = contas["contaOrigem"]
+        context["contaDolar"] = contas["contaDestino"]
+
+        # popular movimentações
+        context["movimentacaoContas"] = informacoes_financeiras.movimentacoes_contas
+
+        return super(MovimentacaoContasView, self).render_to_response(context)
+
+
 class AdicionarFundosView(TemplateView):
     template_name = "adicionarfundos.html"
 
@@ -387,6 +462,7 @@ class RetiradaView(TemplateView):
         context["movimentacaoContas"] = informacoes_financeiras.movimentacoes_contas
 
         return super(TemplateView, self).render_to_response(context)
+
 class ListarMovimentacoesView(TemplateView):
     template_name = "listarmovimentacoes.html"
     def get_context_data(self, **kwargs):
@@ -565,6 +641,7 @@ class MovimentacaoFinanceira:
         contasDetalhadasTemplate = []
         contaOrigem = []
         contaDestino = []
+        contasTodas = []
         saldoConta = 0
         for conta in contasDetalhadas:
             #saldoConta = conta.saldoInicial
@@ -585,6 +662,7 @@ class MovimentacaoFinanceira:
                 moeda = "US$"
                 contaDestino.append({"id": conta.id, "nomeConta": conta.nomeConta})
 
+            contasTodas.append({"id": conta.id, "nomeConta": conta.nomeConta})
 
 
             contasDetalhadasTemplate.append(
@@ -597,7 +675,8 @@ class MovimentacaoFinanceira:
         return {
                 "contaOrigem": contaOrigem,
                 "contasDetalhadasTemplate": contasDetalhadasTemplate,
-                "contaDestino": contaDestino
+                "contaDestino": contaDestino,
+                "contasTodas": contasTodas
         }
 
     def saldo_conta(self):
@@ -673,9 +752,6 @@ class MovimentacaoFinanceira:
         ).order_by("-id")
 
         for compra_dolar in compras_dolar:
-            logging.warning("Valor Credito x Saldo Conta")
-            logging.warning(compra_dolar.valorCredito)
-            logging.warning(saldo_conta)
             if (compra_dolar.valorCredito <= saldo_conta):
                 dados_compras_dolar.append({
                     'id_compra': compra_dolar.id,

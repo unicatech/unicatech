@@ -47,15 +47,6 @@
                 <label class="form-label">Data final</label>
                 <input type="date" class="form-control" name="data_fim" value="{{ data_final }}">
               </div>
-              <div class="col-lg-4 col-sm-6 col-12">
-                <label class="form-label">Produto</label>
-                <input class="form-control" name="produto" list="lista-produtos" placeholder="Digite ou escolha..." value="{{ produto_nome }}">
-                <datalist id="lista-produtos">
-                  {% for p in produtos_lista %}
-                    <option value="{{ p.NomeProduto }}"></option>
-                  {% endfor %}
-                </datalist>
-              </div>
               <div class="col-lg-2 col-sm-6 col-12 d-flex align-items-end">
                 <button class="btn btn-submit w-100">Filtrar</button>
               </div>

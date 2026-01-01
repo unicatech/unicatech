@@ -414,54 +414,58 @@ class RelatorioFaturamentoeLucroView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        # ================= FILTROS =================
         data_inicio = self.request.GET.get('data_inicio')
         data_fim = self.request.GET.get('data_fim')
         produto_nome = self.request.GET.get('produto')
 
         # Filtra vendas
-        qs = Venda.objects.filter(ativo=True)
+        vendas_qs = Venda.objects.filter(ativo=True)
         if data_inicio:
-            qs = qs.filter(criados__gte=data_inicio)
+            vendas_qs = vendas_qs.filter(criados__gte=data_inicio)
         if data_fim:
-            qs = qs.filter(criados__lte=data_fim)
+            vendas_qs = vendas_qs.filter(criados__lte=data_fim)
         if produto_nome:
-            qs = qs.filter(produto__NomeProduto__icontains=produto_nome)
+            vendas_qs = vendas_qs.filter(produto__NomeProduto__icontains=produto_nome)
+
+        # ================= PRODUTOS PARA AUTOCOMPLETE =================
+        produtos = Produto.objects.filter(ativo=True).order_by('NomeProduto')
 
         # ================= DADOS DETALHADOS =================
         resultados = (
-            qs.values(
+            vendas_qs.values(
                 'produto__SKU',
                 'produto__NomeProduto',
                 'produto__categoria__categoria'
             )
             .annotate(
-                faturamento=Sum(
-                    ExpressionWrapper(F('quantidadeProduto') * F('precoProduto'), output_field=FloatField())
-                ),
+                faturamento=Sum(ExpressionWrapper(F('quantidadeProduto') * F('precoProduto'), output_field=FloatField())),
                 lucro_total=Sum('lucro')
             )
         )
 
-        # ================= DESPESAS =================
-        despesas_total = Despesa.objects.filter(
-            movimentacao__criados__gte=data_inicio if data_inicio else datetime.today(),
+        # ================= DESPESAS NO PERÍODO =================
+        despesas_qs = Despesa.objects.filter(
+            movimentacao__criados__gte=data_inicio if data_inicio else datetime(1900,1,1),
             movimentacao__criados__lte=data_fim if data_fim else datetime.today()
-        ).aggregate(total_despesas=Sum('despesa__valor'))['total_despesas'] or 0
+        )
 
-        # Subtrai despesas do lucro
+        total_despesas = despesas_qs.aggregate(
+            total=Sum('despesa__valor')
+        )['total'] or 0
+
+        # ================= LUCRO LÍQUIDO =================
         for r in resultados:
-            r['lucro_liquido'] = (r['lucro_total'] or 0) - despesas_total
+            r['lucro_liquido'] = (r['lucro_total'] or 0)  # Despesas não subtraídas por produto individualmente
             r['margem_percentual'] = (r['lucro_liquido'] * 100 / r['faturamento']) if r['faturamento'] > 0 else 0
 
         # ================= TOTAIS GERAIS =================
         faturamento_total = sum([r['faturamento'] or 0 for r in resultados])
-        lucro_total = sum([r['lucro_liquido'] or 0 for r in resultados])
+        lucro_total = sum([r['lucro_liquido'] or 0 for r in resultados]) - total_despesas
         margem_total = (lucro_total * 100 / faturamento_total) if faturamento_total > 0 else 0
 
         # ================= TOTAIS POR MÊS =================
         periodos = (
-            qs.annotate(periodo=TruncMonth('criados'))
+            vendas_qs.annotate(periodo=TruncMonth('criados'))
             .values('periodo')
             .annotate(
                 faturamento=Sum(ExpressionWrapper(F('quantidadeProduto') * F('precoProduto'), output_field=FloatField())),
@@ -479,24 +483,25 @@ class RelatorioFaturamentoeLucroView(TemplateView):
             m = p['periodo'].month
             a = p['periodo'].year
             periodo_str = f"{m:02d}/{a}"
-
             fatur = p['faturamento'] or 0
-            lucro = (p['lucro'] or 0) - despesas_total  # Subtrai despesas do lucro do mês
-            margem = (lucro * 100 / fatur) if fatur > 0 else 0
+            lucro = (p['lucro'] or 0)
+
+            # Subtraímos proporcionalmente as despesas do mês (simplificação: dividir total_despesas igualmente)
+            # Se quiser precisão real, precisaremos vincular cada despesa ao mês exato
+            lucro_liquido = lucro - (total_despesas / len(periodos)) if len(periodos) > 0 else lucro
+
+            margem = (lucro_liquido * 100 / fatur) if fatur > 0 else 0
 
             totais_por_periodo.append({
                 'periodo': periodo_str,
                 'faturamento': fatur,
-                'lucro': lucro,
+                'lucro': lucro_liquido,
                 'margem_percentual': margem,
             })
 
             grafico_labels.append(f"'{periodo_str}'")
             grafico_faturamento.append(fatur)
-            grafico_lucro.append(lucro)
-
-        # ================= PRODUTOS PARA AUTOCOMPLETE =================
-        produtos = Produto.objects.filter(ativo=True).order_by('NomeProduto')
+            grafico_lucro.append(lucro_liquido)
 
         # ================= CONTEXTO =================
         context.update({
@@ -512,6 +517,7 @@ class RelatorioFaturamentoeLucroView(TemplateView):
             'data_inicial': data_inicio,
             'data_final': data_fim,
             'produto_nome': produto_nome,
+            'total_despesas': total_despesas,
         })
 
         return context

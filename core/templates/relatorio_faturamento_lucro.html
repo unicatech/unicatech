@@ -6,16 +6,19 @@
     {% include 'sidebar.html' %}
 
     <style>
-      /* Mantendo o mesmo estilo que você enviou */
       .page-header { margin-bottom: 1.5rem; }
       .page-title h4 { font-size: 1.6rem; font-weight: 600; color: #343a40; }
       .page-title h6 { font-size: 1rem; color: #6c757d; }
+
       .card { border-radius: 12px; border: 1px solid #e9ecef; box-shadow: 0 2px 6px rgba(0,0,0,0.05); margin-bottom: 1.5rem; }
       .card-body { padding: 1.5rem; }
+
       .form-label { font-weight: 500; color: #495057; }
       .form-control, .form-select { border-radius: 6px; border: 1px solid #ced4da; padding: 8px 10px; font-size: 0.95rem; }
+
       .btn-submit { background-color: #fd7e14; border: none; border-radius: 6px; padding: 8px 16px; font-size: 0.95rem; color: #fff; font-weight: 500; }
       .btn-submit:hover { background-color: #e96b0c; color: #fff; }
+
       table.table thead th { background: #fff3e6; font-weight: 600; color: #fd7e14; padding: 12px; border-bottom: 2px solid #fd7e14; }
       table.table tbody td { padding: 10px; border-bottom: 1px solid #e9ecef; }
       .card-body h5 { font-weight: 600; color: #343a40; border-left: 4px solid #fd7e14; padding-left: 10px; margin-bottom: 1rem; }
@@ -26,8 +29,8 @@
       <div class="content">
         <div class="page-header">
           <div class="page-title">
-            <h4>Relatório de Faturamento e Lucro</h4>
-            <h6>Resumo por produto e por período</h6>
+            <h4>Relatório de Faturamento e Lucro Líquido</h4>
+            <h6>Comparativo entre Vendas e Despesas</h6>
           </div>
         </div>
 
@@ -38,21 +41,20 @@
             <form method="get" class="row g-3">
               <div class="col-lg-2 col-sm-6 col-12">
                 <label class="form-label">Data inicial</label>
-                <input type="date" class="form-control" name="data_inicio" value="{{ data_inicio }}">
+                <input type="date" class="form-control" name="data_inicio" value="{{ data_inicial }}">
               </div>
               <div class="col-lg-2 col-sm-6 col-12">
                 <label class="form-label">Data final</label>
-                <input type="date" class="form-control" name="data_fim" value="{{ data_fim }}">
+                <input type="date" class="form-control" name="data_fim" value="{{ data_final }}">
               </div>
               <div class="col-lg-4 col-sm-6 col-12">
                 <label class="form-label">Produto</label>
                 <input class="form-control" name="produto" list="lista-produtos" placeholder="Digite ou escolha..." value="{{ produto_nome }}">
                 <datalist id="lista-produtos">
-                  {% for p in produtos %}
+                  {% for p in produtos_lista %}
                     <option value="{{ p.NomeProduto }}"></option>
                   {% endfor %}
                 </datalist>
-                <div class="form-text">Busca por parte do nome (contém).</div>
               </div>
               <div class="col-lg-2 col-sm-6 col-12 d-flex align-items-end">
                 <button class="btn btn-submit w-100">Filtrar</button>
@@ -60,62 +62,21 @@
             </form>
           </div>
         </div>
-        <!-- /Filtros -->
 
-        {% if resultados %}
-          <!-- 📋 Detalhe por produto -->
+        {% if totais_por_periodo %}
+          <!-- 📊 Tabela de períodos -->
           <div class="card mb-4">
             <div class="card-body">
-              <h5>📋 Faturamento por produto</h5>
-              <div class="table-responsive">
-                <table class="table table-striped align-middle">
-                  <thead>
-                    <tr>
-                      <th>SKU</th>
-                      <th>Produto</th>
-                      <th>Categoria</th>
-                      <th class="text-end">Faturamento (R$)</th>
-                      <th class="text-end">Lucro (R$)</th>
-                      <th class="text-end">Margem (%)</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {% for r in resultados %}
-                      <tr>
-                        <td>{{ r.produto__SKU }}</td>
-                        <td>{{ r.produto__NomeProduto }}</td>
-                        <td>{{ r.produto__categoria__categoria }}</td>
-                        <td class="text-end">R$ {{ r.faturamento|floatformat:2 }}</td>
-                        <td class="text-end">R$ {{ r.lucro_total|floatformat:2 }}</td>
-                        <td class="text-end">{{ r.margem_percentual|floatformat:2 }}%</td>
-                      </tr>
-                    {% endfor %}
-                  </tbody>
-                  <tfoot>
-                    <tr class="table-secondary fw-bold">
-                      <td colspan="3" class="text-end">Total Geral:</td>
-                      <td class="text-end">R$ {{ faturamento_total|floatformat:2 }}</td>
-                      <td class="text-end">R$ {{ lucro_total_geral|floatformat:2 }}</td>
-                      <td class="text-end">{{ margem_total|floatformat:2 }}%</td>
-                    </tr>
-                  </tfoot>
-                </table>
-              </div>
-            </div>
-          </div>
-          <!-- /Detalhe por produto -->
-
-          <!-- 📊 Totais por período -->
-          <div class="card mb-4">
-            <div class="card-body">
-              <h5>📊 Totais por mês</h5>
+              <h5>📊 Resultado por mês</h5>
               <div class="table-responsive">
                 <table class="table table-bordered align-middle">
                   <thead>
                     <tr>
                       <th>Período</th>
-                      <th class="text-end">Faturamento (R$)</th>
-                      <th class="text-end">Lucro (R$)</th>
+                      <th class="text-end">Faturamento</th>
+                      <th class="text-end">Lucro Bruto</th>
+                      <th class="text-end">Despesas</th>
+                      <th class="text-end">Lucro Líquido</th>
                       <th class="text-end">Margem (%)</th>
                     </tr>
                   </thead>
@@ -124,24 +85,36 @@
                       <tr>
                         <td>{{ p.periodo }}</td>
                         <td class="text-end">R$ {{ p.faturamento|floatformat:2 }}</td>
-                        <td class="text-end">R$ {{ p.lucro|floatformat:2 }}</td>
+                        <td class="text-end">R$ {{ p.lucro_bruto|floatformat:2 }}</td>
+                        <td class="text-end">R$ {{ p.despesas|floatformat:2 }}</td>
+                        <td class="text-end">R$ {{ p.lucro_liquido|floatformat:2 }}</td>
                         <td class="text-end">{{ p.margem_percentual|floatformat:2 }}%</td>
                       </tr>
                     {% endfor %}
                   </tbody>
+                  <tfoot>
+                    <tr class="table-secondary fw-bold">
+                      <td>Total Geral</td>
+                      <td class="text-end">R$ {{ faturamento_total|floatformat:2 }}</td>
+                      <td class="text-end">R$ {{ lucro_total_bruto|floatformat:2 }}</td>
+                      <td class="text-end">R$ {{ despesas_total|floatformat:2 }}</td>
+                      <td class="text-end">R$ {{ lucro_total_liquido|floatformat:2 }}</td>
+                      <td class="text-end">{{ margem_total|floatformat:2 }}%</td>
+                    </tr>
+                  </tfoot>
                 </table>
               </div>
             </div>
           </div>
-          <!-- /Totais por período -->
 
-          <!-- 📊 Gráfico -->
-          <div class="card mb-4">
+          <!-- 📈 Gráfico -->
+          <div class="card">
             <div class="card-body">
-              <h5>📊 Gráfico de faturamento e lucro</h5>
-              <canvas id="graficoFaturamentoLucro" height="100"></canvas>
+              <h5>📈 Gráfico de Faturamento x Lucro Líquido</h5>
+              <canvas id="graficoFaturamentoLucro"></canvas>
             </div>
           </div>
+
           <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
           <script>
             const ctx = document.getElementById('graficoFaturamentoLucro').getContext('2d');
@@ -151,14 +124,14 @@
                 labels: {{ grafico_labels|safe }},
                 datasets: [
                   {
-                    label: 'Faturamento (R$)',
+                    label: 'Faturamento',
                     data: {{ grafico_faturamento|safe }},
                     backgroundColor: '#fd7e14'
                   },
                   {
-                    label: 'Lucro (R$)',
+                    label: 'Lucro Líquido',
                     data: {{ grafico_lucro|safe }},
-                    backgroundColor: '#0dcaf0'
+                    backgroundColor: '#28a745'
                   }
                 ]
               },
@@ -171,7 +144,7 @@
           </script>
 
         {% else %}
-          <div class="alert alert-info">Informe as datas e (opcionalmente) um produto para visualizar o relatório.</div>
+          <div class="alert alert-info">Informe o período e (opcionalmente) um produto para visualizar o relatório.</div>
         {% endif %}
 
       </div>

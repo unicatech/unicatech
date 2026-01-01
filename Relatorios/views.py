@@ -414,11 +414,12 @@ class RelatorioFaturamentoeLucroView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
+        # ================= FILTROS =================
         data_inicio = self.request.GET.get('data_inicio')
         data_fim = self.request.GET.get('data_fim')
         produto_nome = self.request.GET.get('produto')
 
-        # Filtra vendas
+        # ================= VENDAS =================
         vendas_qs = Venda.objects.filter(ativo=True)
         if data_inicio:
             vendas_qs = vendas_qs.filter(criados__gte=data_inicio)
@@ -427,41 +428,12 @@ class RelatorioFaturamentoeLucroView(TemplateView):
         if produto_nome:
             vendas_qs = vendas_qs.filter(produto__NomeProduto__icontains=produto_nome)
 
-        # ================= PRODUTOS PARA AUTOCOMPLETE =================
-        produtos = Produto.objects.filter(ativo=True).order_by('NomeProduto')
-
-        # ================= DADOS DETALHADOS =================
-        resultados = (
-            vendas_qs.values(
-                'produto__SKU',
-                'produto__NomeProduto',
-                'produto__categoria__categoria'
-            )
-            .annotate(
-                faturamento=Sum(ExpressionWrapper(F('quantidadeProduto') * F('precoProduto'), output_field=FloatField())),
-                lucro_total=Sum('lucro')
-            )
-        )
-
-        # ================= DESPESAS NO PERÍODO =================
-        despesas_qs = Despesa.objects.filter(
-            movimentacao__criados__gte=data_inicio if data_inicio else datetime(1900,1,1),
-            movimentacao__criados__lte=data_fim if data_fim else datetime.today()
-        )
-
-        total_despesas = despesas_qs.aggregate(
-            total=Sum('despesa__valor')
-        )['total'] or 0
-
-        # ================= LUCRO LÍQUIDO =================
-        for r in resultados:
-            r['lucro_liquido'] = (r['lucro_total'] or 0)  # Despesas não subtraídas por produto individualmente
-            r['margem_percentual'] = (r['lucro_liquido'] * 100 / r['faturamento']) if r['faturamento'] > 0 else 0
-
-        # ================= TOTAIS GERAIS =================
-        faturamento_total = sum([r['faturamento'] or 0 for r in resultados])
-        lucro_total = sum([r['lucro_liquido'] or 0 for r in resultados]) - total_despesas
-        margem_total = (lucro_total * 100 / faturamento_total) if faturamento_total > 0 else 0
+        # ================= DESPESAS =================
+        despesas_qs = Despesa.objects.filter(ativo=True)
+        if data_inicio:
+            despesas_qs = despesas_qs.filter(modificado__gte=data_inicio)
+        if data_fim:
+            despesas_qs = despesas_qs.filter(modificado__lte=data_fim)
 
         # ================= TOTAIS POR MÊS =================
         periodos = (
@@ -469,7 +441,7 @@ class RelatorioFaturamentoeLucroView(TemplateView):
             .values('periodo')
             .annotate(
                 faturamento=Sum(ExpressionWrapper(F('quantidadeProduto') * F('precoProduto'), output_field=FloatField())),
-                lucro=Sum('lucro')
+                lucro_vendas=Sum('lucro')
             )
             .order_by('periodo')
         )
@@ -480,44 +452,59 @@ class RelatorioFaturamentoeLucroView(TemplateView):
         grafico_lucro = []
 
         for p in periodos:
-            m = p['periodo'].month
-            a = p['periodo'].year
-            periodo_str = f"{m:02d}/{a}"
-            fatur = p['faturamento'] or 0
-            lucro = (p['lucro'] or 0)
+            mes = p['periodo'].month
+            ano = p['periodo'].year
+            periodo_str = f"{mes:02d}/{ano}"
 
-            # Subtraímos proporcionalmente as despesas do mês (simplificação: dividir total_despesas igualmente)
-            # Se quiser precisão real, precisaremos vincular cada despesa ao mês exato
-            lucro_liquido = lucro - (total_despesas / len(periodos)) if len(periodos) > 0 else lucro
+            faturamento = p['faturamento'] or 0
+            lucro_vendas = p['lucro_vendas'] or 0
 
-            margem = (lucro_liquido * 100 / fatur) if fatur > 0 else 0
+            # Soma despesas do mesmo mês/ano
+            despesas_periodo = despesas_qs.filter(modificado__month=mes, modificado__year=ano)
+            valor_despesa_total = sum(d.movimentacao.valorDebito * (d.movimentacao.cotacaoDolar or 1) for d in despesas_periodo)
+
+            # Lucro líquido = lucro de vendas - despesas
+            lucro_liquido = lucro_vendas - valor_despesa_total
+            margem_percentual = (lucro_liquido * 100 / faturamento) if faturamento > 0 else 0
 
             totais_por_periodo.append({
                 'periodo': periodo_str,
-                'faturamento': fatur,
-                'lucro': lucro_liquido,
-                'margem_percentual': margem,
+                'faturamento': faturamento,
+                'lucro_bruto': lucro_vendas,
+                'despesas': valor_despesa_total,
+                'lucro_liquido': lucro_liquido,
+                'margem_percentual': margem_percentual,
             })
 
             grafico_labels.append(f"'{periodo_str}'")
-            grafico_faturamento.append(fatur)
+            grafico_faturamento.append(faturamento)
             grafico_lucro.append(lucro_liquido)
+
+        # ================= TOTAIS GERAIS =================
+        faturamento_total = sum([p['faturamento'] for p in totais_por_periodo])
+        lucro_total_bruto = sum([p['lucro_bruto'] for p in totais_por_periodo])
+        despesas_total = sum([p['despesas'] for p in totais_por_periodo])
+        lucro_total_liquido = lucro_total_bruto - despesas_total
+        margem_total = (lucro_total_liquido * 100 / faturamento_total) if faturamento_total else 0
+
+        # ================= PRODUTOS PARA AUTOCOMPLETE =================
+        produtos = Produto.objects.filter(ativo=True).order_by('NomeProduto')
 
         # ================= CONTEXTO =================
         context.update({
-            'resultados': resultados,
             'produtos_lista': produtos,
-            'faturamento_total': faturamento_total,
-            'lucro_total_geral': lucro_total,
-            'margem_total': margem_total,
             'totais_por_periodo': totais_por_periodo,
             'grafico_labels': f"[{','.join(grafico_labels)}]",
             'grafico_faturamento': grafico_faturamento,
             'grafico_lucro': grafico_lucro,
+            'faturamento_total': faturamento_total,
+            'lucro_total_bruto': lucro_total_bruto,
+            'despesas_total': despesas_total,
+            'lucro_total_liquido': lucro_total_liquido,
+            'margem_total': margem_total,
             'data_inicial': data_inicio,
             'data_final': data_fim,
             'produto_nome': produto_nome,
-            'total_despesas': total_despesas,
         })
 
         return context

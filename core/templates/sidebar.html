@@ -88,9 +88,10 @@
 									<li><a href="/relatorioproduto/">Movimentação de Produtos</a></li>
                                     <li><a href="/relatoriocartoes/">Recebimentos dos Cartões</a></li>
 									<li><a href="/relatoriorecebimentosconta/">Recebimentos por Contas</a></li>
-                                    <li><a href="/relatorioeventos/">Recebimentos de Eventos</a></li>
+                                    <li><a href="/relatorioeventos/">Eventos por Usuário</a></li>
 									{% if request.user.is_superuser %}
                                     <li><a href="/relatoriorecebimentoprodutos/">Recebimentos por Produto</a></li>
+									<li><a href="/relatoriofaturamentoelucro/">Faturamento e Margem por Produto</a></li>
 									{% endif %}
 								</ul>
 							</li>

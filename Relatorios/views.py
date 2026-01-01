@@ -7,7 +7,16 @@ from django.db.models import F, Sum, Min, Count, FloatField, Q
 from django.db.models.functions import Lower
 from django.utils.dateparse import parse_date
 from Contas.models import RecebimentoCartao, MovimentacaoConta, Conta
-from django.db.models import Sum
+from django.db.models import (
+    Sum,
+    F,
+    FloatField,
+    ExpressionWrapper,
+    Case,
+    When,
+    Value
+)
+from django.db.models.functions import TruncMonth, TruncYear
 from django.utils.dateparse import parse_date
 from django.contrib.auth.models import User
 from core.models import Alertas
@@ -394,6 +403,129 @@ class RelatorioEventosView(TemplateView):
             'alertas': alertas,
             'usuarios': User.objects.all().order_by('first_name'),
             'total_alertas': alertas.count(),
+        })
+
+        return context
+
+class RelatorioFaturamentoeLucroView(TemplateView):
+    template_name = "relatorio_faturamento_lucro.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        qs = Venda.objects.filter(ativo=True)
+
+        # ================= FILTROS =================
+        data_inicio = self.request.GET.get('data_inicio')
+        data_fim = self.request.GET.get('data_fim')
+        produto_nome = self.request.GET.get('produto')
+
+        if data_inicio:
+            qs = qs.filter(criados__gte=data_inicio)
+        if data_fim:
+            qs = qs.filter(criados__lte=data_fim)
+        if produto_nome:
+            qs = qs.filter(produto__NomeProduto__icontains=produto_nome)
+
+        # ================= DADOS DETALHADOS =================
+        resultados = (
+            qs.values(
+                'produto__SKU',
+                'produto__NomeProduto',
+                'produto__categoria__categoria'
+            )
+            .annotate(
+                faturamento=Sum(
+                    ExpressionWrapper(
+                        F('quantidadeProduto') * F('precoProduto'),
+                        output_field=FloatField()
+                    )
+                ),
+                lucro_total=Sum('lucro')
+            )
+            .annotate(
+                margem_percentual=Case(
+                    When(
+                        faturamento__gt=0,
+                        then=ExpressionWrapper(
+                            (F('lucro_total') * 100.0) / F('faturamento'),
+                            output_field=FloatField()
+                        )
+                    ),
+                    default=Value(0),
+                    output_field=FloatField()
+                )
+            )
+            .order_by('produto__NomeProduto')
+        )
+
+        # ================= TOTAIS GERAIS =================
+        totais = qs.aggregate(
+            faturamento_total=Sum(
+                ExpressionWrapper(
+                    F('quantidadeProduto') * F('precoProduto'),
+                    output_field=FloatField()
+                )
+            ),
+            lucro_total=Sum('lucro')
+        )
+
+        faturamento_total = totais['faturamento_total'] or 0
+        lucro_total = totais['lucro_total'] or 0
+        margem_total = (lucro_total * 100 / faturamento_total) if faturamento_total else 0
+
+        # ================= TOTAIS POR MÊS =================
+        # Agrupa por mês/ano
+        periodos = (
+            qs.annotate(periodo=TruncMonth('criados'))
+            .values('periodo')
+            .annotate(
+                faturamento=Sum(
+                    ExpressionWrapper(F('quantidadeProduto') * F('precoProduto'), output_field=FloatField())
+                ),
+                lucro=Sum('lucro')
+            )
+            .order_by('periodo')
+        )
+
+        totais_por_periodo = []
+        grafico_labels = []
+        grafico_faturamento = []
+        grafico_lucro = []
+
+        for p in periodos:
+            m = p['periodo'].month
+            a = p['periodo'].year
+            periodo_str = f"{m:02d}/{a}"
+            fatur = p['faturamento'] or 0
+            lucro = p['lucro'] or 0
+            margem = (lucro * 100 / fatur) if fatur > 0 else 0
+
+            totais_por_periodo.append({
+                'periodo': periodo_str,
+                'faturamento': fatur,
+                'lucro': lucro,
+                'margem_percentual': margem,
+            })
+
+            grafico_labels.append(f"'{periodo_str}'")
+            grafico_faturamento.append(fatur)
+            grafico_lucro.append(lucro)
+
+        # ================= PRODUTOS PARA AUTOCOMPLETE =================
+        produtos = Produto.objects.filter(ativo=True).order_by('NomeProduto')
+
+        # ================= CONTEXTO =================
+        context.update({
+            'resultados': resultados,
+            'produtos': produtos,
+            'faturamento_total': faturamento_total,
+            'lucro_total_geral': lucro_total,
+            'margem_total': margem_total,
+            'totais_por_periodo': totais_por_periodo,
+            'grafico_labels': f"[{','.join(grafico_labels)}]",
+            'grafico_faturamento': grafico_faturamento,
+            'grafico_lucro': grafico_lucro,
         })
 
         return context

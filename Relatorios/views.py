@@ -2,6 +2,7 @@ from datetime import datetime
 from django.views.generic import TemplateView
 from Compras.models import Compra
 from Vendas.models import Venda
+from Despesas.models import Despesa, CadastroDespesa
 from Produtos.models import Produto, CategoriaProduto
 from django.db.models import F, Sum, Min, Count, FloatField, Q
 from django.db.models.functions import Lower
@@ -413,13 +414,13 @@ class RelatorioFaturamentoeLucroView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        qs = Venda.objects.filter(ativo=True)
-
         # ================= FILTROS =================
         data_inicio = self.request.GET.get('data_inicio')
         data_fim = self.request.GET.get('data_fim')
         produto_nome = self.request.GET.get('produto')
 
+        # Filtra vendas
+        qs = Venda.objects.filter(ativo=True)
         if data_inicio:
             qs = qs.filter(criados__gte=data_inicio)
         if data_fim:
@@ -436,53 +437,34 @@ class RelatorioFaturamentoeLucroView(TemplateView):
             )
             .annotate(
                 faturamento=Sum(
-                    ExpressionWrapper(
-                        F('quantidadeProduto') * F('precoProduto'),
-                        output_field=FloatField()
-                    )
+                    ExpressionWrapper(F('quantidadeProduto') * F('precoProduto'), output_field=FloatField())
                 ),
                 lucro_total=Sum('lucro')
             )
-            .annotate(
-                margem_percentual=Case(
-                    When(
-                        faturamento__gt=0,
-                        then=ExpressionWrapper(
-                            (F('lucro_total') * 100.0) / F('faturamento'),
-                            output_field=FloatField()
-                        )
-                    ),
-                    default=Value(0),
-                    output_field=FloatField()
-                )
-            )
-            .order_by('produto__NomeProduto')
         )
+
+        # ================= DESPESAS =================
+        despesas_total = Despesa.objects.filter(
+            movimentacao__criados__gte=data_inicio if data_inicio else datetime.today(),
+            movimentacao__criados__lte=data_fim if data_fim else datetime.today()
+        ).aggregate(total_despesas=Sum('despesa__valor'))['total_despesas'] or 0
+
+        # Subtrai despesas do lucro
+        for r in resultados:
+            r['lucro_liquido'] = (r['lucro_total'] or 0) - despesas_total
+            r['margem_percentual'] = (r['lucro_liquido'] * 100 / r['faturamento']) if r['faturamento'] > 0 else 0
 
         # ================= TOTAIS GERAIS =================
-        totais = qs.aggregate(
-            faturamento_total=Sum(
-                ExpressionWrapper(
-                    F('quantidadeProduto') * F('precoProduto'),
-                    output_field=FloatField()
-                )
-            ),
-            lucro_total=Sum('lucro')
-        )
-
-        faturamento_total = totais['faturamento_total'] or 0
-        lucro_total = totais['lucro_total'] or 0
-        margem_total = (lucro_total * 100 / faturamento_total) if faturamento_total else 0
+        faturamento_total = sum([r['faturamento'] or 0 for r in resultados])
+        lucro_total = sum([r['lucro_liquido'] or 0 for r in resultados])
+        margem_total = (lucro_total * 100 / faturamento_total) if faturamento_total > 0 else 0
 
         # ================= TOTAIS POR MÊS =================
-        # Agrupa por mês/ano
         periodos = (
             qs.annotate(periodo=TruncMonth('criados'))
             .values('periodo')
             .annotate(
-                faturamento=Sum(
-                    ExpressionWrapper(F('quantidadeProduto') * F('precoProduto'), output_field=FloatField())
-                ),
+                faturamento=Sum(ExpressionWrapper(F('quantidadeProduto') * F('precoProduto'), output_field=FloatField())),
                 lucro=Sum('lucro')
             )
             .order_by('periodo')
@@ -497,8 +479,9 @@ class RelatorioFaturamentoeLucroView(TemplateView):
             m = p['periodo'].month
             a = p['periodo'].year
             periodo_str = f"{m:02d}/{a}"
+
             fatur = p['faturamento'] or 0
-            lucro = p['lucro'] or 0
+            lucro = (p['lucro'] or 0) - despesas_total  # Subtrai despesas do lucro do mês
             margem = (lucro * 100 / fatur) if fatur > 0 else 0
 
             totais_por_periodo.append({
@@ -518,7 +501,7 @@ class RelatorioFaturamentoeLucroView(TemplateView):
         # ================= CONTEXTO =================
         context.update({
             'resultados': resultados,
-            'produtos': produtos,
+            'produtos_lista': produtos,
             'faturamento_total': faturamento_total,
             'lucro_total_geral': lucro_total,
             'margem_total': margem_total,
@@ -526,6 +509,9 @@ class RelatorioFaturamentoeLucroView(TemplateView):
             'grafico_labels': f"[{','.join(grafico_labels)}]",
             'grafico_faturamento': grafico_faturamento,
             'grafico_lucro': grafico_lucro,
+            'data_inicial': data_inicio,
+            'data_final': data_fim,
+            'produto_nome': produto_nome,
         })
 
         return context

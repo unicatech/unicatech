@@ -1,39 +1,101 @@
 {% load static %}
 {% load l10n %}
+{% load math_extras %}
 <!DOCTYPE html>
 <html>
 <head>
+  <!-- Header -->
   {% include 'head.html' %}
+  <!-- /header -->
+
+  <!-- Sidebar -->
   {% include 'sidebar.html' %}
+  <!-- /Sidebar -->
 
   <style>
     .page-header { margin-bottom: 1.5rem; }
     .page-title h4 { font-size: 1.6rem; font-weight: 600; color: #343a40; }
     .page-title h6 { font-size: 1rem; color: #6c757d; }
 
-    .card { border-radius: 12px; border: 1px solid #e9ecef; box-shadow: 0 2px 6px rgba(0,0,0,0.05); margin-bottom: 1.5rem; }
+    .card {
+      border-radius: 12px; border: 1px solid #e9ecef;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05); margin-bottom: 1.5rem;
+    }
     .card-body { padding: 1.5rem; }
 
     .form-group label { font-weight: 500; color: #495057; }
-    .form-control, .select { border-radius: 6px; border: 1px solid #ced4da; padding: 8px 10px; font-size: 0.95rem; }
+    .form-control, .select {
+      border-radius: 6px; border: 1px solid #ced4da;
+      padding: 8px 10px; font-size: 0.95rem;
+    }
 
-    .btn-primary, .btn-submit { background-color: #fd7e14 !important; border: none; border-radius: 6px; color: #fff; padding: 8px 16px; font-size: 0.95rem; }
-    .btn-primary:hover, .btn-submit:hover { background-color: #e96b0c !important; }
+    .btn-primary {
+      background-color: #fd7e14 !important; border: none; color:#fff;
+      border-radius: 6px; padding: 8px 16px; font-size: .95rem;
+    }
+    .btn-primary:hover { background-color: #e96b0c !important; }
 
-    table.datanew { width: 100%; border-collapse: collapse; }
-    table.datanew thead th { background: #fff3e6; color: #fd7e14; font-weight: 600; padding: 12px; border-bottom: 2px solid #fd7e14; }
-    table.datanew tbody td { padding: 10px; border-bottom: 1px solid #e9ecef; vertical-align: top; }
+    table.datanew { width:100%; border-collapse: collapse; }
+    table.datanew thead th {
+      background:#fff3e6; color:#fd7e14; font-weight:600;
+      padding:12px; border-bottom:2px solid #fd7e14;
+    }
+    table.datanew tbody td { padding:10px; border-bottom:1px solid #e9ecef; }
 
-    div.dataTables_wrapper div.dataTables_filter { float: left !important; text-align: left !important; }
-    div.dataTables_wrapper div.dataTables_filter label { font-weight: 500; color: #fd7e14; display: inline-flex; align-items: center; gap: 6px; font-size: 0; }
-    div.dataTables_wrapper div.dataTables_filter label::before { content: "Buscar"; font-size: 0.95rem; font-weight: 600; color: #fd7e14; margin-right: 4px; }
-    div.dataTables_wrapper div.dataTables_filter input { font-size: 0.9rem; margin-left: 0; border-radius: 6px; border: 1px solid #fd7e14; padding: 6px 10px; color: #495057; outline: none; }
-    div.dataTables_wrapper div.dataTables_filter input:focus { border-color: #e96b0c; box-shadow: 0 0 0 0.2rem rgba(253,126,20,0.25); }
+    /* DataTables search à esquerda + “Buscar” */
+    div.dataTables_wrapper div.dataTables_filter { float:left !important; text-align:left !important; }
+    div.dataTables_wrapper div.dataTables_filter label {
+      font-weight:500; color:#fd7e14; display:inline-flex; align-items:center; gap:6px;
+      font-size:0; /* esconde “Search:” */
+    }
+    div.dataTables_wrapper div.dataTables_filter label::before {
+      content:"Buscar"; font-size:0.95rem; font-weight:600; color:#fd7e14; margin-right:4px;
+    }
+    div.dataTables_wrapper div.dataTables_filter input {
+      font-size:0.9rem; border-radius:6px; border:1px solid #fd7e14;
+      padding:6px 10px; color:#495057; outline:none;
+    }
+    div.dataTables_wrapper div.dataTables_filter input:focus {
+      border-color:#e96b0c; box-shadow:0 0 0 .2rem rgba(253,126,20,.25);
+    }
 
-    .closebtn { padding: 10px; border-radius: 6px; margin-top: 10px; background-color: #fff4e5; color: #d9480f; font-weight: 500; position: relative; }
-    .closebtn span { position: absolute; right: 12px; top: 8px; cursor: pointer; font-size: 20px; }
+    .filter-header {
+      font-weight: 600; color: #343a40; border-left: 4px solid #fd7e14;
+      padding-left: 10px; margin-bottom: 1rem;
+    }
 
-    .filter-header { font-weight: 600; color: #343a40; border-left: 4px solid #fd7e14; padding-left: 10px; margin-bottom: 1rem; }
+    /* Mensagem flutuante no card (mesmo padrão do template de Compras) */
+    .alert-message-floating {
+        position: absolute;       /* flutua dentro do card */
+        top: 10px;                /* distância do topo do card */
+        right: 10px;              /* distância da direita */
+        background-color: #155724; /* verde escuro */
+        color: #fff;
+        padding: 8px 16px;
+        border-radius: 6px;
+        font-weight: 600;
+        z-index: 50;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        max-width: 300px;         /* largura compacta, igual aos outros templates */
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .alert-message-floating .closebtn {
+        color: #fff;
+        background: none;
+        border: none;
+        font-weight: bold;
+        font-size: 18px;
+        cursor: pointer;
+        margin-left: 8px;
+        line-height: 1;
+    }
+
+    .alert-message-floating .closebtn:hover {
+        color: #ccc;
+    }
   </style>
 </head>
 <body>
@@ -54,9 +116,18 @@
       </div>
     </div>
 
-    <div class="card mb-3">
+    <!-- 📅 Filtro por datas -->
+    <div class="card mb-3" style="position: relative;">
       <div class="card-body">
         <div class="filter-header">📅 Buscar Venda por Datas</div>
+
+        {% if mensagem %}
+        <div class="alert-message-floating">
+            {{ mensagem }}
+            <button type="button" class="closebtn" onclick="this.parentElement.style.display='none';">&times;</button>
+        </div>
+        {% endif %}
+
         <form method="post" action="{% url 'listarvendas' %}">
           {% csrf_token %}
           <div class="row g-3">
@@ -84,6 +155,7 @@
       </div>
     </div>
 
+    <!-- 📋 Lista de Vendas -->
     <div class="card">
       <div class="card-body">
         <h5 style="font-weight:600;color:#343a40;border-left:4px solid #fd7e14;padding-left:10px;margin-bottom:1rem;">
@@ -146,10 +218,11 @@
         </div>
       </div>
     </div>
-
+    <!-- /Lista -->
   </div>
 </div>
 
+<!-- Modal genérico -->
 <div class="modal fade" id="modalVenda" tabindex="-1" aria-labelledby="modalVendaLabel" aria-hidden="true">
   <div class="modal-dialog modal-xl">
     <div class="modal-content">

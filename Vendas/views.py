@@ -275,14 +275,6 @@ class FazerVendasView(TemplateView):
         for venda in vendas:
             faturado = faturado + venda.total
 
-        evento_venda = f"Venda feita por {request.user.first_name} no valor de R${valorVenda}. O total faturado do mês é de R${faturado}"
-        alerta = Alertas(
-                criados = str(dataModificada),
-                evento = evento_venda,
-                usuario_id = request.user.id,
-                icone = "sale.svg"
-        )
-        alerta.save()
         context['mensagem'] = 'Venda Salva'
 
         if gerar_compra == "on":
@@ -342,7 +334,27 @@ class FazerVendasView(TemplateView):
                                          )
             dataform.save()
 
-        return HttpResponseRedirect('/'+tipo_produto[0]+'/?venda_realizada=1', context)
+        if identificadorVenda[0] != "":
+            evento_venda = f"Venda atualizada por {request.user.first_name} no valor de R${valorVenda}. O total faturado do mês é de R${faturado}"
+            alerta = Alertas(
+                criados=str(dataModificada),
+                evento=evento_venda,
+                usuario_id=request.user.id,
+                icone="sale.svg"
+            )
+            alerta.save()
+            return HttpResponseRedirect('/listarvendas/?venda_atualizada=1', context)
+        else:
+            evento_venda = f"Venda feita por {request.user.first_name} no valor de R${valorVenda}. O total faturado do mês é de R${faturado}"
+            alerta = Alertas(
+                criados=str(dataModificada),
+                evento=evento_venda,
+                usuario_id=request.user.id,
+                icone="sale.svg"
+            )
+            alerta.save()
+            return HttpResponseRedirect('/' + tipo_produto[0] + '/?venda_realizada=1', context)
+
 
 
     def get_template_names(self):
@@ -358,6 +370,9 @@ class ListarVendasView(TemplateView):
         context = super(ListarVendasView, self).get_context_data(**kwargs)
         produtos_repetidos = []
         context['mensagem'] = ''
+        if self.request.GET.__contains__("venda_atualizada"):
+            context['mensagem'] = "Venda Atualizada"
+
         if self.request.GET.__contains__("idVenda"):
             if self.request.GET["funcao"] == "apagar":
                 apagarvendas = Venda.objects.filter(identificadorVenda=self.request.GET["idVenda"],ativo=True)

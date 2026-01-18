@@ -23,6 +23,12 @@ class FazerComprasView(TemplateView):
         context['dataCompra'] = datetime.now().strftime("%d-%m-%Y")
         financeiro = MovimentacaoFinanceira(0,0)
         context['dolarMedio'] = financeiro.dolarMedio
+        context['mensagem'] = ''
+
+        if self.request.GET.__contains__("compra_realizada"):
+            context['mensagem'] = "Compra Realizada"
+
+
         if self.request.GET.__contains__("idCompra"):
             compras = Compra.objects.filter(identificadorCompra=self.request.GET["idCompra"], ativo=True)
             listarProdutosTemplate = []
@@ -86,7 +92,7 @@ class FazerComprasView(TemplateView):
             context['itinerario'] = localizacao_detalhada
 
         context['compras'] = Compra.objects.all()
-        context['mensagem'] = ''
+
         # Popular template
         context['fornecedores'] = Fornecedor.objects.all()
 
@@ -94,7 +100,6 @@ class FazerComprasView(TemplateView):
             context['produtos'] = Produto.objects.all().filter(categoria_id=5).order_by('NomeProduto')
         if self.request.resolver_match.url_name == "fazercomprasaparelhos":
             context['produtos'] = Produto.objects.all().filter(categoria_id__lte=4).order_by('NomeProduto')
-            logging.warning(context['produtos'])
         context['tipo_produto'] = self.request.resolver_match.url_name
         context['localizacaoCompra'] = LocalizacaoCompra.objects.all()
         context['contasDetalhadas'] = financeiro.saldo_conta
@@ -236,18 +241,6 @@ class FazerComprasView(TemplateView):
         )
         formDeslocamento.save()
 
-        fornecedor = Fornecedor.objects.get(id=fornecedor[0])
-        evento_venda = f"Compra feita por {request.user.first_name} no valor de R${valorCompra} da empresa {fornecedor.nomeFornecedor}."
-        alerta = Alertas(
-                criados=str(dataModificada),
-                evento=evento_venda,
-                usuario_id=request.user.id,
-                icone="purchase.svg"
-        )
-        alerta.save()
-
-        context['mensagem'] = 'Compra Salva'
-
         # Popular template
         context['fornecedores'] = Fornecedor.objects.all()
         if tipo_produto[0] == "fazercompraspecas":
@@ -259,7 +252,28 @@ class FazerComprasView(TemplateView):
         context['localizacaoCompra'] = LocalizacaoCompra.objects.all()
         context['contasDetalhadas'] = financeiro.saldo_conta
         context['dolarMedio'] = financeiro.dolarMedio
-        return HttpResponseRedirect('/'+tipo_produto[0]+'/?venda_realizada=1', context)
+
+        fornecedor = Fornecedor.objects.get(id=fornecedor[0])
+        if identificadorCompra[0] != "":
+            evento_venda = f"Compra atualizada por {request.user.first_name} no valor de R${valorCompra} da empresa {fornecedor.nomeFornecedor}."
+            alerta = Alertas(
+                criados=str(dataModificada),
+                evento=evento_venda,
+                usuario_id=request.user.id,
+                icone="purchase.svg"
+            )
+            alerta.save()
+            return HttpResponseRedirect('/listarcompras/?compra_atualizada=1', context)
+        else:
+            evento_venda = f"Compra feita por {request.user.first_name} no valor de R${valorCompra} da empresa {fornecedor.nomeFornecedor}."
+            alerta = Alertas(
+                criados=str(dataModificada),
+                evento=evento_venda,
+                usuario_id=request.user.id,
+                icone="purchase.svg"
+            )
+            alerta.save()
+            return HttpResponseRedirect('/'+tipo_produto[0]+'/?compra_realizada=1', context)
 
     def get_template_names(self):
         if self.request.GET.get("funcao") == "modal":
@@ -271,8 +285,10 @@ class ListarComprasView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(ListarComprasView, self).get_context_data(**kwargs)
-
         context['mensagem'] = ''
+        if self.request.GET.__contains__("compra_atualizada"):
+            context['mensagem'] = "Compra Atualizada"
+
         if self.request.GET.__contains__("idCompra"):
             if self.request.GET["funcao"] == "apagar":
                 apagarcompras = Compra.objects.filter(identificadorCompra=self.request.GET["idCompra"])

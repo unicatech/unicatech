@@ -89,6 +89,35 @@
     .table-responsive { overflow-x: auto; }
     #table_field th, #table_field td { white-space: nowrap; }
 }
+
+        /* Alerta no fluxo da página, à direita */
+.alert-message {
+    display: inline-block;        /* ajusta ao conteúdo */
+    background-color: #155724;    /* verde escuro */
+    color: #fff;                  /* texto branco */
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-weight: 600;
+    margin-top: 10px;             /* separação do topo */
+    text-align: right;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    clear: both;                  /* garante que não se sobreponha elementos flutuantes anteriores */
+}
+
+/* Botão de fechar */
+.alert-message .closebtn {
+    margin-left: 10px;
+    color: #fff;
+    font-weight: bold;
+    float: right;                 /* no canto direito do alerta */
+    font-size: 18px;
+    cursor: pointer;
+}
+
+.alert-message .closebtn:hover {
+    color: #ccc;
+}
+
     </style>
 <head>
     <meta charset="UTF-8">
@@ -112,18 +141,20 @@
 							<h4>Vendas</h4>
 							<h6>Adicione/Edite sua Venda</h6>
 						</div>
-						{% if venda_realizada == 1 %}
-						 <div class="closebtn">
-							 <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
-							 Venda Realizada
-						</div>
-						{% endif %}
-						{% if cliente_sem_cadastro == 1%}
-						     <div class="closebtn">
-						     <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
-							 Cliente Não Cadastrado
-							 </div>
-						{% endif %}
+{% if venda_realizada == 1 %}
+<div class="alert-message float-end">
+    <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
+    Venda Realizada
+</div>
+{% endif %}
+
+{% if cliente_sem_cadastro == 1 %}
+<div class="alert-message float-end">
+    <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
+    Cliente Não Cadastrado
+</div>
+{% endif %}
+
 					</div>
 					<form id="formVenda" method="POST" action="{% url 'fazervendas' %}">
 					{% csrf_token %}

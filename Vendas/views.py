@@ -324,7 +324,7 @@ class FazerVendasView(TemplateView):
             )
             formMovimentacao.save()
 
-            #Creditando aparelho recebido
+            ##Creditando aparelho recebido
             dataform = MovimentacaoConta(contaCredito_id=-1,
                                          criados=dataModificada,
                                          valorCredito=valorCompra,
@@ -333,7 +333,7 @@ class FazerVendasView(TemplateView):
                                          identificadorDolar=False,
                                          )
             dataform.save()
-
+        ##
         if identificadorVenda[0] != "":
             evento_venda = f"Venda atualizada por {request.user.first_name} no valor de R${valorVenda}. O total faturado do mês é de R${faturado}"
             alerta = Alertas(

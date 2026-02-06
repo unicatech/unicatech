@@ -786,5 +786,42 @@ $(document).ready(function() {
 
 });
 </script>
+
+                <script>
+$(document).ready(function () {
+    $('#formCompra').on('submit', function (e) {
+
+        const fornecedorInput  = $('#fornecedorInput');
+        const fornecedorHidden = $('#fornecedorHidden');
+
+        // Só valida se o input existir (quando NÃO está fixo)
+        if (fornecedorInput.length) {
+
+            const nomeDigitado = fornecedorInput.val().trim();
+            const idFornecedor = fornecedorHidden.val().trim();
+
+            // Digitou algo, mas não selecionou da lista
+            if (nomeDigitado !== '' && idFornecedor === '') {
+                e.preventDefault();
+
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Fornecedor não encontrado',
+                    text: 'Selecione um fornecedor válido da lista ou cadastre um novo.',
+                    confirmButtonText: 'OK',
+                    customClass: {
+                        confirmButton: 'btn btn-danger me-3 confirm-text'
+                    },
+                    buttonsStyling: false
+                });
+
+                fornecedorInput.focus();
+                return false;
+            }
+        }
+    });
+});
+</script>
+
     </body>
 </html>

@@ -203,7 +203,6 @@ class FazerVendasView(TemplateView):
                 atualizarEstoque.save()
                 #Calculando o lucro
                 compras_produto = Compra.objects.filter(produto_id=atualizarEstoque.id, ativo=True).order_by('-id')
-                #Calculando preço médio do estoque (média móvel)
                 estoque = estoque_anterior
                 quantidade_produto_venda = float(quantidades[contador])
                 preco_venda = re.sub(r'\.', '', precos[contador]).replace(',', '.')
@@ -243,11 +242,11 @@ class FazerVendasView(TemplateView):
                 for dado_compra in reversed(dados_compras):
                     if (quantidade_produto_venda <= dado_compra['quantidade_produto']):
                         lucro = lucro + quantidade_produto_venda  * (float(preco_venda) -
-                                                                (dado_compra['preco_produto'] + frete_medio_produto) * dado_compra['valor_dolar_medio'])
+                                                                (dado_compra['preco_produto'] * dado_compra['valor_dolar_medio'] + frete_medio_produto) )
                         break
                     else:
                         lucro = lucro + dado_compra['quantidade_produto']  * (float(preco_venda) -
-                                                                (dado_compra['preco_produto'] + frete_medio_produto) * dado_compra['valor_dolar_medio'])
+                                                                (dado_compra['preco_produto'] * dado_compra['valor_dolar_medio'] + frete_medio_produto) )
                         quantidade_produto_venda = quantidade_produto_venda - dado_compra['quantidade_produto']
 
                 #Cadastrando Venda

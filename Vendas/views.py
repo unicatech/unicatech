@@ -31,6 +31,7 @@ class FazerVendasView(TemplateView):
         context = super(FazerVendasView, self).get_context_data(**kwargs)
         context['editarVenda'] = 0
         context['dataVenda'] = datetime.now().strftime("%d-%m-%Y")
+
         if self.request.GET.__contains__("venda_realizada"):
             context['venda_realizada'] = 1
 

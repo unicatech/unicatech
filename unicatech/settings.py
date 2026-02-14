@@ -62,8 +62,8 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
-    'unicatech.middleware.MostrarAlertas',  # <-- SEU MIDDLEWARE AQUI
-    # 👈
+    'unicatech.middleware.MostrarAlertas',
+    'unicatech.middleware.LoginRequiredMiddleware',
 ]
 
 ROOT_URLCONF = 'unicatech.urls'

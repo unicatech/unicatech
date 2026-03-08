@@ -42,6 +42,7 @@ class FazerComprasView(TemplateView):
                         'quantidadeProduto': compra.quantidadeProduto,
                         'precoProduto': compra.precoProduto,
                         'precoProdutoSubtotal': preco_produto_subtotal,
+                        'valorDolarMedio': compra.valorDolarMedio,
                     }
                 )
                 valor_total_compra = valor_total_compra + preco_produto_subtotal
@@ -69,10 +70,16 @@ class FazerComprasView(TemplateView):
             apagar_apenas_ultimo = 1
             localizacao_detalhada = []
             for localizacao in localizacao_compra:
+                frete_trecho = 0
                 if compra_deslocada == 0:
                     origem = localizacao.destino
                     compra_deslocada = 1
                 try:
+                    id_frete_trecho = MovimentacaoConta.objects.get(id=localizacao.idMovimentacaoConta)
+                    if id_frete_trecho.identificadorDolar == True:
+                        frete_trecho = id_frete_trecho.valorDebito * id_frete_trecho.cotacaoDolar
+                    elif id_frete_trecho.identificadorDolar == False:
+                        frete_trecho = id_frete_trecho.valorDebito
                     origem_itinerario = LocalizacaoCompra.objects.get(id=localizacao.origem)
                     destino_itinerario = LocalizacaoCompra.objects.get(id=localizacao.destino)
                     localizacao_detalhada.append(
@@ -80,7 +87,7 @@ class FazerComprasView(TemplateView):
                             "id": localizacao.id,
                             "origem": origem_itinerario.localizacaoCompra,
                             "destino": destino_itinerario.localizacaoCompra,
-                            "frete": localizacao.frete,
+                            "frete": frete_trecho,
                             "data": localizacao.criados,
                             "id_movimentacao_conta": localizacao.idMovimentacaoConta,
                             "apagar_apenas_ultimo": apagar_apenas_ultimo,

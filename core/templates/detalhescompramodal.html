@@ -27,7 +27,7 @@
           <th>Produto</th>
           <th class="text-end">Qtd</th>
           <th class="text-end">Preço</th>
-          <th class="text-end">Total</th>
+          <th class="text-end">SubTotal(R$)</th>
         </tr>
       </thead>
       <tbody>
@@ -37,9 +37,9 @@
               <tr>
                 <td>{{ p.NomeProduto }}</td>
                 <td class="text-end">{{ c.quantidadeProduto }}</td>
-                <td class="text-end">{{ c.precoProduto | floatformat:2 }}</td>
+                <td class="text-end">{{ c.precoProduto|multiply:c.valorDolarMedio | floatformat:2 }}</td>
                 <td class="text-end subtotal">
-                 {{ c.quantidadeProduto|multiply:c.precoProduto|floatformat:2 }}
+                 {{ c.quantidadeProduto|multiply:c.precoProduto|multiply:c.valorDolarMedio|floatformat:2 }}
                 </td>
               </tr>
             {% endif %}
@@ -51,7 +51,7 @@
           <th>Data do Frete</th>
           <th class="text-end">Origem</th>
           <th class="text-end">Destino</th>
-          <th class="text-end">Total</th>
+          <th class="text-end">SubTotal(R$)</th>
         </tr>
         </thead>
         {%endif%}
@@ -76,6 +76,6 @@
 
   <!-- Total -->
   <div class="text-end fw-bold p-2" style="background:#fff3e6;border-top:2px solid #fd7e14;border-radius:6px;">
-    Total: {{ compra.moeda }} <span id="totalCompra">0,00</span>
+    Total:R${{ compra.moeda }} <span id="totalCompra">0,00</span>
   </div>
 </div>

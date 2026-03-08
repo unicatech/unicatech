@@ -67,12 +67,16 @@ class RelatorioProdutoView(TemplateView):
             def add_movimento(qs, tipo, nota_field, contraparte_field):
                 for obj in qs:
                     valor_total = (obj.quantidadeProduto or 0) * (obj.precoProduto or 0)
+                    if tipo == "Venda":
+                        preco_unit = obj.precoProduto
+                    elif tipo == "Compra":
+                        preco_unit = obj.precoProduto * obj.valorDolarMedio
                     movimentos.append({
                         "data": obj.criados,
                         "tipo": tipo,
                         "produto_nome": obj.produto.NomeProduto,
                         "quantidade": obj.quantidadeProduto,
-                        "preco_unit": obj.precoProduto,
+                        "preco_unit": preco_unit,
                         "valor_total": valor_total,
                         "contraparte": getattr(obj, contraparte_field).nomeCliente if tipo=="Venda" else getattr(obj, contraparte_field).nomeFornecedor,
                         "descricao": obj.descricao,

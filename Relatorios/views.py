@@ -66,11 +66,12 @@ class RelatorioProdutoView(TemplateView):
             # Função auxiliar para adicionar movimentos
             def add_movimento(qs, tipo, nota_field, contraparte_field):
                 for obj in qs:
-                    valor_total = (obj.quantidadeProduto or 0) * (obj.precoProduto or 0)
+                    preco_unit = 0
                     if tipo == "Venda":
                         preco_unit = obj.precoProduto
                     elif tipo == "Compra":
                         preco_unit = obj.precoProduto * obj.valorDolarMedio
+                    valor_total = (obj.quantidadeProduto or 0) * preco_unit
                     movimentos.append({
                         "data": obj.criados,
                         "tipo": tipo,

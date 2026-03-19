@@ -46,6 +46,34 @@
           {% endfor %}
         {% endfor %}
       </tbody>
+    {%if compra_identificada%}
+      <thead>
+        <tr>
+          <th>Produto Comprado</th>
+          <th class="text-end">Qtd</th>
+          <th class="text-end">Preço</th>
+          <th class="text-end">SubTotal(R$)</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for c in compra_identificada %}
+          Preco {{ c.precoProduto }}
+          {% for p in produtos %}
+
+            {% if p.id == c.idProduto %}
+              <tr>
+                <td>{{ p.NomeProduto }}</td>
+                <td class="text-end">{{ c.quantidadeProduto }}</td>
+                <td class="text-end">{{ c.precoProduto | floatformat:2}}</td>
+                <td class="text-end subtotal">
+                  {{ c.quantidadeProduto|multiply:c.precoProduto | floatformat:2  }}
+                </td>
+              </tr>
+            {% endif %}
+          {% endfor %}
+        {% endfor %}
+      </tbody>
+    {%endif%}
     </table>
   </div>
 

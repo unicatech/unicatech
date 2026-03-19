@@ -64,6 +64,25 @@ class FazerVendasView(TemplateView):
                 context['produtos'] = Produto.objects.all().order_by('NomeProduto')
                 context['valor_total_venda'] = valor_total_venda
 
+            #Se houver recebimento de aparelho associada a Venda
+            try:
+                compra_venda = MovimentacaoConta.objects.get(identificadorVenda=self.request.GET["idVenda"], identificadorCompra__gt=0,ativo=True)
+                listarProdutosCompraTemplate = []
+                if compra_venda.identificadorCompra > 0:
+                    compra = Compra.objects.get(identificadorCompra=compra_venda.identificadorCompra)
+                    listarProdutosCompraTemplate = [{
+                        'idProduto': compra.produto_id,
+                        'quantidadeProduto': compra.quantidadeProduto,
+                        'precoProduto': compra.precoProduto,
+                        'precoProdutoSubtotal': str(compra.quantidadeProduto*compra.precoProduto),
+                    }]
+                context["compra_identificada"] = listarProdutosCompraTemplate
+                context['aparelhos'] = 1
+                context['aparelho_comprado'] = 1
+                context['produtos_compra'] = Produto.objects.all().filter(categoria_id__lte=4).order_by('NomeProduto')
+            except Exception as e:
+                logging.warning(e)
+
         if self.request.GET.__contains__("id_cliente_cadastro"):
             listarProdutosTemplate = []
             identificadorVenda = 0
@@ -310,7 +329,6 @@ class FazerVendasView(TemplateView):
                     atualizarEstoque.estoque = atualizarEstoque.estoque + int(float(quantidades[contador]))
                     atualizarEstoque.save()
                     contador = contador + 1
-
             # Debitando da conta
             formMovimentacao = MovimentacaoConta(
                     criados=str(dataModificada),

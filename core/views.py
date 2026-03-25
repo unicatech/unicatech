@@ -92,7 +92,7 @@ class IndexView(LoginRequiredMixin,UserPassesTestMixin,TemplateView):
 
         #Dados de despesa
         cadastro_despesas = CadastroDespesa.objects.filter(ativo=True).filter(periodicidade__gt=0)#.filter(criados__year__lte=ano_selecionado).filter(criados__month__lte=mes_selecionado).filter(criados__day__lte=dia_selecionado)
-        despesas_template = []
+
         mes_anterior = 0
         ano_anterior = 0
         for despesa in cadastro_despesas:
@@ -146,28 +146,9 @@ class IndexView(LoginRequiredMixin,UserPassesTestMixin,TemplateView):
                 else:
                     conta_em_dolar = 0
                     cotacao_dolar = 1
-                logging.warning("Entrei")
-                data_anterior = datetime(int(ano_anterior),int(mes_anterior),1).strftime("%Y-%m-%d")
-                registro_movimentacao = MovimentacaoConta(
-                    criados=data_anterior,
-                    contaDebito=despesa.conta_debito_id,
-                    valorDebito=despesa.valor,
-                    identificadorCompra=0,
-                    identificadorVenda=0,
-                    descricao=despesa.nome_despesa,
-                    cotacaoDolar=cotacao_dolar,
-                    identificadorDolar=conta_em_dolar,
-                )
-                registro_movimentacao.save()
-                conta = Conta.objects.get(id=despesa.conta_debito_id)
-                registro_despesa = Despesa(
-                    criados=data_anterior,
-                    ativo=1,
-                    despesa_id=despesa.id,
-                    movimentacao_id=registro_movimentacao.id,
-                )
-                registro_despesa.save()
 
+
+        despesas_template = []
         despesas = Despesa.objects.filter(ativo=True).filter(modificado__year=ano_selecionado).filter(modificado__month=mes_selecionado).order_by('-id')
         valor_despesa_total = 0
         for despesa in despesas:

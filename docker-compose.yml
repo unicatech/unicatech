@@ -46,12 +46,12 @@ services:
              chmod 0644 /etc/cron.d/django-cron &&
              crontab /etc/cron.d/django-cron &&
              cron -f"
-  volumes:
-    - .:/app
-  depends_on:
-    - db
-  networks:
-    - unicatech-net
+    volumes:
+      - .:/app
+    depends_on:
+      - db
+    networks:
+      - unicatech-net
 
 volumes:
   postgres_data:

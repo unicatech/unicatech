@@ -34,16 +34,24 @@ services:
     networks:
       - unicatech-net
 
-  cron:
-    build: .
-    container_name: unicatech-cron
-    command: >
-      sh -c "apt-get update &&
-             apt-get install -y cron &&
-             echo '0 3 * * * python /app/manage.py computardespesas >> /var/log/cron.log 2>&1' > /etc/cron.d/django-cron &&
-             chmod 0644 /etc/cron.d/django-cron &&
-             crontab /etc/cron.d/django-cron &&
-             cron -f"
+cron:
+  build: .
+  container_name: unicatech-cron
+  command: >
+    sh -c "apt-get update &&
+           apt-get install -y cron &&
+           chmod +x /wait-for-it.sh &&
+           /wait-for-it.sh db:5432 --
+           echo '0 3 * * * cd /app && python manage.py computardespesas >> /var/log/cron.log 2>&1' > /etc/cron.d/django-cron &&
+           chmod 0644 /etc/cron.d/django-cron &&
+           crontab /etc/cron.d/django-cron &&
+           cron -f"
+  volumes:
+    - .:/app
+  depends_on:
+    - db
+  networks:
+    - unicatech-net
 
 volumes:
   postgres_data:

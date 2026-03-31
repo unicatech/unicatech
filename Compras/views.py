@@ -261,6 +261,7 @@ class FazerComprasView(TemplateView):
         context['dolarMedio'] = financeiro.dolarMedio
 
         fornecedor = Fornecedor.objects.get(id=fornecedor[0])
+        valorCompra = f"{valorCompra:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
         if identificadorCompra[0] != "":
             evento_venda = f"Compra atualizada por {request.user.first_name} no valor de R${valorCompra} da empresa {fornecedor.nomeFornecedor}."
             alerta = Alertas(

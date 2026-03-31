@@ -61,8 +61,8 @@
                             <p><strong>Nota:</strong> {{listarVendas.idVenda}}</p>
                             <p><strong>Cliente:</strong> {{listarVendas.cliente}}</p>
                             <p><strong>Data da Venda:</strong> {{listarVendas.dataVenda}}</p>
-                            <p><strong>Valor total:</strong> {{listarVendas.valorVenda}}</p>
-                            <p><strong>A receber:</strong> {{listarVendas.total_receber}}</p>
+                            <p><strong>Valor total:</strong> {% localize on %}{{listarVendas.valorVenda|floatformat:2}}{% endlocalize %}</p>
+                            <p><strong>A receber:</strong> {% localize on %}{{listarVendas.total_receber|floatformat:2}}{% endlocalize %}</p>
                         </div>
 
                         <div class="form-row">
@@ -89,7 +89,7 @@
 
                             <div class="form-group col-md-6">
                                 <label>Valor a Receber</label>
-                                <input type="text" class="form-control" name="valorRecebido" value="{{listarVendas.total_receber}}">
+                                <input type="text" class="form-control" name="valorRecebido" value="{% localize on %}{{listarVendas.total_receber|floatformat:2}}{% endlocalize %}">
                             </div>
 
                             <div class="form-group col-md-6">
@@ -143,4 +143,6 @@
         </div>
     </div>
 </body>
+
+
 </html>

@@ -59,7 +59,7 @@
                       <table class="table table-sm table-borderless mb-0">
                         {% for recebimento in venda.recebimentos %}
                         <tr>
-                          <td>{{ recebimento.valor_recebimento }}</td>
+                          <td>{%localize on%}{{ recebimento.valor_recebimento|floatformat:2 }}{%endlocalize%}</td>
                           <td>{{ recebimento.data }}</td>
                           <td>{{ recebimento.Credito }}</td>
                           <td>
@@ -242,5 +242,31 @@
         });
       });
     </script>
+
+ <script>
+function formatarMoedaBR(valor) {
+    valor = valor.replace(/\D/g, '');
+
+    if (!valor) return '';
+
+    valor = (parseInt(valor)).toString();
+
+    if (valor.length === 1) valor = '0' + valor;
+
+    let inteiro = valor.slice(0, -2);
+    let decimal = valor.slice(-2);
+
+    inteiro = inteiro.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+
+    return inteiro + ',' + decimal;
+}
+
+// FUNCIONA COM MODAL + AJAX
+document.addEventListener('input', function(e) {
+    if (e.target && e.target.name === 'valorRecebido') {
+        e.target.value = formatarMoedaBR(e.target.value);
+    }
+});
+</script>
   </body>
 </html>

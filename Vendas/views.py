@@ -352,6 +352,8 @@ class FazerVendasView(TemplateView):
                                          )
             dataform.save()
         ##
+        valorVenda = f"{valorVenda:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+        faturado = f"{faturado:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
         if identificadorVenda[0] != "":
             evento_venda = f"Venda atualizada por {request.user.first_name} no valor de R${valorVenda}. O total faturado do mês é de R${faturado}"
             alerta = Alertas(
@@ -690,10 +692,11 @@ class ParcelasReceberModalView(TemplateView):
                 taxa = float(conta_cartao.taxa_cartao18)
             elif self.request.POST.get("parcelaCartao") == "0":
                 taxa = float(conta_cartao.taxa_debito)
-            valor_recebimento = (1 - taxa / 100) * float(self.request.POST.get('valorRecebido'))
+            valor_recebimento = (1 - taxa / 100) * float(self.request.POST.get('valorRecebido').replace(".", "").replace(",", "."))
+            logging.warning(valor_recebimento)
             dataform = RecebimentoCartao(conta_cartao_id=self.request.POST.get('contaCredito'),
                                      criados=data_modificada,
-                                     valor=self.request.POST.get('valorRecebido'),
+                                     valor=self.request.POST.get('valorRecebido').replace(".", "").replace(",", "."),
                                      parcelas=self.request.POST.get('parcelaCartao'),
                                      bandeira=self.request.POST.get('bandeira'),
                                      identificador_venda=self.request.POST.get('identificadorVenda'),
@@ -702,10 +705,10 @@ class ParcelasReceberModalView(TemplateView):
             dataform.save()
         elif conta_recebimento.categoria_id == 2:
             #logging.warning("Depósito em real")
-            valor_recebimento = float(self.request.POST.get('valorRecebido'))
+            valor_recebimento = float(self.request.POST.get('valorRecebido').replace(".", "").replace(",", "."))
         elif conta_recebimento.categoria_id == 3:
             #logging.warning("Espécie")
-            valor_recebimento = float(self.request.POST.get('valorRecebido'))
+            valor_recebimento = float(self.request.POST.get('valorRecebido').replace(".", "").replace(",", "."))
 
         dataform = MovimentacaoConta(contaCredito_id=self.request.POST.get('contaCredito'),
                                      criados=data_modificada,

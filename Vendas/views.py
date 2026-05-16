@@ -175,18 +175,23 @@ class FazerVendasView(TemplateView):
 
             for produto in produtos:
                 try:
+                    logging.warning("Produto vendido")
+                    logging.warning(produto)
                     for produto_repetido_unico in produtos_repetidos_unicos:
                         if produto_repetido_unico == produto:
                             produto = -1
                             continue
                     if produto == -1:
                         continue
-                    quantidadeOriginalEstoque = Venda.objects.get(identificadorVenda=identificadorVenda[0],
+                    try:
+                        quantidadeOriginalEstoque = Venda.objects.get(identificadorVenda=identificadorVenda[0],
                                                               produto_id=produto,ativo=True)
-                    atualizarEstoque = Produto.objects.get(id=produto)
-                    atualizarEstoque.estoque = atualizarEstoque.estoque + quantidadeOriginalEstoque.quantidadeProduto
-                    atualizarEstoque.save()
-                    produtos_repetidos_unicos.append(produto)
+                        atualizarEstoque = Produto.objects.get(id=produto)
+                        atualizarEstoque.estoque = atualizarEstoque.estoque + quantidadeOriginalEstoque.quantidadeProduto
+                        atualizarEstoque.save()
+                        produtos_repetidos_unicos.append(produto)
+                    except:
+                        continue
                 except:
                     #logging.warning("Except")
                     for produto_repetido in produtos_repetidos:

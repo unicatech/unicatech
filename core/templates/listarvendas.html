@@ -234,41 +234,83 @@
 </div>
 
 {% include 'footer.html' %}
-
 <script>
 function somarSubtotaisDaModal(modalElement) {
   let total = 0;
-  modalElement.querySelectorAll(".subtotal").forEach(td => {
+
+  // SOMA APENAS OS SUBTOTAIS DA PRIMEIRA PARTE
+  modalElement.querySelectorAll(".subtotal-venda").forEach(td => {
     const txt = (td.textContent || td.innerText || "").trim();
-    const num = parseFloat(txt.replace(/\./g,'').replace(',','.'));
-    if (!isNaN(num)) total += num;
+
+    const num = parseFloat(
+      txt.replace(/\./g, '').replace(',', '.')
+    );
+
+    if (!isNaN(num)) {
+      total += num;
+    }
   });
+
   const span = modalElement.querySelector("#totalVenda");
-  if(span) span.textContent = total.toFixed(2).replace('.',',');
+
+  if(span) {
+    span.textContent = total.toFixed(2).replace('.', ',');
+  }
 }
 
 document.addEventListener("DOMContentLoaded", function() {
+
   const modalEl = document.getElementById("modalVenda");
-  const modal = bootstrap.Modal.getOrCreateInstance(modalEl, {backdrop:true, keyboard:true});
-  document.querySelectorAll(".view-sale").forEach(link=>{
+
+  const modal = bootstrap.Modal.getOrCreateInstance(modalEl, {
+    backdrop:true,
+    keyboard:true
+  });
+
+  document.querySelectorAll(".view-sale").forEach(link => {
+
     link.addEventListener("click", function(e){
+
       e.preventDefault();
+
       const url = this.dataset.url;
+
       const modalBody = modalEl.querySelector(".modal-body");
-      modalBody.innerHTML = '<div class="text-center p-3">Carregando...</div>';
-      fetch(url).then(r=>r.text()).then(html=>{
-        modalBody.innerHTML = html;
-        somarSubtotaisDaModal(modalEl);
-      }).catch(()=>{ modalBody.innerHTML = "<div class='text-danger p-3'>Erro ao carregar dados.</div>"; });
+
+      modalBody.innerHTML =
+        '<div class="text-center p-3">Carregando...</div>';
+
+      fetch(url)
+        .then(r => r.text())
+        .then(html => {
+
+          modalBody.innerHTML = html;
+
+          somarSubtotaisDaModal(modalEl);
+
+        })
+        .catch(() => {
+
+          modalBody.innerHTML =
+            "<div class='text-danger p-3'>Erro ao carregar dados.</div>";
+
+        });
+
       modal.show();
     });
   });
+
   modalEl.addEventListener("hidden.bs.modal", function(){
-    document.querySelectorAll(".modal-backdrop").forEach(el=>el.remove());
+
+    document.querySelectorAll(".modal-backdrop")
+      .forEach(el => el.remove());
+
     document.body.classList.remove("modal-open");
+
     document.body.style.removeProperty("padding-right");
     document.body.style.removeProperty("overflow");
   });
+
 });
 </script>
 </body>

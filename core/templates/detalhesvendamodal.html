@@ -38,7 +38,7 @@
                 <td>{{ p.NomeProduto }}</td>
                 <td class="text-end">{{ c.quantidadeProduto }}</td>
                 <td class="text-end">{{ c.precoProduto | floatformat:2}}</td>
-                <td class="text-end subtotal">
+                <td class="text-end subtotal-venda">
                   {{ c.quantidadeProduto|multiply:c.precoProduto | floatformat:2  }}
                 </td>
               </tr>
@@ -46,7 +46,7 @@
           {% endfor %}
         {% endfor %}
       </tbody>
-    {%if compra_identificada%}
+    {%if compra_venda_identificada%}
       <thead>
         <tr>
           <th>Produto Comprado</th>
@@ -56,7 +56,7 @@
         </tr>
       </thead>
       <tbody>
-        {% for c in compra_identificada %}
+        {% for c in compra_venda_identificada %}
           Preco {{ c.precoProduto }}
           {% for p in produtos %}
 

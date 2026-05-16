@@ -76,7 +76,7 @@ class FazerVendasView(TemplateView):
                         'precoProduto': compra.precoProduto,
                         'precoProdutoSubtotal': str(compra.quantidadeProduto*compra.precoProduto),
                     }]
-                context["compra_identificada"] = listarProdutosCompraTemplate
+                context["compra_venda_identificada"] = listarProdutosCompraTemplate
                 context['aparelhos'] = 1
                 context['aparelho_comprado'] = 1
                 context['produtos_compra'] = Produto.objects.all().filter(categoria_id__lte=4).order_by('NomeProduto')

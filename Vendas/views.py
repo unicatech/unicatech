@@ -183,6 +183,7 @@ class FazerVendasView(TemplateView):
                             continue
                     if produto == -1:
                         continue
+                    #ignore se a linha for em branco
                     try:
                         quantidadeOriginalEstoque = Venda.objects.get(identificadorVenda=identificadorVenda[0],
                                                               produto_id=produto,ativo=True)

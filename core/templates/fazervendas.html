@@ -274,8 +274,7 @@
 							</td>
 							</div>
 						</tr>
-						                        <tr>
-
+                        <tr>
 							<div class="row">
                             <td><select name="produto" class="select">
 								<option value="0"> Selecione o Produto</option>
@@ -349,12 +348,11 @@
                         </div>
 						{% if aparelhos == 1 %}
 						<div><h4>
-						<input type="checkbox" name="gerar_compra"> Essa venda gerou compra?
+						<input type="checkbox" name="gerar_compra" {%if aparelho_comprado == 1%} CHECKED {%endif%}> Essa venda gerou compra?
 						</h4>
                         </div>
 
             <div class="input-field">
-
                 <div class="table-responsive">
 					<div id="purchaseSection" style="display: none;">
                     <table class="table table-bordered text-center" id="table_field">
@@ -370,27 +368,54 @@
 							<th> Total </th>
 
                         </tr>
-
-							<tr>
+						{%if not aparelho_comprado%}
+                               <tr>
 								<div class="row">
-						        <td>			<select name="produto_compra" class="select">
+						        <td><select name="produto_compra" class="select">
 
 								{% for p in produtos_compra %}
-											<option value="{{ p.id }}" >{{ p.NomeProduto }}</option>
+											<option value="{{ p.id }}">{{ p.NomeProduto }}</option>
 								{% endfor %}
 								</select>
 									</td>
 
                             <td><input type="text" class="form-control" name="quantidade_compra" id="tab1" size="2" maxlength="3"></td>
 
-							<td><input type="text" class="form-control" name="preco_compra" id="tab1" size="2" maxlength="5"></td>
+							<td><input type="text" class="form-control" name="preco_compra" id="tab1" size="2" maxlength="5" ></td>
 
-							<td><input type="text" class="form-control" name="total_compra" id="tab1" size="2"></td>
+							<td><input type="text" class="form-control" name="total_compra" id="tab1" size="2" > </td>
 
 							<td><input class="btn btn-danger" name="remove" id="remove" value="Apagar" type="button">
 							</td>
 								</div>
 						</tr>
+
+						{%endif%}
+
+
+
+							<tr>
+								<div class="row">
+								{% for c in compra_venda_identificada %}
+						        <td><select name="produto_compra" class="select">
+
+								{% for p in produtos_compra %}
+											<option value="{{ p.id }}" {% if p.id == c.idProduto %} SELECTED {% endif %}>{{ p.NomeProduto }}</option>
+								{% endfor %}
+								</select>
+									</td>
+
+                            <td><input type="text" class="form-control" name="quantidade_compra" id="tab1" size="2" maxlength="3" value="{{ c.quantidadeProduto|floatformat:0 }}"></td>
+
+							<td><input type="text" class="form-control" name="preco_compra" id="tab1" size="2" maxlength="5" value="{{ c.precoProduto|floatformat:2 }}"></td>
+
+							<td><input type="text" class="form-control" name="total_compra" id="tab1" size="2" value="{{ c.precoProdutoSubtotal|floatformat:2 }}"> </td>
+
+							<td><input class="btn btn-danger" name="remove" id="remove" value="Apagar" type="button">
+							</td>
+								</div>
+						</tr>
+						{%endfor%}
 						{%endif%}
 						</table>
 						</div>

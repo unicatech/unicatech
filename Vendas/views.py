@@ -61,7 +61,7 @@ class FazerVendasView(TemplateView):
                 context['identificadorVenda'] = venda.identificadorVenda
                 context['venda_identificada'] = listarProdutosTemplate
                 context['descricao'] = venda.descricao
-                context['produtos'] = Produto.objects.all().order_by('NomeProduto')
+                context['produtos'] = Produto.objects.all().filter(estoque__gte=1).filter(categoria_id__lte=4).order_by('NomeProduto')
                 context['valor_total_venda'] = valor_total_venda
 
             #Se houver recebimento de aparelho associada a Venda
@@ -154,10 +154,10 @@ class FazerVendasView(TemplateView):
         #Produtos removidos da venda
         produtos_removidos_venda = []
         quantidade_original_produto_vendido = 0
+
         # Desabilitando registro de Venda Salva caso função seja editar
         if identificadorVenda[0] != "":
             #Verificando se há algum produto que foi vendido e foi removido
-
             produtos_vendidos = Venda.objects.filter(identificadorVenda=identificadorVenda[0],
                                                   ativo=True)
             for produto_vendido in produtos_vendidos:
@@ -210,6 +210,20 @@ class FazerVendasView(TemplateView):
 
             Venda.objects.filter(identificadorVenda=identificadorVenda[0]).update(ativo=False)
             proximaVenda = identificadorVenda[0]
+
+            #Se algum aparelho foi recebido na venda que está sendo editada desfazer o processo
+            if gerar_compra == "on":
+                compras_em_venda = MovimentacaoConta.objects.filter(identificadorVenda=identificadorVenda[0],ativo=True)
+                for compra in compras_em_venda:
+                    if compra.identificadorCompra != "0":
+                        remover_produto_compra = Compra.objects.filter(identificadorCompra=compra.identificadorCompra)
+                        for produto_comprado in remover_produto_compra:
+                            atualizarEstoque = Produto.objects.get(id=produto_comprado.produto_id)
+                            atualizarEstoque.estoque = atualizarEstoque.estoque - produto_comprado.quantidadeProduto
+                            atualizarEstoque.save()
+                        Compra.objects.filter(identificadorCompra=compra.identificadorCompra).update(ativo=False)
+                    compra.ativo = False
+                    compra.save()
 
         # Salvando Venda
         contador = 0

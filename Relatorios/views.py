@@ -26,18 +26,29 @@ from datetime import datetime, time
 
 
 class RelatorioProdutoView(TemplateView):
+
     template_name = "relatorioprodutos.html"
 
     def _parse_date(self, s):
+
         try:
-            return datetime.strptime(s, "%Y-%m-%d").date()
+            return datetime.strptime(
+                s,
+                "%Y-%m-%d"
+            ).date()
+
         except Exception:
             return None
 
-    def normalizar_nome_produto(self, nome, todos_nomes):
+    def normalizar_nome_produto(
+        self,
+        nome,
+        todos_nomes
+    ):
         """
-        Agrupa automaticamente produtos que diferem
-        apenas pela última palavra.
+        Remove automaticamente a última palavra
+        quando existem vários produtos com o
+        mesmo prefixo.
         """
 
         partes = nome.strip().split()
@@ -63,68 +74,117 @@ class RelatorioProdutoView(TemplateView):
 
         context = super().get_context_data(**kwargs)
 
-        data_inicial_str = self.request.GET.get("data_inicial") or ""
-        data_final_str = self.request.GET.get("data_final") or ""
+        data_inicial_str = (
+            self.request.GET.get("data_inicial")
+            or ""
+        )
 
-        produtos_selecionados = self.request.GET.getlist("produtos")
+        data_final_str = (
+            self.request.GET.get("data_final")
+            or ""
+        )
 
-        tipo_movimento = self.request.GET.get("tipo_movimento") or "ambos"
+        produtos_selecionados = (
+            self.request.GET.getlist("produtos")
+        )
 
-        data_inicial = self._parse_date(data_inicial_str)
-        data_final = self._parse_date(data_final_str)
+        tipo_movimento = (
+            self.request.GET.get(
+                "tipo_movimento"
+            ) or "ambos"
+        )
+
+        data_inicial = self._parse_date(
+            data_inicial_str
+        )
+
+        data_final = self._parse_date(
+            data_final_str
+        )
 
         # ====================================
         # PRODUTOS AGRUPADOS
         # ====================================
 
-        produtos_raw = Produto.objects.order_by(
-            "NomeProduto"
-        ).only("id", "NomeProduto")
+        produtos_queryset = (
+            Produto.objects
+            .order_by("NomeProduto")
+            .values_list(
+                "NomeProduto",
+                flat=True
+            )
+        )
 
         todos_nomes = [
-            p.NomeProduto.strip()
-            for p in produtos_raw
+
+            str(nome).strip()
+
+            for nome in produtos_queryset
+
+            if nome
+
         ]
 
         produtos_agrupados = []
         vistos = set()
 
-        for p in produtos_raw:
+        for nome in todos_nomes:
 
-            nome_base = self.normalizar_nome_produto(
-                p.NomeProduto,
-                todos_nomes
+            nome_base = (
+                self.normalizar_nome_produto(
+                    nome,
+                    todos_nomes
+                )
             )
 
             if nome_base not in vistos:
 
                 vistos.add(nome_base)
-                produtos_agrupados.append(nome_base)
 
-        context["produtos_lista"] = sorted(produtos_agrupados)
+                produtos_agrupados.append(
+                    nome_base
+                )
 
-        context["tipo_movimento"] = tipo_movimento
+        context["produtos_lista"] = sorted(
+            produtos_agrupados
+        )
+
+        context["tipo_movimento"] = (
+            tipo_movimento
+        )
 
         movimentos = []
+
         resumo_por_produto = {}
 
         # ====================================
         # FILTROS
         # ====================================
 
-        if data_inicial or data_final or produtos_selecionados:
+        if (
+            data_inicial
+            or data_final
+            or produtos_selecionados
+        ):
 
             compra_filters = {}
             venda_filters = {}
 
-            if data_inicial and data_final:
+            if (
+                data_inicial
+                and data_final
+            ):
 
-                compra_filters["criados__range"] = (
+                compra_filters[
+                    "criados__range"
+                ] = (
                     data_inicial,
                     data_final
                 )
 
-                venda_filters["criados__range"] = (
+                venda_filters[
+                    "criados__range"
+                ] = (
                     data_inicial,
                     data_final
                 )
@@ -144,47 +204,84 @@ class RelatorioProdutoView(TemplateView):
                         produto__NomeProduto__istartswith=nome
                     )
 
-            def add_movimento(qs, tipo, nota_field, contraparte_field):
+            def add_movimento(
+                qs,
+                tipo,
+                nota_field,
+                contraparte_field
+            ):
 
                 for obj in qs:
 
                     preco_unit = 0
 
                     if tipo == "Venda":
-                        preco_unit = obj.precoProduto
+
+                        preco_unit = (
+                            obj.precoProduto
+                        )
 
                     elif tipo == "Compra":
+
                         preco_unit = (
                             obj.precoProduto
                             * obj.valorDolarMedio
                         )
 
                     valor_total = (
-                        (obj.quantidadeProduto or 0)
+                        (
+                            obj.quantidadeProduto
+                            or 0
+                        )
                         * preco_unit
                     )
 
                     movimentos.append({
+
                         "data": obj.criados,
+
                         "tipo": tipo,
-                        "produto_nome": obj.produto.NomeProduto,
-                        "quantidade": obj.quantidadeProduto,
+
+                        "produto_nome": (
+                            obj.produto.NomeProduto
+                        ),
+
+                        "quantidade": (
+                            obj.quantidadeProduto
+                        ),
+
                         "preco_unit": preco_unit,
+
                         "valor_total": valor_total,
+
                         "contraparte": (
+
                             getattr(
                                 obj,
                                 contraparte_field
                             ).nomeCliente
+
                             if tipo == "Venda"
-                            else getattr(
+
+                            else
+
+                            getattr(
                                 obj,
                                 contraparte_field
                             ).nomeFornecedor
                         ),
-                        "descricao": obj.descricao,
-                        "nota": getattr(obj, nota_field),
+
+                        "descricao": (
+                            obj.descricao
+                        ),
+
+                        "nota": getattr(
+                            obj,
+                            nota_field
+                        ),
+
                         "is_total": False,
+
                         "show_data": True,
                         "show_tipo": True,
                         "show_nota": True,
@@ -194,15 +291,36 @@ class RelatorioProdutoView(TemplateView):
             # COMPRAS
             # ====================================
 
-            if tipo_movimento in ["compra", "ambos"]:
+            if tipo_movimento in [
+                "compra",
+                "ambos"
+            ]:
 
                 compras_qs = (
+
                     Compra.objects
-                    .filter(**compra_filters)
-                    .filter(ativo=True)
-                    .filter(compras_q)
-                    .select_related("produto", "fornecedor")
-                    .order_by("identificadorCompra", "id")
+
+                    .filter(
+                        **compra_filters
+                    )
+
+                    .filter(
+                        ativo=True
+                    )
+
+                    .filter(
+                        compras_q
+                    )
+
+                    .select_related(
+                        "produto",
+                        "fornecedor"
+                    )
+
+                    .order_by(
+                        "identificadorCompra",
+                        "id"
+                    )
                 )
 
                 add_movimento(
@@ -216,15 +334,36 @@ class RelatorioProdutoView(TemplateView):
             # VENDAS
             # ====================================
 
-            if tipo_movimento in ["venda", "ambos"]:
+            if tipo_movimento in [
+                "venda",
+                "ambos"
+            ]:
 
                 vendas_qs = (
+
                     Venda.objects
-                    .filter(**venda_filters)
-                    .filter(ativo=True)
-                    .filter(vendas_q)
-                    .select_related("produto", "cliente")
-                    .order_by("identificadorVenda", "id")
+
+                    .filter(
+                        **venda_filters
+                    )
+
+                    .filter(
+                        ativo=True
+                    )
+
+                    .filter(
+                        vendas_q
+                    )
+
+                    .select_related(
+                        "produto",
+                        "cliente"
+                    )
+
+                    .order_by(
+                        "identificadorVenda",
+                        "id"
+                    )
                 )
 
                 add_movimento(
@@ -235,9 +374,13 @@ class RelatorioProdutoView(TemplateView):
                 )
 
             movimentos.sort(
+
                 key=lambda m: (
+
                     -m["nota"],
+
                     m["tipo"],
+
                     m.get("id", 0)
                 )
             )
@@ -245,12 +388,15 @@ class RelatorioProdutoView(TemplateView):
             final_movimentos = []
 
             nota_atual = None
+
             total_nota = 0
 
             for m in movimentos + [{
+
                 "nota": None,
                 "tipo": None,
                 "valor_total": 0
+
             }]:
 
                 if m["nota"] != nota_atual:
@@ -258,35 +404,50 @@ class RelatorioProdutoView(TemplateView):
                     if nota_atual is not None:
 
                         final_movimentos.append({
+
                             "data": "",
                             "tipo": "",
-                            "produto_nome": "TOTAL NOTA",
+
+                            "produto_nome":
+                                "TOTAL NOTA",
+
                             "quantidade": "",
                             "preco_unit": "",
-                            "valor_total": total_nota,
+
+                            "valor_total":
+                                total_nota,
+
                             "contraparte": "",
                             "descricao": "",
                             "nota": "",
+
                             "is_total": True,
+
                             "show_data": True,
                             "show_tipo": True,
                             "show_nota": True,
                         })
 
                     nota_atual = m["nota"]
+
                     total_nota = 0
 
                 else:
+
                     m["show_data"] = False
                     m["show_tipo"] = False
                     m["show_nota"] = False
 
-                total_nota += m.get("valor_total", 0)
+                total_nota += (
+                    m.get("valor_total", 0)
+                )
 
                 if m["nota"] is not None:
+
                     final_movimentos.append(m)
 
         else:
+
             final_movimentos = []
 
         # ====================================
@@ -303,29 +464,39 @@ class RelatorioProdutoView(TemplateView):
             if prod not in resumo_por_produto:
 
                 resumo_por_produto[prod] = {
+
                     "compras_qtd": 0,
                     "compras_valor": 0.0,
+
                     "vendas_qtd": 0,
                     "vendas_valor": 0.0,
                 }
 
             if m["tipo"] == "Compra":
 
-                resumo_por_produto[prod]["compras_qtd"] += (
+                resumo_por_produto[prod][
+                    "compras_qtd"
+                ] += (
                     m["quantidade"] or 0
                 )
 
-                resumo_por_produto[prod]["compras_valor"] += (
+                resumo_por_produto[prod][
+                    "compras_valor"
+                ] += (
                     m["valor_total"] or 0.0
                 )
 
             else:
 
-                resumo_por_produto[prod]["vendas_qtd"] += (
+                resumo_por_produto[prod][
+                    "vendas_qtd"
+                ] += (
                     m["quantidade"] or 0
                 )
 
-                resumo_por_produto[prod]["vendas_valor"] += (
+                resumo_por_produto[prod][
+                    "vendas_valor"
+                ] += (
                     m["valor_total"] or 0.0
                 )
 
@@ -338,90 +509,315 @@ class RelatorioProdutoView(TemplateView):
 
         if produtos_selecionados:
 
-            vendas_base = Venda.objects.filter(
-                ativo=True
-            )
+            meses_set = set()
 
-            if data_inicial and data_final:
+            vendas_base = None
+            compras_base = None
+
+            # =========================
+            # VENDAS
+            # =========================
+
+            if tipo_movimento in [
+                "venda",
+                "ambos"
+            ]:
+
+                vendas_base = (
+                    Venda.objects.filter(
+                        ativo=True
+                    )
+                )
+
+                if (
+                    data_inicial
+                    and data_final
+                ):
+
+                    vendas_base = (
+                        vendas_base.filter(
+                            criados__range=(
+                                data_inicial,
+                                data_final
+                            )
+                        )
+                    )
+
+                vendas_q = Q()
+
+                for nome in produtos_selecionados:
+
+                    vendas_q |= Q(
+                        produto__NomeProduto__istartswith=nome
+                    )
 
                 vendas_base = vendas_base.filter(
-                    criados__range=(
-                        data_inicial,
-                        data_final
-                    )
+                    vendas_q
                 )
 
-            vendas_q = Q()
+                meses_venda = (
 
-            for nome in produtos_selecionados:
-
-                vendas_q |= Q(
-                    produto__NomeProduto__istartswith=nome
-                )
-
-            vendas_base = vendas_base.filter(vendas_q)
-
-            meses = (
-                vendas_base
-                .annotate(mes=TruncMonth("criados"))
-                .values("mes")
-                .distinct()
-                .order_by("mes")
-            )
-
-            grafico_labels = [
-                m["mes"].strftime("%m/%Y")
-                for m in meses
-            ]
-
-            for produto in produtos_selecionados:
-
-                vendas_produto = (
                     vendas_base
-                    .filter(
-                        produto__NomeProduto__istartswith=produto
+
+                    .annotate(
+                        mes=TruncMonth(
+                            "criados"
+                        )
                     )
-                    .annotate(mes=TruncMonth("criados"))
+
                     .values("mes")
-                    .annotate(total=Sum("quantidadeProduto"))
+
+                    .distinct()
+
                     .order_by("mes")
                 )
 
-                mapa = {
-                    v["mes"].strftime("%m/%Y"): (
-                        float(v["total"] or 0)
+                for m in meses_venda:
+
+                    if m["mes"]:
+
+                        meses_set.add(
+                            m["mes"].strftime(
+                                "%m/%Y"
+                            )
+                        )
+
+            # =========================
+            # COMPRAS
+            # =========================
+
+            if tipo_movimento in [
+                "compra",
+                "ambos"
+            ]:
+
+                compras_base = (
+                    Compra.objects.filter(
+                        ativo=True
                     )
-                    for v in vendas_produto
-                }
+                )
 
-                dados = [
-                    mapa.get(label, 0)
-                    for label in grafico_labels
-                ]
+                if (
+                    data_inicial
+                    and data_final
+                ):
 
-                grafico_datasets.append({
-                    "label": produto,
-                    "data": dados,
-                    "fill": False,
-                    "tension": 0.2
-                })
+                    compras_base = (
+                        compras_base.filter(
+                            criados__range=(
+                                data_inicial,
+                                data_final
+                            )
+                        )
+                    )
+
+                compras_q = Q()
+
+                for nome in produtos_selecionados:
+
+                    compras_q |= Q(
+                        produto__NomeProduto__istartswith=nome
+                    )
+
+                compras_base = compras_base.filter(
+                    compras_q
+                )
+
+                meses_compra = (
+
+                    compras_base
+
+                    .annotate(
+                        mes=TruncMonth(
+                            "criados"
+                        )
+                    )
+
+                    .values("mes")
+
+                    .distinct()
+
+                    .order_by("mes")
+                )
+
+                for m in meses_compra:
+
+                    if m["mes"]:
+
+                        meses_set.add(
+                            m["mes"].strftime(
+                                "%m/%Y"
+                            )
+                        )
+
+            grafico_labels = sorted(
+
+                list(meses_set),
+
+                key=lambda x:
+                    datetime.strptime(
+                        x,
+                        "%m/%Y"
+                    )
+            )
+
+            # =========================
+            # DATASETS VENDAS
+            # =========================
+
+            if vendas_base:
+
+                for produto in produtos_selecionados:
+
+                    vendas_produto = (
+
+                        vendas_base
+
+                        .filter(
+                            produto__NomeProduto__istartswith=produto
+                        )
+
+                        .annotate(
+                            mes=TruncMonth(
+                                "criados"
+                            )
+                        )
+
+                        .values("mes")
+
+                        .annotate(
+                            total=Sum(
+                                "quantidadeProduto"
+                            )
+                        )
+
+                        .order_by("mes")
+                    )
+
+                    mapa = {
+
+                        v["mes"].strftime("%m/%Y"):
+                        float(v["total"] or 0)
+
+                        for v in vendas_produto
+                    }
+
+                    dados = [
+
+                        mapa.get(
+                            label,
+                            0
+                        )
+
+                        for label in grafico_labels
+                    ]
+
+                    grafico_datasets.append({
+
+                        "label":
+                            f"{produto} - Vendas",
+
+                        "data": dados,
+
+                        "fill": False,
+
+                        "tension": 0.2
+                    })
+
+            # =========================
+            # DATASETS COMPRAS
+            # =========================
+
+            if compras_base:
+
+                for produto in produtos_selecionados:
+
+                    compras_produto = (
+
+                        compras_base
+
+                        .filter(
+                            produto__NomeProduto__istartswith=produto
+                        )
+
+                        .annotate(
+                            mes=TruncMonth(
+                                "criados"
+                            )
+                        )
+
+                        .values("mes")
+
+                        .annotate(
+                            total=Sum(
+                                "quantidadeProduto"
+                            )
+                        )
+
+                        .order_by("mes")
+                    )
+
+                    mapa = {
+
+                        c["mes"].strftime("%m/%Y"):
+                        float(c["total"] or 0)
+
+                        for c in compras_produto
+                    }
+
+                    dados = [
+
+                        mapa.get(
+                            label,
+                            0
+                        )
+
+                        for label in grafico_labels
+                    ]
+
+                    grafico_datasets.append({
+
+                        "label":
+                            f"{produto} - Compras",
+
+                        "data": dados,
+
+                        "fill": False,
+
+                        "tension": 0.2,
+
+                        "borderDash": [5, 5]
+                    })
 
         context.update({
-            "movimentos": final_movimentos,
-            "resumo_por_produto": resumo_por_produto,
 
-            "data_inicial": data_inicial_str,
-            "data_final": data_final_str,
+            "movimentos":
+                final_movimentos,
 
-            "produtos_selecionados": produtos_selecionados,
+            "resumo_por_produto":
+                resumo_por_produto,
 
-            "grafico_labels": grafico_labels,
-            "grafico_datasets": grafico_datasets,
+            "data_inicial":
+                data_inicial_str,
 
-            "tipo_movimento": tipo_movimento,
+            "data_final":
+                data_final_str,
+
+            "produtos_selecionados":
+                produtos_selecionados,
+
+            "grafico_labels":
+                grafico_labels,
+
+            "grafico_datasets":
+                grafico_datasets,
+
+            "tipo_movimento":
+                tipo_movimento,
         })
 
         return context
+
 ###
 
 class RelatorioRecebimentoCartaoView(TemplateView):

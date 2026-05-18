@@ -41,10 +41,9 @@ class FazerVendasView(TemplateView):
         if self.request.GET.__contains__("idVenda"):
             vendas = Venda.objects.filter(identificadorVenda=self.request.GET["idVenda"],ativo=True)
             listarProdutosTemplate = []
-            identificadorVenda = 0
-            valorCompraVenda = 0
             context['editarVenda'] = 1
             valor_total_venda = 0
+            logging.warning(self.request.GET["idVenda"])
             for venda in vendas:
                 preco_produto_subtotal = venda.quantidadeProduto * venda.precoProduto
                 listarProdutosTemplate.append(
@@ -61,9 +60,8 @@ class FazerVendasView(TemplateView):
                 context['identificadorVenda'] = venda.identificadorVenda
                 context['venda_identificada'] = listarProdutosTemplate
                 context['descricao'] = venda.descricao
-                context['produtos'] = Produto.objects.all().filter(estoque__gte=1).filter(categoria_id__lte=4).order_by('NomeProduto')
+                context['produtos'] = Produto.objects.all().order_by('NomeProduto')
                 context['valor_total_venda'] = valor_total_venda
-
             #Se houver recebimento de aparelho associada a Venda
             try:
                 compra_venda = MovimentacaoConta.objects.get(identificadorVenda=self.request.GET["idVenda"], identificadorCompra__gt=0,ativo=True)
@@ -90,7 +88,6 @@ class FazerVendasView(TemplateView):
 
             context['id_cliente_cadastro'] = int(self.request.GET["id_cliente_cadastro"])
             context['produtos'] = Produto.objects.all().order_by('NomeProduto')
-
 
         context['vendas'] = Venda.objects.all()
         context['mensagem'] = ''

@@ -62,7 +62,7 @@
 
             {% if p.id == c.idProduto %}
               <tr>
-                <td>{{ p.NomeProduto }}</td>
+                <td> {{ p.NomeProduto }}</td>
                 <td class="text-end">{{ c.quantidadeProduto }}</td>
                 <td class="text-end">{{ c.precoProduto | floatformat:2}}</td>
                 <td class="text-end subtotal">

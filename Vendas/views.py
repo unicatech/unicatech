@@ -41,6 +41,7 @@ class FazerVendasView(TemplateView):
         if self.request.GET.__contains__("idVenda"):
             vendas = Venda.objects.filter(identificadorVenda=self.request.GET["idVenda"],ativo=True)
             listarProdutosTemplate = []
+            produto_vendido = []
             context['editarVenda'] = 1
             valor_total_venda = 0
             tipo_produto = {}
@@ -54,6 +55,7 @@ class FazerVendasView(TemplateView):
                      'precoProdutoSubtotal': preco_produto_subtotal,
                      }
                 )
+                #Adiciona o produto mesmo estando zerado no context. Mas apenas produtos vendidos.
                 tipo_produto = Produto.objects.get(id=venda.produto_id)
                 valor_total_venda = valor_total_venda + preco_produto_subtotal
                 context['dataVenda'] = venda.criados.strftime('%d-%m-%Y')
@@ -62,13 +64,12 @@ class FazerVendasView(TemplateView):
                 context['venda_identificada'] = listarProdutosTemplate
                 context['descricao'] = venda.descricao
                 context['valor_total_venda'] = valor_total_venda
-            logging.warning("Edição")
-            logging.warning(tipo_produto.categoria_id)
             if tipo_produto.categoria_id <= 4:
-                context['produtos'] = Produto.objects.all().filter(categoria_id__lte=4).order_by('NomeProduto')
+                context['produtos'] = Produto.objects.all().filter(categoria_id__lte=4).filter(estoque__gt=0).order_by('NomeProduto')
+                context['produtos_compra'] = Produto.objects.all().filter(categoria_id__lte=4).order_by('NomeProduto')
                 context['aparelhos'] = 1
             if tipo_produto.categoria_id == 5:
-                context['produtos'] = Produto.objects.all().filter(categoria_id=5).order_by('NomeProduto')
+                context['produtos'] = Produto.objects.all().filter(categoria_id=5).filter(estoque__gt=0).order_by('NomeProduto')
             #Se houver recebimento de aparelho associada a Venda
             try:
                 compra_venda = MovimentacaoConta.objects.get(identificadorVenda=self.request.GET["idVenda"], identificadorCompra__gt=0,ativo=True)
@@ -84,7 +85,6 @@ class FazerVendasView(TemplateView):
                 context["compra_venda_identificada"] = listarProdutosCompraTemplate
                 context['aparelhos'] = 1
                 context['aparelho_comprado'] = 1
-                context['produtos_compra'] = Produto.objects.all().filter(categoria_id__lte=4).order_by('NomeProduto')
             except Exception as e:
                 logging.warning(e)
 

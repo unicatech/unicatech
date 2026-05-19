@@ -43,7 +43,7 @@ class FazerVendasView(TemplateView):
             listarProdutosTemplate = []
             context['editarVenda'] = 1
             valor_total_venda = 0
-            logging.warning(self.request.GET["idVenda"])
+            tipo_produto = {}
             for venda in vendas:
                 preco_produto_subtotal = venda.quantidadeProduto * venda.precoProduto
                 listarProdutosTemplate.append(
@@ -54,14 +54,21 @@ class FazerVendasView(TemplateView):
                      'precoProdutoSubtotal': preco_produto_subtotal,
                      }
                 )
+                tipo_produto = Produto.objects.get(id=venda.produto_id)
                 valor_total_venda = valor_total_venda + preco_produto_subtotal
                 context['dataVenda'] = venda.criados.strftime('%d-%m-%Y')
                 context['idCliente'] = venda.cliente_id
                 context['identificadorVenda'] = venda.identificadorVenda
                 context['venda_identificada'] = listarProdutosTemplate
                 context['descricao'] = venda.descricao
-                context['produtos'] = Produto.objects.all().order_by('NomeProduto')
                 context['valor_total_venda'] = valor_total_venda
+            logging.warning("Edição")
+            logging.warning(tipo_produto.categoria_id)
+            if tipo_produto.categoria_id <= 4:
+                context['produtos'] = Produto.objects.all().filter(categoria_id__lte=4).order_by('NomeProduto')
+                context['aparelhos'] = 1
+            if tipo_produto.categoria_id == 5:
+                context['produtos'] = Produto.objects.all().filter(categoria_id=5).order_by('NomeProduto')
             #Se houver recebimento de aparelho associada a Venda
             try:
                 compra_venda = MovimentacaoConta.objects.get(identificadorVenda=self.request.GET["idVenda"], identificadorCompra__gt=0,ativo=True)

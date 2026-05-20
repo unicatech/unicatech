@@ -23,18 +23,14 @@ from django.utils.dateparse import parse_date
 from django.contrib.auth.models import User
 from core.models import Alertas
 from datetime import datetime, time
+
 class RelatorioProdutoView(TemplateView):
 
     template_name = "relatorioprodutos.html"
 
     def _parse_date(self, s):
-
         try:
-            return datetime.strptime(
-                s,
-                "%Y-%m-%d"
-            ).date()
-
+            return datetime.strptime(s, "%Y-%m-%d").date()
         except Exception:
             return None
 
@@ -42,7 +38,6 @@ class RelatorioProdutoView(TemplateView):
 
         nome = produto.NomeProduto.strip()
 
-        # REGRA: somente categoria 1
         if produto.categoria_id != 1:
             return nome
 
@@ -57,44 +52,23 @@ class RelatorioProdutoView(TemplateView):
 
         context = super().get_context_data(**kwargs)
 
-        data_inicial_str = (
-            self.request.GET.get("data_inicial") or ""
-        )
-
-        data_final_str = (
-            self.request.GET.get("data_final") or ""
-        )
-
-        produtos_selecionados = (
-            self.request.GET.getlist("produtos")
-        )
-
-        tipo_movimento = (
-            self.request.GET.get("tipo_movimento") or "ambos"
-        )
+        data_inicial_str = self.request.GET.get("data_inicial") or ""
+        data_final_str = self.request.GET.get("data_final") or ""
+        produtos_selecionados = self.request.GET.getlist("produtos")
+        tipo_movimento = self.request.GET.get("tipo_movimento") or "ambos"
 
         data_inicial = self._parse_date(data_inicial_str)
         data_final = self._parse_date(data_final_str)
 
-        # ====================================
-        # PRODUTOS AGRUPADOS
-        # ====================================
-
-        produtos_queryset = (
-            Produto.objects
-            .select_related("categoria")
-            .order_by("NomeProduto")
-        )
+        produtos_queryset = Produto.objects.select_related("categoria").order_by("NomeProduto")
 
         produtos_agrupados = []
         vistos = set()
 
         for produto in produtos_queryset:
-
             nome_base = self.normalizar_nome_produto(produto)
 
             if nome_base not in vistos:
-
                 vistos.add(nome_base)
                 produtos_agrupados.append(nome_base)
 
@@ -104,188 +78,53 @@ class RelatorioProdutoView(TemplateView):
         movimentos = []
         resumo_por_produto = {}
 
-        # ====================================
-        # FILTROS
-        # ====================================
-
-        if (
-            data_inicial
-            or data_final
-            or produtos_selecionados
-        ):
+        if data_inicial or data_final or produtos_selecionados:
 
             compra_filters = {}
             venda_filters = {}
 
             if data_inicial and data_final:
-
-                compra_filters["criados__range"] = (
-                    data_inicial,
-                    data_final
-                )
-
-                venda_filters["criados__range"] = (
-                    data_inicial,
-                    data_final
-                )
+                compra_filters["criados__range"] = (data_inicial, data_final)
+                venda_filters["criados__range"] = (data_inicial, data_final)
 
             compras_q = Q()
             vendas_q = Q()
 
             if produtos_selecionados:
-
                 for nome in produtos_selecionados:
-
-                    compras_q |= Q(
-                        produto__NomeProduto__istartswith=nome
-                    )
-
-                    vendas_q |= Q(
-                        produto__NomeProduto__istartswith=nome
-                    )
+                    compras_q |= Q(produto__NomeProduto__istartswith=nome)
+                    vendas_q |= Q(produto__NomeProduto__istartswith=nome)
 
             def add_movimento(qs, tipo, nota_field, contraparte_field):
 
                 for obj in qs:
 
-                    if tipo == "Venda":
-                        preco_unit = obj.precoProduto
-                    else:
-                        preco_unit = obj.precoProduto * obj.valorDolarMedio
+                    preco_unit = obj.precoProduto if tipo == "Venda" else obj.precoProduto * obj.valorDolarMedio
 
                     valor_total = (obj.quantidadeProduto or 0) * preco_unit
 
                     movimentos.append({
-
                         "data": obj.criados,
                         "tipo": tipo,
-
                         "produto_nome": self.normalizar_nome_produto(obj.produto),
-
                         "quantidade": obj.quantidadeProduto,
                         "preco_unit": preco_unit,
                         "valor_total": valor_total,
-
-                        "contraparte": (
-                            getattr(obj, contraparte_field).nomeCliente
-                            if tipo == "Venda"
-                            else getattr(obj, contraparte_field).nomeFornecedor
-                        ),
-
+                        "contraparte": getattr(obj, contraparte_field).nomeCliente if tipo == "Venda" else getattr(obj, contraparte_field).nomeFornecedor,
                         "descricao": obj.descricao,
                         "nota": getattr(obj, nota_field),
-
                         "is_total": False,
-
-                        "show_data": True,
-                        "show_tipo": True,
-                        "show_nota": True,
                     })
 
-            # ====================================
-            # COMPRAS
-            # ====================================
-
             if tipo_movimento in ["compra", "ambos"]:
-
-                compras_qs = (
-                    Compra.objects
-                    .filter(**compra_filters)
-                    .filter(ativo=True)
-                    .filter(compras_q)
-                    .select_related("produto", "fornecedor")
-                    .order_by("identificadorCompra", "id")
-                )
-
-                add_movimento(
-                    compras_qs,
-                    "Compra",
-                    "identificadorCompra",
-                    "fornecedor"
-                )
-
-            # ====================================
-            # VENDAS
-            # ====================================
+                compras_qs = Compra.objects.filter(**compra_filters).filter(ativo=True).filter(compras_q).select_related("produto", "fornecedor")
+                add_movimento(compras_qs, "Compra", "identificadorCompra", "fornecedor")
 
             if tipo_movimento in ["venda", "ambos"]:
+                vendas_qs = Venda.objects.filter(**venda_filters).filter(ativo=True).filter(vendas_q).select_related("produto", "cliente")
+                add_movimento(vendas_qs, "Venda", "identificadorVenda", "cliente")
 
-                vendas_qs = (
-                    Venda.objects
-                    .filter(**venda_filters)
-                    .filter(ativo=True)
-                    .filter(vendas_q)
-                    .select_related("produto", "cliente")
-                    .order_by("identificadorVenda", "id")
-                )
-
-                add_movimento(
-                    vendas_qs,
-                    "Venda",
-                    "identificadorVenda",
-                    "cliente"
-                )
-
-            movimentos.sort(
-                key=lambda m: (
-                    -m["nota"],
-                    m["tipo"],
-                    m.get("id", 0)
-                )
-            )
-
-            final_movimentos = []
-            nota_atual = None
-            total_nota = 0
-
-            for m in movimentos + [{"nota": None, "tipo": None, "valor_total": 0}]:
-
-                if m["nota"] != nota_atual:
-
-                    if nota_atual is not None:
-
-                        final_movimentos.append({
-
-                            "data": "",
-                            "tipo": "",
-
-                            "produto_nome": "TOTAL NOTA",
-
-                            "quantidade": "",
-                            "preco_unit": "",
-
-                            "valor_total": total_nota,
-
-                            "contraparte": "",
-                            "descricao": "",
-                            "nota": "",
-
-                            "is_total": True,
-
-                            "show_data": True,
-                            "show_tipo": True,
-                            "show_nota": True,
-                        })
-
-                    nota_atual = m["nota"]
-                    total_nota = 0
-
-                else:
-                    m["show_data"] = False
-                    m["show_tipo"] = False
-                    m["show_nota"] = False
-
-                total_nota += m.get("valor_total", 0)
-
-                if m["nota"] is not None:
-                    final_movimentos.append(m)
-
-        else:
-            final_movimentos = []
-
-        # ====================================
-        # RESUMO
-        # ====================================
+        final_movimentos = movimentos
 
         for m in final_movimentos:
 
@@ -295,7 +134,6 @@ class RelatorioProdutoView(TemplateView):
             prod = m["produto_nome"]
 
             if prod not in resumo_por_produto:
-
                 resumo_por_produto[prod] = {
                     "compras_qtd": 0,
                     "compras_valor": 0.0,
@@ -304,25 +142,79 @@ class RelatorioProdutoView(TemplateView):
                 }
 
             if m["tipo"] == "Compra":
-
                 resumo_por_produto[prod]["compras_qtd"] += m["quantidade"] or 0
                 resumo_por_produto[prod]["compras_valor"] += m["valor_total"] or 0.0
-
             else:
-
                 resumo_por_produto[prod]["vendas_qtd"] += m["quantidade"] or 0
                 resumo_por_produto[prod]["vendas_valor"] += m["valor_total"] or 0.0
 
-        context.update({
+        # ==========================
+        # GRÁFICO
+        # ==========================
 
+        grafico = {}
+
+        for m in final_movimentos:
+
+            if m.get("is_total"):
+                continue
+
+            if m["tipo"] not in ["Compra", "Venda"]:
+                continue
+
+            data_mov = m.get("data")
+            if not data_mov:
+                continue
+
+            mes = data_mov.strftime("%m/%Y")
+            produto = m["produto_nome"]
+
+            chave = produto
+
+            if tipo_movimento == "ambos":
+                chave = f"{m['tipo']} - {produto}"
+
+            if chave not in grafico:
+                grafico[chave] = {
+                    "tipo": m["tipo"],
+                    "dados": {}
+                }
+
+            grafico[chave]["dados"][mes] = grafico[chave]["dados"].get(mes, 0) + float(m["quantidade"] or 0)
+
+        todos_meses = set()
+        for v in grafico.values():
+            todos_meses.update(v["dados"].keys())
+
+        labels = sorted(list(todos_meses), key=lambda x: datetime.strptime(x, "%m/%Y"))
+
+        datasets = []
+
+        for produto, info in grafico.items():
+
+            estilo = {
+                "label": produto,
+                "data": [round(info["dados"].get(mes, 0), 2) for mes in labels],
+                "tension": 0.3,
+            }
+
+            # 🔥 LINHA POR TIPO
+            if info["tipo"] == "Compra":
+                estilo["borderDash"] = [6, 6]  # pontilhado
+            else:
+                estilo["borderDash"] = []      # linha contínua
+
+            datasets.append(estilo)
+
+        context.update({
             "movimentos": final_movimentos,
             "resumo_por_produto": resumo_por_produto,
-
             "data_inicial": data_inicial_str,
             "data_final": data_final_str,
-
             "produtos_selecionados": produtos_selecionados,
             "tipo_movimento": tipo_movimento,
+            "grafico_labels": labels,
+            "grafico_datasets": datasets,
         })
 
         return context

@@ -6,6 +6,8 @@ from django.http import HttpResponseRedirect
 from django.contrib import messages
 from django.db.models import Sum
 from django.db.models import F, ExpressionWrapper, DecimalField
+from django.db.models import Q
+
 
 from datetime import date, datetime, timedelta
 from django.utils import timezone
@@ -45,6 +47,7 @@ class FazerVendasView(TemplateView):
             context['editarVenda'] = 1
             valor_total_venda = 0
             tipo_produto = {}
+            ids_produtos = []
             for venda in vendas:
                 preco_produto_subtotal = venda.quantidadeProduto * venda.precoProduto
                 listarProdutosTemplate.append(
@@ -55,6 +58,7 @@ class FazerVendasView(TemplateView):
                      'precoProdutoSubtotal': preco_produto_subtotal,
                      }
                 )
+                ids_produtos.append(venda.produto_id)
                 #Adiciona o produto mesmo estando zerado no context. Mas apenas produtos vendidos.
                 tipo_produto = Produto.objects.get(id=venda.produto_id)
                 valor_total_venda = valor_total_venda + preco_produto_subtotal
@@ -65,7 +69,7 @@ class FazerVendasView(TemplateView):
                 context['descricao'] = venda.descricao
                 context['valor_total_venda'] = valor_total_venda
             if tipo_produto.categoria_id <= 4:
-                context['produtos'] = Produto.objects.all().filter(categoria_id__lte=4).filter(estoque__gt=0).order_by('NomeProduto')
+                context['produtos'] = Produto.objects.all().filter(categoria_id__lte=4).filter(Q(estoque__gt=0) | Q(id__in=ids_produtos)).order_by('NomeProduto')
                 context['produtos_compra'] = Produto.objects.all().filter(categoria_id__lte=4).order_by('NomeProduto')
                 context['aparelhos'] = 1
             if tipo_produto.categoria_id == 5:
@@ -102,17 +106,10 @@ class FazerVendasView(TemplateView):
         context['clientes'] = Cliente.objects.filter().order_by('nomeCliente')
 
 
-        # Se a função for "Editar Venda" permita que apareça o produto com estoque zerado (afinal já está na venda) mas não negativo
-        quantidade=""
-        if context['editarVenda'] == 1:
-            quantidade = "0"
-        else:
-            quantidade = "1"
-
         if self.request.resolver_match.url_name == "fazervendaspecas":
-            context['produtos'] = Produto.objects.all().filter(estoque__gte=quantidade).filter(categoria_id=5).order_by('NomeProduto')
+            context['produtos'] = Produto.objects.all().filter(estoque__gte=1).filter(categoria_id=5).order_by('NomeProduto')
         if self.request.resolver_match.url_name == "fazervendasaparelhos":
-            context['produtos'] = Produto.objects.all().filter(estoque__gte=quantidade).filter(categoria_id__lte=4).order_by('NomeProduto')
+            context['produtos'] = Produto.objects.all().filter(estoque__gte=1).filter(categoria_id__lte=4).order_by('NomeProduto')
             context['produtos_compra'] = Produto.objects.all().filter(categoria_id__lte=4).order_by('NomeProduto')
             context['aparelhos'] = 1
         context['tipo_produto'] = self.request.resolver_match.url_name

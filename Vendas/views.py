@@ -74,7 +74,7 @@ class FazerVendasView(TemplateView):
                 context['aparelhos'] = 1
             if tipo_produto.categoria_id == 5:
                 context['produtos'] = Produto.objects.all().filter(categoria_id=5).filter(Q(estoque__gt=0) | Q(id__in=ids_produtos)).order_by('NomeProduto')
-            #Se houver recebimento de aparelho associada a Venda
+            # Se houver recebimento de aparelho associada a Venda
             try:
                 compra_venda = MovimentacaoConta.objects.get(identificadorVenda=self.request.GET["idVenda"], identificadorCompra__gt=0,ativo=True)
                 listarProdutosCompraTemplate = []

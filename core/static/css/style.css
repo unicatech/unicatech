@@ -7982,4 +7982,16 @@ span.select2-container.select2-container--default.select2-container--open {
   right: 10px;
 }
 
+.dataTables_length label{
+    font-size:0 !important;
+}
+
+.dataTables_length label select{
+    font-size:14px !important;
+}
+
+.dataTables_length label::after{
+    content:"Mostrar por página";
+    font-size:14px !important;
+}
 /*# sourceMappingURL=style.css.map */

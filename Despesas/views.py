@@ -21,7 +21,10 @@ class AdicionarDespesa(TemplateView):
         context = super(AdicionarDespesa, self).get_context_data(**kwargs)
         if self.request.GET.__contains__("idDespesa"):
             if self.request.GET["funcao"] == "apagar":
-                Despesa.objects.filter(id=self.request.GET["idDespesa"]).update(ativo=False)
+                apagar_despesa = Despesa.objects.get(id=self.request.GET["idDespesa"])
+                MovimentacaoConta.objects.filter(id=apagar_despesa.movimentacao_id).update(ativo=0)
+                apagar_despesa.ativo=0
+                apagar_despesa.save()
                 context["mensagem"] = "Despesa Apagada"
         contasDetalhadas = Conta.objects.all()
         conta_despesa = []
@@ -39,6 +42,7 @@ class AdicionarDespesa(TemplateView):
     def post(self, request, *args, **kwargs):
         context = super(AdicionarDespesa, self).get_context_data(**kwargs)
         data_modificada = re.sub(r'(\d{1,2})-(\d{1,2})-(\d{4})', '\\3-\\2-\\1', self.request.POST.get("data_despesa"))
+        valor_despesa = re.sub(r'\.', '', self.request.POST.get("valor_despesa")).replace(',', '.')
         conta_em_dolar = 0
         cotacao_dolar = 0
         tipo_movimentacao = Conta.objects.get(id=self.request.POST.get("conta_despesa"))
@@ -53,7 +57,7 @@ class AdicionarDespesa(TemplateView):
             criados= data_modificada,
             nome_despesa=self.request.POST.get("nome_despesa"),
             periodicidade=self.request.POST.get("periodicidade"),
-            valor=self.request.POST.get("valor_despesa"),
+            valor=valor_despesa,
             conta_debito_id=self.request.POST.get("conta_despesa"),
         )
         dataform_despesa.save()
@@ -61,7 +65,8 @@ class AdicionarDespesa(TemplateView):
             registro_movimentacao = MovimentacaoConta(
                 criados=data_modificada,
                 contaDebito=self.request.POST.get("conta_despesa"),
-                valorDebito=self.request.POST.get("valor_despesa"),
+                contaCredito_id=0,
+                valorDebito=valor_despesa,
                 identificadorCompra=0,
                 identificadorVenda=0,
                 descricao=self.request.POST.get("nome_despesa"),
@@ -129,7 +134,6 @@ class ListaDespesas:
                 else:
                     moeda="US$"
                 cotacao_dolar = despesa.movimentacao.cotacaoDolar
-            logging.warning(despesa.id)
             despesas_template.append(
                 {
                 'id': despesa.id,

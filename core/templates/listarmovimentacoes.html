@@ -147,6 +147,7 @@
 											<th>Conta de Destino</th>
 											<th>Valor na Conta de Origem</th>
 											<th>Valor na Conta de Destino</th>
+											<th>Descrição</th>
 											<th>Apagar</th>
 										</tr>
 									</thead>
@@ -160,7 +161,7 @@
 											<td>{{ movimentacao.contaDestino }}	</td>
 											<td>{{ movimentacao.valorContaOrigem|floatformat:2 }}</td>
 											<td>{{ movimentacao.valorContaDestino|floatformat:2 }}</td>
-
+											<td>{{ movimentacao.descricao }}</td>
 											<td><a class="confirm-text"  href="{% url 'listarmovimentacoes' %}?idMovimento={{ movimentacao.idMovimento }}&funcao=apagar" onclick="javascript:void(0);">
 												<img src="{% static 'img/icons/delete.svg' %}" alt="img">
 												</a></td>

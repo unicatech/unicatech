@@ -196,12 +196,18 @@
               </div>
             </div>
 
-            <div class="col-lg-3 col-sm-6 col-12">
-              <div class="form-group">
-                <label>Valor da Despesa</label>
-                <input type="text" class="form-control" name="valor_despesa">
-              </div>
-            </div>
+<div class="col-lg-3 col-sm-6 col-12">
+  <div class="form-group">
+    <label>Valor da Despesa</label>
+    <input
+      type="text"
+      class="form-control"
+      name="valor_despesa"
+      id="valor_despesa"
+      placeholder="0,00"
+      autocomplete="off">
+  </div>
+</div>
 
             <div class="col-lg-3 col-sm-6 col-12">
               <div class="form-group">
@@ -246,7 +252,7 @@
                 <td></td>
                 <td>{{ despesa.data }}</td>
                 <td>{{ despesa.nome_despesa }}</td>
-                <td>{{ despesa.moeda }} {{ despesa.valor }}</td>
+                <td>{{ despesa.moeda }} {{ despesa.valor|floatformat:2}}</td>
                 <td>{{ despesa.conta }}</td>
                 <td>
                   <a class="confirm-text" href="{% url 'adicionardespesa' %}?idDespesa={{ despesa.id }}&funcao=apagar">
@@ -275,6 +281,33 @@
 <!-- Sweetalert 2 -->
 <script src="{% static 'plugins/sweetalert/sweetalert2.all.min.js' %}"></script>
 <script src="{% static 'plugins/sweetalert/sweetalerts.min.js' %}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
 
+    const campoValor = document.getElementById('valor_despesa');
+
+    campoValor.addEventListener('input', function(e) {
+
+        let valor = e.target.value.replace(/\D/g, '');
+
+        if (valor === '') {
+            e.target.value = '';
+            return;
+        }
+
+        valor = (parseInt(valor, 10) / 100).toFixed(2);
+
+        let partes = valor.split('.');
+
+        let inteiro = partes[0];
+        let decimal = partes[1];
+
+        inteiro = inteiro.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+
+        e.target.value = inteiro + ',' + decimal;
+    });
+
+});
+</script>
 </body>
 </html>

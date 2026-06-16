@@ -27,12 +27,10 @@ class CriarContaView(TemplateView):
         try:
             ultima_conta = Cartao.objects.last()
             proxima_conta = ultima_conta.cartao + 1
-            logging.warning(proxima_conta)
         except:
             proxima_conta = 1
         agora = datetime.now()
         hoje = agora.strftime("%Y-%m-%d")
-        logging.warning(proxima_conta)
         if self.request.POST.get("categoria") == "1":
             dataform_cartao = Cartao(
                 criados=hoje,
@@ -477,7 +475,7 @@ class ListarMovimentacoesView(TemplateView):
         context["movimentacaoContas"] = self.movimentacoes_contas
         return context
     def movimentacoes_contas(self):
-        movimentacaoConta = MovimentacaoConta.objects.all().order_by('-id')
+        movimentacaoConta = MovimentacaoConta.objects.all().filter(ativo=True).order_by('-id')
         movimentacaoContasTemplate = []
         for movimentacao in movimentacaoConta:
             nome_conta_credito = "Conta não identificada"
@@ -493,7 +491,6 @@ class ListarMovimentacoesView(TemplateView):
                 nome_conta_debito = contaDebito.nomeConta
             except:
                 pass
-            logging.warning(movimentacao.id)
             if movimentacao.identificadorCompra == 0 and movimentacao.identificadorVenda == 0:
                 movimentacaoContasTemplate.append(
                 {
@@ -502,6 +499,7 @@ class ListarMovimentacoesView(TemplateView):
                     "contaDestino": nome_conta_credito,
                     "valorContaOrigem": movimentacao.valorDebito,
                     "valorContaDestino": movimentacao.valorCredito,
+                    "descricao": movimentacao.descricao,
                     "idMovimento": movimentacao.id,
                 }
                 )

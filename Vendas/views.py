@@ -176,8 +176,6 @@ class FazerVendasView(TemplateView):
 
             for produto in produtos:
                 try:
-                    logging.warning("Produto vendido")
-                    logging.warning(produto)
                     for produto_repetido_unico in produtos_repetidos_unicos:
                         if produto_repetido_unico == produto:
                             produto = -1
@@ -195,7 +193,6 @@ class FazerVendasView(TemplateView):
                     except:
                         continue
                 except:
-                    #logging.warning("Except")
                     for produto_repetido in produtos_repetidos:
                         if produto_repetido == produto:
                             produto = -1
@@ -345,7 +342,6 @@ class FazerVendasView(TemplateView):
                     valorCompra = valorCompra + float(preco) * float(quantidades_compra[contador])
                     formCompra.save()
                     #Atualizando o estoque
-                    #logging.warning("Adicionando")
                     atualizarEstoque = Produto.objects.get(id=produto)
                     atualizarEstoque.estoque = atualizarEstoque.estoque + int(float(quantidades[contador]))
                     atualizarEstoque.save()
@@ -421,7 +417,6 @@ class ListarVendasView(TemplateView):
                 for apagarvenda in apagarvendas:
                     #Retorna aparelhos pro estoque
                     try:
-                        #logging.warning("Try")
                         quantidadeOriginalEstoque = Venda.objects.get(identificadorVenda=self.request.GET["idVenda"],
                                                                   produto_id=apagarvenda.produto_id,
                                                                   ativo=True)
@@ -429,7 +424,6 @@ class ListarVendasView(TemplateView):
                         atualizarEstoque.estoque = atualizarEstoque.estoque + quantidadeOriginalEstoque.quantidadeProduto
                         atualizarEstoque.save()
                     except:
-                        #logging.warning("Except")
                         for produto_repetido in produtos_repetidos:
                              if produto_repetido == apagarvenda.produto_id:
                                  produto = -1
@@ -461,7 +455,6 @@ class ListarVendasView(TemplateView):
 
         hoje = timezone.now().date()
         seis_meses_atras = hoje - timedelta(days=180)
-        logging.warning(seis_meses_atras)
         vendas = Venda.objects.filter(ativo=True, criados__gte=seis_meses_atras).order_by('-identificadorVenda')
 
         listarVendasTemplate = []
@@ -478,7 +471,6 @@ class ListarVendasView(TemplateView):
                     identificadorVenda=venda.identificadorVenda,
                     identificadorCompra=0,
                     ativo=True)
-                #logging.warning("Identificador Venda:" +" "+str(venda.identificadorVenda))
                 for recebimento_venda in recebimentos_venda:
                     recebimentos.append({
                             'valor_recebimento': recebimento_venda.valorCredito,
@@ -523,7 +515,6 @@ class ListarVendasView(TemplateView):
             vendas = vendas.filter(
                 criados__range=[data_inicio, data_fim]
             )
-        logging.warning(descricao)
         if descricao:
             vendas = vendas.filter(descricao__icontains=descricao)
         for venda in vendas:
@@ -536,7 +527,6 @@ class ListarVendasView(TemplateView):
                     identificadorVenda=venda.identificadorVenda,
                     identificadorCompra=0,
                     ativo=True)
-                #logging.warning("Identificador Venda:" +" "+str(venda.identificadorVenda))
                 for recebimento_venda in recebimentos_venda:
                     recebimentos.append({
                             'valor_recebimento': recebimento_venda.valorCredito,
@@ -671,8 +661,6 @@ class ParcelasReceberModalView(TemplateView):
         conta_recebimento = Conta.objects.get(id=self.request.POST.get('contaCredito'), ativo=True)
         taxa = 0
         if conta_recebimento.categoria_id == 1:
-            #logging.warning("Cartão de crédito")
-            #logging.warning(f'Parcelas do Cartão:{self.request.POST.get("parcelaCartao")}')
             conta_cartao = Cartao.objects.get(cartao=conta_recebimento.cartao)
             # Quando migrar para o Python 3.10 utilizar match(equivalente do switch em C)
             if self.request.POST.get("parcelaCartao") == "1":
@@ -714,7 +702,6 @@ class ParcelasReceberModalView(TemplateView):
             elif self.request.POST.get("parcelaCartao") == "0":
                 taxa = float(conta_cartao.taxa_debito)
             valor_recebimento = (1 - taxa / 100) * float(self.request.POST.get('valorRecebido').replace(".", "").replace(",", "."))
-            logging.warning(valor_recebimento)
             dataform = RecebimentoCartao(conta_cartao_id=self.request.POST.get('contaCredito'),
                                      criados=data_modificada,
                                      valor=self.request.POST.get('valorRecebido').replace(".", "").replace(",", "."),

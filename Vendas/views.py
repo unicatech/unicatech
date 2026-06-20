@@ -706,7 +706,6 @@ class ParcelasReceberModalView(TemplateView):
                                      criados=data_modificada,
                                      valor=self.request.POST.get('valorRecebido').replace(".", "").replace(",", "."),
                                      parcelas=self.request.POST.get('parcelaCartao'),
-                                     bandeira=self.request.POST.get('bandeira'),
                                      identificador_venda=self.request.POST.get('identificadorVenda'),
                                      valor_liquido=valor_recebimento
             )

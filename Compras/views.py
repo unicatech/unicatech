@@ -38,7 +38,6 @@ class FazerComprasView(TemplateView):
             context['editarCompra'] = 1
             valor_total_compra = 0
             tipo_produto = {}
-            ids_produtos = []
             for compra in compras:
                 preco_produto_subtotal = compra.quantidadeProduto * compra.precoProduto
                 listarProdutosTemplate.append(
@@ -67,7 +66,6 @@ class FazerComprasView(TemplateView):
             if tipo_produto.categoria_id == 5:
                 context['produtos'] = Produto.objects.all().filter(categoria_id=5).order_by('NomeProduto')
             # Se houver recebimento de aparelho associada a Venda
-
 
         if self.request.GET.__contains__("id_fornecedor_cadastro"):
             listarProdutosTemplate = []
@@ -151,6 +149,7 @@ class FazerComprasView(TemplateView):
         contador = 0
         valorCompra = 0
         valorEstornoCompra = 0
+        estornar_estoque = 0
 
         # Desabilitando registro de Compra Salva caso função seja editar
         if identificadorCompra[0] != "":
@@ -160,6 +159,11 @@ class FazerComprasView(TemplateView):
                 valorEstornoCompra = valorEstornoCompra + compra.quantidadeProduto*compra.precoProduto
             itinerario_compra = Deslocamento.objects.filter(identificadorCompra=identificadorCompra[0],ativo=True)
             for cidade in itinerario_compra:
+                logging.warning("Cidade")
+                logging.warning(cidade.destino)
+                if cidade.destino == 7:
+                    logging.warning("Está em Sobral. Estorna estoque")
+                    estornar_estoque = 1
                 if cidade.idMovimentacaoConta != None:
                     try:
                         estorno_frete = MovimentacaoConta.objects.get(id=int(cidade.idMovimentacaoConta))
@@ -173,8 +177,6 @@ class FazerComprasView(TemplateView):
                         identificadorCompra=str(proximaCompra),
                         descricao=descricao,
                     )
-                    logging.warning(estorno_frete.contaDebito)
-                    logging.warning(estorno_frete.valorDebito)
                     estorno_frete_movimentacao_conta.save()
                     estorno_frete.delete()
             formMovimentacao = MovimentacaoConta(
@@ -184,21 +186,21 @@ class FazerComprasView(TemplateView):
                 identificadorCompra=str(proximaCompra),
                 descricao=descricao,
             )
-            logging.warning(valorEstornoCompra)
             formMovimentacao.save()
-            #Atualizando o estoque
+            #Atualizando o estoque. Remover apenas se for destino final
             logging.warning("Removendo")
             logging.warning(identificadorCompra[0])
-            for produto in produtos:
-                logging.warning(produtos)
-                try:
-                    atualizarEstoque = Produto.objects.get(id=produto)
-                    quantidadeOriginalEstoque = Compra.objects.get(identificadorCompra=identificadorCompra[0],produto_id=produto,ativo=True)
-                    atualizarEstoque.estoque = atualizarEstoque.estoque - quantidadeOriginalEstoque.quantidadeProduto
-                    atualizarEstoque.save()
-                    contador = contador + 1
-                except:
-                    pass
+            if estornar_estoque == 1:
+                produtos_estornados = Compra.objects.filter(identificadorCompra=identificadorCompra[0],ativo=True)
+                for produto in produtos_estornados:
+                    logging.warning(produto.produto_id)
+                    try:
+                        atualizarEstoque = Produto.objects.get(id=produto.produto_id)
+                        atualizarEstoque.estoque = atualizarEstoque.estoque - produto.quantidadeProduto
+                        atualizarEstoque.save()
+                        contador = contador + 1
+                    except:
+                        pass
             Compra.objects.filter(identificadorCompra=identificadorCompra[0]).update(ativo=False)
 
 
@@ -530,7 +532,6 @@ class LocalizacaoCompraView(TemplateView):
                 icone="transfer1.svg"
         )
         alerta.save()
-
 
         # Atualizando o estoque Destino Sobral (7) modificar para ficar dinâmico
         if self.request.POST.get('destino') == "7":

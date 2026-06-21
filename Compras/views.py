@@ -3,6 +3,9 @@ from django.views import View
 from django.shortcuts import render
 from django.http import HttpResponseRedirect
 from django.contrib import messages
+from django.db.models import Sum
+from django.db.models import F, ExpressionWrapper, DecimalField
+from django.db.models import Q
 
 from .models import Compra, LocalizacaoCompra, Fornecedor, Deslocamento
 from Produtos.models import Produto, CategoriaProduto
@@ -34,6 +37,8 @@ class FazerComprasView(TemplateView):
             listarProdutosTemplate = []
             context['editarCompra'] = 1
             valor_total_compra = 0
+            tipo_produto = {}
+            ids_produtos = []
             for compra in compras:
                 preco_produto_subtotal = compra.quantidadeProduto * compra.precoProduto
                 listarProdutosTemplate.append(
@@ -45,8 +50,8 @@ class FazerComprasView(TemplateView):
                         'valorDolarMedio': compra.valorDolarMedio,
                     }
                 )
+                tipo_produto = Produto.objects.get(id=compra.produto_id)
                 valor_total_compra = valor_total_compra + preco_produto_subtotal
-                #context['frete'] = compra.frete
                 context['idLocalizacao'] = compra.idLocalizacao_id
                 context['dataCompra'] = compra.criados.strftime('%d-%m-%Y')
                 context['idFornecedor'] = compra.fornecedor_id
@@ -56,6 +61,13 @@ class FazerComprasView(TemplateView):
                 context['dolarMedio'] = compra.valorDolarMedio
                 context['produtos'] = Produto.objects.all().order_by('NomeProduto')
                 context['valorTotalCompra'] = valor_total_compra
+            if tipo_produto.categoria_id <= 4:
+                context['produtos'] = Produto.objects.all().filter(categoria_id__lte=4).order_by('NomeProduto')
+                context['produtos_compra'] = Produto.objects.all().filter(categoria_id__lte=4).order_by('NomeProduto')
+            if tipo_produto.categoria_id == 5:
+                context['produtos'] = Produto.objects.all().filter(categoria_id=5).order_by('NomeProduto')
+            # Se houver recebimento de aparelho associada a Venda
+
 
         if self.request.GET.__contains__("id_fornecedor_cadastro"):
             listarProdutosTemplate = []
@@ -151,7 +163,6 @@ class FazerComprasView(TemplateView):
                 if cidade.idMovimentacaoConta != None:
                     try:
                         estorno_frete = MovimentacaoConta.objects.get(id=int(cidade.idMovimentacaoConta))
-                        logging.warning(estorno_frete.contaDebito)
                     except:
                         logging.warning("Não deu pra puxar do banco")
 
@@ -177,12 +188,17 @@ class FazerComprasView(TemplateView):
             formMovimentacao.save()
             #Atualizando o estoque
             logging.warning("Removendo")
+            logging.warning(identificadorCompra[0])
             for produto in produtos:
-                atualizarEstoque = Produto.objects.get(id=produto)
-                quantidadeOriginalEstoque = Compra.objects.get(identificadorCompra=identificadorCompra[0],produto_id=produto,ativo=True)
-                atualizarEstoque.estoque = atualizarEstoque.estoque - quantidadeOriginalEstoque.quantidadeProduto
-                atualizarEstoque.save()
-                contador = contador + 1
+                logging.warning(produtos)
+                try:
+                    atualizarEstoque = Produto.objects.get(id=produto)
+                    quantidadeOriginalEstoque = Compra.objects.get(identificadorCompra=identificadorCompra[0],produto_id=produto,ativo=True)
+                    atualizarEstoque.estoque = atualizarEstoque.estoque - quantidadeOriginalEstoque.quantidadeProduto
+                    atualizarEstoque.save()
+                    contador = contador + 1
+                except:
+                    pass
             Compra.objects.filter(identificadorCompra=identificadorCompra[0]).update(ativo=False)
 
 
@@ -484,8 +500,6 @@ class LocalizacaoCompraView(TemplateView):
             conta_em_dolar = 1
             cotacao_dolar = financeiro.dolarMedioParaCompra()
 
-        logging.warning("Cotacao Dolar")
-        logging.warning(cotacao_dolar)
         formMovimentacao = MovimentacaoConta(
             criados=hoje,
             contaDebito=self.request.POST.get('conta'),

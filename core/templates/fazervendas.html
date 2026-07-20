@@ -66,22 +66,32 @@
    Observação: o template possui duas tabelas com o mesmo id (#table_field),
    então os estilos abaixo se aplicam a ambas — mantendo o comportamento original.
 */
-#table_field th:nth-child(1),
-#table_field td:nth-child(1) {
-    width: auto; /* Produto mantém tamanho original (flexível) */
+#table_venda th:nth-child(1),
+#table_venda td:nth-child(1),
+#table_compra th:nth-child(1),
+#table_compra td:nth-child(1) {
+    width: auto;
 }
-#table_field th:nth-child(2),
-#table_field td:nth-child(2) {
+
+#table_venda th:nth-child(2),
+#table_venda td:nth-child(2),
+#table_compra th:nth-child(2),
+#table_compra td:nth-child(2) {
     width: 10%;
     min-width: 60px;
-    max-width: 90px; /* Quantidade menor */
+    max-width: 90px;
 }
-#table_field th:nth-child(3),
-#table_field td:nth-child(3),
-#table_field th:nth-child(4),
-#table_field td:nth-child(4) {
+
+#table_venda th:nth-child(3),
+#table_venda td:nth-child(3),
+#table_venda th:nth-child(4),
+#table_venda td:nth-child(4),
+#table_compra th:nth-child(3),
+#table_compra td:nth-child(3),
+#table_compra th:nth-child(4),
+#table_compra td:nth-child(4) {
     width: 22%;
-    min-width: 120px; /* Preço e Total com o mesmo tamanho e maiores */
+    min-width: 120px;
 }
 
 /* Evita quebra feia em telas pequenas */
@@ -217,8 +227,7 @@
             <div class="input-field">
 
                 <div class="table-responsive">
-
-                    <table class="table table-bordered text-center" id="table_field">
+					<table class="table table-bordered text-center" id="table_venda">
 
                         <tr>
 
@@ -249,7 +258,7 @@
 
 							<td><input type="text" class="form-control" name="total" id="tab1" size="2" autocomplete="off"></td>
 
-							<td><input class="btn btn-danger" name="remove" id="remove" value="Apagar" type="button">
+							<td><input class="btn btn-danger remove" name="remove" value="Apagar" type="button">
 							</td>
 							</div>
 						</tr>
@@ -270,7 +279,7 @@
 
 							<td><input type="text" class="form-control" name="total" id="tab1" size="2" autocomplete="off"></td>
 
-							<td><input class="btn btn-danger" name="remove" id="remove" value="Apagar" type="button">
+							<td><input class="btn btn-danger remove" name="remove" value="Apagar" type="button">
 							</td>
 							</div>
 						</tr>
@@ -290,7 +299,7 @@
 
 							<td><input type="text" class="form-control" name="total" id="tab1" size="2" autocomplete="off"></td>
 
-							<td><input class="btn btn-danger" name="remove" id="remove" value="Apagar" type="button">
+							<td><input class="btn btn-danger remove" name="remove" value="Apagar" type="button">
 							</td>
 							</div>
 						</tr>
@@ -315,7 +324,7 @@
 
 							<td><input type="text" class="form-control" name="total" id="tab1" size="2" value="{{ c.precoProdutoSubtotal|floatformat:2 }}"></td>
 
-							<td><input class="btn btn-danger" name="remove" id="remove" value="Apagar" type="button">
+							<td><input class="btn btn-danger remove" name="remove" value="Apagar" type="button">
 							</td>
 							</div>
 						</tr>
@@ -355,7 +364,7 @@
             <div class="input-field">
                 <div class="table-responsive">
 					<div id="purchaseSection" style="display: none;">
-                    <table class="table table-bordered text-center" id="table_field">
+                    <table class="table table-bordered text-center" id="table_compra">
 
                         <tr>
 
@@ -385,7 +394,7 @@
 
 							<td><input type="text" class="form-control" name="total_compra" id="tab1" size="2" > </td>
 
-							<td><input class="btn btn-danger" name="remove" id="remove" value="Apagar" type="button">
+							<td><input class="btn btn-danger remove" name="remove" value="Apagar" type="button">
 							</td>
 								</div>
 						</tr>
@@ -411,7 +420,7 @@
 
 							<td><input type="text" class="form-control" name="total_compra" id="tab1" size="2" value="{{ c.precoProdutoSubtotal|floatformat:2 }}"> </td>
 
-							<td><input class="btn btn-danger" name="remove" id="remove" value="Apagar" type="button">
+							<td><input class="btn btn-danger remove" name="remove" value="Apagar" type="button">
 							</td>
 								</div>
 						</tr>
@@ -472,7 +481,7 @@
 
             $(document).ready(function() {
 
-                var html = '<tr><td><select name="produto" class="select"><option value="0">Selecione o Produto</option>{% for p in produtos %}<option value="{{ p.id }}">{{ p.NomeProduto }} - Estoque {{p.estoque}}</option>{% endfor %}</select></td><td><input type="text" class="form-control" name="qtde" id="tab1" size="4" maxlength="4" autocomplete="off"></td><td><input type="text" class="form-control" name="preco" id="tab1" size="4" maxlength="9" autocomplete="off"></td><td><input type="text" class="form-control" name="total" id="tab1" size="5" maxlength="5"></td><td><input class="btn btn-danger" id="remove" type="button" name="remove" value="Apagar" tabindex="-1"></td></tr>';
+                var html = '<tr><td><select name="produto" class="select"><option>Selecione o Produto</option>{% for p in produtos %}<option value="{{ p.id }}">{{ p.NomeProduto }} - Estoque {{p.estoque}}</option>{% endfor %}</select></td><td><input type="text" class="form-control" name="qtde" id="tab1" size="4" maxlength="4" autocomplete="off"></td><td><input type="text" class="form-control" name="preco" id="tab1" size="4" maxlength="9" autocomplete="off"></td><td><input type="text" class="form-control" name="total" id="tab1" size="5" maxlength="5"></td><td><input class="btn btn-danger remove" type="button" name="remove" value="Apagar" tabindex="-1"></td></tr>';
 
                 var max = 10;
 
@@ -482,7 +491,7 @@
 
                     if(x <= max){
 
-                        $("#table_field").append(html);
+                        $("#table_venda").append(html);
 
                         x++;
 
@@ -492,7 +501,7 @@
 
 
 
-                $("#table_field").on('click', '#remove', function() {
+				$("#table_venda, #table_compra").on("click", ".remove", function () {
 
                     $(this).closest('tr').remove();
 
@@ -508,7 +517,7 @@
 
                         if(x <= max) {
 
-                            $("#table_field").append(html);
+                            $$("#table_venda").append(html);
 
                             x++
 

@@ -216,7 +216,7 @@ class FazerVendasView(TemplateView):
             proximaVenda = identificadorVenda[0]
 
             #Se algum aparelho foi recebido na venda que está sendo editada desfazer o processo
-            if gerar_compra == "on":
+            try:
                 compras_em_venda = MovimentacaoConta.objects.filter(identificadorVenda=identificadorVenda[0],ativo=True)
                 for compra in compras_em_venda:
                     if compra.identificadorCompra != "0":
@@ -228,6 +228,8 @@ class FazerVendasView(TemplateView):
                         Compra.objects.filter(identificadorCompra=compra.identificadorCompra).update(ativo=False)
                     compra.ativo = False
                     compra.save()
+            except:
+                pass
 
         # Salvando Venda
         contador = 0

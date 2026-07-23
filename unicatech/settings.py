@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'Despesas',
     'Relatorios',
     'Cadastro',
+    'Servicos',
 ]
 
 MIDDLEWARE = [

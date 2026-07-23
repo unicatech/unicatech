@@ -19,8 +19,10 @@ class Venda(Base):
     cliente = models.ForeignKey('Vendas.Cliente', verbose_name='Cliente', on_delete=models.CASCADE)
     lucro = models.FloatField(default=0)
     usuario = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    identificador_servico = models.IntegerField(default=0)
     def __str__(self):
         return self.id
+
 
 class Cliente(Base):
     nomeCliente = models.CharField('Descrição', max_length=200)

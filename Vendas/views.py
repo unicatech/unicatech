@@ -96,7 +96,6 @@ class FazerVendasView(TemplateView):
             listarProdutosTemplate = []
             identificadorVenda = 0
             valorCompraVenda = 0
-
             context['id_cliente_cadastro'] = int(self.request.GET["id_cliente_cadastro"])
             context['produtos'] = Produto.objects.all().order_by('NomeProduto')
 
@@ -105,9 +104,9 @@ class FazerVendasView(TemplateView):
         #Popular template
         context['clientes'] = Cliente.objects.filter().order_by('nomeCliente')
 
-
         if self.request.resolver_match.url_name == "fazervendaspecas":
             context['produtos'] = Produto.objects.all().filter(estoque__gte=1).filter(categoria_id=5).order_by('NomeProduto')
+            context['identificador_servico'] = self.request.GET["id_servico"]
         if self.request.resolver_match.url_name == "fazervendasaparelhos":
             context['produtos'] = Produto.objects.all().filter(estoque__gte=1).filter(categoria_id__lte=4).order_by('NomeProduto')
             context['produtos_compra'] = Produto.objects.all().filter(categoria_id__lte=4).order_by('NomeProduto')
@@ -137,11 +136,17 @@ class FazerVendasView(TemplateView):
         precos = self.request.POST.getlist('preco')
         precos_compra = self.request.POST.getlist('preco_compra')
         identificadorVenda = self.request.POST.getlist('identificadorVenda')
+        identificador_servico = self.request.POST.getlist('identificador_servico')
         descricao = self.request.POST.getlist('descricao')
         gerar_compra = self.request.POST.get('gerar_compra')
         produtos_compra = self.request.POST.getlist('produto_compra')
         tipo_produto = self.request.POST.getlist('tipo_produto')
         dataModificada = re.sub(r'(\d{1,2})-(\d{1,2})-(\d{4})', '\\3-\\2-\\1', dataVenda[0])
+
+        if identificador_servico == []:
+            id_servico = 0
+        else:
+            id_servico = identificador_servico[0]
 
         if cliente[0] == "":
             return HttpResponseRedirect('/' + tipo_produto[0] + '/?cliente_sem_cadastro=1', context)
@@ -301,6 +306,7 @@ class FazerVendasView(TemplateView):
                                  lucro=lucro,
                                  descricao=descricao[0],
                                  usuario=request.user,
+                                 identificador_servico=id_servico,
                     )
                     formVenda.save()
 
@@ -392,6 +398,9 @@ class FazerVendasView(TemplateView):
                 icone="sale.svg"
             )
             alerta.save()
+            if identificador_servico != []:
+                return HttpResponseRedirect('/listarservicos/?peca_adicionada=1', context)
+
             return HttpResponseRedirect('/' + tipo_produto[0] + '/?venda_realizada=1', context)
 
 
@@ -399,6 +408,8 @@ class FazerVendasView(TemplateView):
     def get_template_names(self):
         if self.request.GET.get("funcao") == "modal":
             return ["detalhesvendamodal.html"]
+        if self.request.GET.get("funcao") == "modalvenda":
+            return ["fazervendasservicomodal.html"]
         return [self.template_name]
 
 class ListarVendasView(TemplateView):
@@ -569,7 +580,7 @@ class ParcelasReceberView(TemplateView):
                 MovimentacaoConta.objects.filter(id=self.request.GET["id"]).delete()
                 context['mensagem'] = "Recebimento Apagado"
 
-        vendas = Venda.objects.order_by('identificadorVenda').filter(ativo=True)
+        vendas = Venda.objects.order_by('-identificadorVenda').filter(ativo=True)
 
         listarVendasTemplate = []
         recebimentos = []

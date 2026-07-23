@@ -1,0 +1,227 @@
+{% load static %}
+{% load l10n %}
+
+    <meta charset="UTF-8">
+    <title>Parcelas a Receber</title>
+
+    <!-- Bootstrap 4 -->
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <script src="{% static 'js/jquery-3.5.1.min.js' %}"></script>
+    <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+
+    <!-- SweetAlert2 -->
+<link rel="stylesheet" href="{% static 'css/sweetalert2.min.css' %}">
+<script src="{% static 'js/sweetalert2.all.min.js' %}"></script>
+
+    <style>
+        .page-wrapper {
+            padding: 2rem;
+        }
+            .card {
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        border-radius: 1rem;
+    }
+    .form-control, .form-select {
+        border-radius: .5rem;
+    }
+    label {
+        font-weight: 600;
+    }
+    </style>
+    <div class="page-wrapper container">
+        <div class="content">
+            <div class="page-header mb-4">
+                <h4 class="mb-3">Adicionar Peças ao Reparo</h4>
+            </div>
+
+            {% if mensagem != "" %}
+            <script>
+                document.addEventListener("DOMContentLoaded", function () {
+                    Swal.fire({
+                        icon: 'info',
+                        title: 'Aviso',
+                        text: '{{ mensagem|escapejs }}',
+                        confirmButtonColor: '#3085d6'
+                    });
+                });
+            </script>
+            {% endif %}
+
+
+                <div class="card">
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <h5>Detalhes do Reparo</h5>
+                            <p><strong>Ordem de Serviço:</strong> {{listarVendas.idVenda}}</p>
+                            <p><strong>Cliente:</strong> {{listarVendas.cliente}}</p>
+                            <p><strong>Data de Entrada:</strong> {{listarVendas.dataVenda}}</p>
+                            <p><strong>Valor total:</strong> {% localize on %}{{listarVendas.valorVenda|floatformat:2}}{% endlocalize %}</p>
+                        </div>
+
+        			<!-- Formulário de venda -->
+					<form id="formVenda" method="POST" action="{% url 'fazervendas' %}">
+					{% csrf_token %}
+					<input type="hidden" name="identificador_servico" value="{{identificador_servico}}">
+					<input type="hidden" name="tipo_produto" value="{{tipo_produto}}">
+					<input type="hidden" name="cliente" value="{{id_cliente_cadastro}}">
+					<input type="hidden" name="identificadorVenda" value="">
+					<input type="hidden" name="descricao" value="">
+
+					<div class="card">
+						<div class="card-body">
+						<div class="card-body">
+							<div class="row">
+								<div class="col-lg-3 col-sm-6 col-12">
+									<div class="form-group">
+										</div>
+
+										</div>
+									</div>
+								</div>
+								<div class="col-lg-3 col-sm-6 col-12">
+									<div class="form-group">
+										<label>Data da Retirada </label>
+										<div class="input-groupicon">
+											<input type="text" placeholder="DD-MM-AAAA" class="datetimepicker" name="dataVenda" value="{{dataVenda}}">
+											<div class="addonset">
+												<img src="{% static 'img/icons/calendars.svg' %}" alt="img">
+											</div>
+										</div>
+									</div>
+								</div>
+
+
+		<!-- parte do indiano -->
+
+
+            <div class="input-field">
+
+                <div class="table-responsive">
+					<table class="table table-bordered text-center" id="table_venda">
+
+                        <tr>
+
+                            <th>Produto</th>
+
+                            <th>Quantidade</th>
+
+                        </tr>
+
+                        <tr>
+							{% if editarVenda == 0 %}
+							<div class="row">
+                            <td><select name="produto" class="select">
+								<option value="0"> Selecione o Produto</option>
+								{% for p in produtos %}
+											<option value="{{ p.id }}" >{{ p.NomeProduto }} - Estoque {{p.estoque}}</option>
+								{% endfor %}
+
+							</select></td>
+
+                            <td><input type="text" class="form-control" name="qtde" id="tab1" size="2" maxlength="3" autocomplete="off"></td>
+
+							<input type="hidden" class="form-control" name="preco" id="tab1" size="2" maxlength="9" autocomplete="off" value="0">
+
+							<input type="hidden" class="form-control" name="total" id="tab1" size="2" autocomplete="off" value="0">
+
+							<td><input class="btn btn-danger remove" name="remove" value="Apagar" type="button">
+							</td>
+							</div>
+						</tr>
+						     <tr>
+
+							<div class="row">
+                            <td><select name="produto" class="select">
+								<option value="0"> Selecione o Produto</option>
+								{% for p in produtos %}
+											<option value="{{ p.id }}" >{{ p.NomeProduto }} - Estoque {{p.estoque}}</option>
+								{% endfor %}
+
+							</select></td>
+
+                            <td><input type="text" class="form-control" name="qtde" id="tab1" size="2" maxlength="3" autocomplete="off"></td>
+
+							<input type="hidden" class="form-control" name="preco" id="tab1" size="2" maxlength="9" autocomplete="off" value="0">
+
+							<input type="hidden" class="form-control" name="total" id="tab1" size="2" autocomplete="off" value="0">
+
+							<td><input class="btn btn-danger remove" name="remove" value="Apagar" type="button">
+							</td>
+							</div>
+						</tr>
+                        <tr>
+							<div class="row">
+                            <td><select name="produto" class="select">
+								<option value="0"> Selecione o Produto</option>
+								{% for p in produtos %}
+											<option value="{{ p.id }}" >{{ p.NomeProduto }} - Estoque {{p.estoque}}</option>
+								{% endfor %}
+
+							</select></td>
+
+                            <td><input type="text" class="form-control" name="qtde" id="tab1" size="2" maxlength="3" autocomplete="off"></td>
+
+							<input type="hidden" class="form-control" name="preco" id="tab1" size="2" maxlength="9" autocomplete="off" value="0">
+
+							<input type="hidden" class="form-control" name="total" id="tab1" size="2" autocomplete="off" value="0">
+
+							<td><input class="btn btn-danger remove" name="remove" value="Apagar" type="button">
+							</td>
+							</div>
+						</tr>
+
+
+
+							{% endif %}
+
+							<div class="row">
+							{% for c in venda_identificada %}
+                            <td><select name="produto" class="select">
+								<option> Selecione o Produto</option>
+								{% for p in produtos %}
+											<option value="{{ p.id }}" {% if p.id == c.idProduto %} SELECTED {% endif %}>{{ p.NomeProduto }} - Estoque {{p.estoque}}</option>
+								{% endfor %}
+
+							</select></td>
+
+                            <td><input type="text" class="form-control" name="qtde" id="tab1" size="2" maxlength="3" value="{{ c.quantidadeProduto|floatformat:0 }}"></td>
+
+							<input type="hidden" class="form-control" name="preco" id="tab1" size="2" maxlength="9" autocomplete="off" value="0">
+
+							<input type="hidden" class="form-control" name="total" id="tab1" size="2" autocomplete="off" value="0">
+
+							<td><input class="btn btn-danger remove" name="remove" value="Apagar" type="button">
+							</td>
+							</div>
+						</tr>
+						{% endfor %}
+						<tr></tr>
+
+                    </table>
+
+					<div class="row">
+
+					</div>
+                    <div class="row">
+
+
+                    </div>
+
+                </div>
+
+            </div>
+
+		<!-- /parte do indiano -->
+
+
+        </div>
+		<div class="col-lg-12">
+            		    <input type="submit" name="save" id="save" value="Adicionar Peças" class="btn btn-primary btn-block">
+		</div>
+		</form>
+
+					</div>
+    </div>
+
+
+</html>

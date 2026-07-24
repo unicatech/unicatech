@@ -106,7 +106,10 @@ class FazerVendasView(TemplateView):
 
         if self.request.resolver_match.url_name == "fazervendaspecas":
             context['produtos'] = Produto.objects.all().filter(estoque__gte=1).filter(categoria_id=5).order_by('NomeProduto')
-            context['identificador_servico'] = self.request.GET["id_servico"]
+            try:
+                context['identificador_servico'] = self.request.GET["id_servico"]
+            except:
+                pass
         if self.request.resolver_match.url_name == "fazervendasaparelhos":
             context['produtos'] = Produto.objects.all().filter(estoque__gte=1).filter(categoria_id__lte=4).order_by('NomeProduto')
             context['produtos_compra'] = Produto.objects.all().filter(categoria_id__lte=4).order_by('NomeProduto')

@@ -19,3 +19,5 @@ class Servico(Base):
     imei = models.CharField('Descrição', max_length=200)
     def __str__(self):
         return self.id
+
+

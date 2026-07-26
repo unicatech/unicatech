@@ -1,0 +1,73 @@
+{% load math_extras %}
+{% load static %}
+<div class="container-fluid px-0">
+  <!-- Cabeçalho da venda -->
+  <div class="mb-3">
+    <h5 style="font-weight:600;color:#343a40;border-left:4px solid #fd7e14;padding-left:10px;">
+      🧾 Serviço #{{ identificador_servico }}
+    </h5>
+    <p>
+      <strong>Cliente: {{ cliente }}
+      </strong><br>
+      <strong>IMEI: {{ imei }}
+      </strong> <br>
+      <strong>Data:</strong> {{ data_criado }}
+    </p>
+
+  </div>
+
+  {% if sem_produtos == 0 %}
+  <!-- Tabela de itens -->
+  <div class="table-responsive mb-3">
+    <table id="tabela-itens" class="table datanew">
+      <thead>
+        <tr>
+          <th>Produto</th>
+          <th class="text-end">Qtd</th>
+          <th class="text-end">Técnico</th>
+          <th class="text-end">Ação</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for c in produtos_servico_identificado %}
+              <tr>
+                <td>{{ c.nome_produto }}</td>
+                <td class="text-end">{{ c.quantidade_produto }} </td>
+                <td class="text-end">{{ c.tecnico }}</td>
+                <td class="text-end"> <a class="me-3 confirm-text" href="/listarservicos/?identificador_servico={{c.identificador_servico}}&id_tabela_venda={{ c.id_tabela_venda }}&funcao=apagar">
+                    <img src="{% static 'img/icons/delete.svg' %}" alt="Apagar"></a>
+                </td>
+              </tr>
+              <tr>
+                <td><strong>Descrição do Reparo:</strong>{{c.descricao_venda}}</td>
+                <td></td>
+                <td></td>
+                <td></td>
+              </tr>
+
+        {% endfor %}
+      </tbody>
+  {%else%}
+  Sem Peças Utilizadas
+  {%endif%}
+    {%if compra_venda_identificada%}
+      <thead>
+        <tr>
+          <th>Produto Comprado</th>
+          <th class="text-end">Qtd</th>
+          <th class="text-end">Preço</th>
+          <th class="text-end">SubTotal(R$)</th>
+        </tr>
+      </thead>
+
+    {%endif%}
+    </table>
+  </div>
+
+  <!-- Descrição -->
+  {% if descricao %}
+  <div class="p-2 mb-2" style="background:#f8f9fa;border:1px solid #e9ecef;border-radius:6px;">
+    <strong>Descrição:</strong> {{ descricao }}
+  </div>
+  {% endif %}
+

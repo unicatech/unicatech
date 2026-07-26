@@ -83,7 +83,7 @@
   <div class="content">
     <div class="page-header">
       <div class="page-title">
-        <h4>Lista de Serviços Finalizados</h4>
+        <h4>Ordens de Serviço em Aberto</h4>
         <h6>Gerencie seus Serviços</h6>
       </div>
       <div class="page-btn">
@@ -161,11 +161,17 @@
                   <a class="me-3" href="/abrirservico/?identificador_servico={{ servico.identificador_servico }}">
                     <img src="{% static 'img/icons/edit.svg' %}" alt="Editar">
                   </a>
+                  <a class="me-3 confirm-text" href="/listarservicos/?identificador_servico={{ servico.identificador_servico }}&funcao=apagar">
+                    <img src="{% static 'img/icons/delete.svg' %}" alt="Apagar">
+                  </a>
                   <a href="#" class="me-3 view-sale" data-url="/listarservicos/?identificador_servico={{ servico.identificador_servico }}&funcao=modalvisualizar">
                     <img src="{% static 'img/icons/eye.svg' %}" alt="Visualizar">
                   </a>
-                  <a class="me-3 confirm-text" href="/listarservicos/?identificador_servico={{ servico.identificador_servico }}&funcao=reabrir">
-                    <img src="{% static 'img/icons/return1.svg' %}" width=20 alt="Reabrir">
+                  <a href="#" class="me-3 view-sale" data-url="/fazervendaspecas/?identificador_servico={{ servico.identificador_servico }}&funcao=modalvenda&id_cliente_cadastro={{servico.id_cliente}}">
+                    <img src="{% static 'img/icons/tools.svg' %}" width=20 alt="Adicionar Peça">
+                  </a>
+                  <a class="me-3 confirm-text" href="/listarservicos/?identificador_servico={{ servico.identificador_servico }}&funcao=finalizar">
+                    <img src="{% static 'img/icons/checked.svg' %}" width=20 alt="Finalizar">
                   </a>
                 </td>
               </tr>

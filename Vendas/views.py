@@ -19,6 +19,7 @@ from Produtos.models import Produto
 from Contas.models import MovimentacaoConta, Conta, Cartao, RecebimentoCartao
 from Vendas.models import Cliente
 from Compras.models import Compra, Deslocamento
+from Servicos.models import Servico
 from core.models import Alertas
 
 # vendas/views.py
@@ -107,7 +108,12 @@ class FazerVendasView(TemplateView):
         if self.request.resolver_match.url_name == "fazervendaspecas":
             context['produtos'] = Produto.objects.all().filter(estoque__gte=1).filter(categoria_id=5).order_by('NomeProduto')
             try:
-                context['identificador_servico'] = self.request.GET["id_servico"]
+                servico = Servico.objects.get(identificador_servico=self.request.GET["identificador_servico"])
+                context['identificador_servico'] = servico.identificador_servico
+                context['descricao'] = servico.descricao
+                context['imei'] = servico.imei
+                context['data_criado'] = servico.criados
+                context['cliente'] = servico.cliente.nomeCliente
             except:
                 pass
         if self.request.resolver_match.url_name == "fazervendasaparelhos":
@@ -471,7 +477,7 @@ class ListarVendasView(TemplateView):
 
         hoje = timezone.now().date()
         seis_meses_atras = hoje - timedelta(days=180)
-        vendas = Venda.objects.filter(ativo=True, criados__gte=seis_meses_atras).order_by('-identificadorVenda')
+        vendas = Venda.objects.filter(ativo=True, criados__gte=seis_meses_atras,identificador_servico=0).order_by('-identificadorVenda')
 
         listarVendasTemplate = []
         recebimentos = []

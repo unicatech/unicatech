@@ -37,7 +37,6 @@ class ListarServicosView(TemplateView):
                      'descricao_venda': venda.descricao,
                      }
                 )
-                logging.warning(venda.descricao)
                 context['sem_produtos'] = 0
             servico = Servico.objects.get(identificador_servico=self.request.GET["identificador_servico"])
             context['produtos_servico_identificado'] = listar_produtos_template
@@ -52,6 +51,7 @@ class ListarServicosView(TemplateView):
 
             if self.request.GET["funcao"] == "reabrir":
                 Servico.objects.filter(identificador_servico=servico.identificador_servico).update(ativo=True)
+
 
             if self.request.GET["funcao"] == "apagar":
                 if self.request.GET.__contains__("id_tabela_venda"):
@@ -107,7 +107,6 @@ class ListarServicosView(TemplateView):
         return(context)
 
     def get_template_names(self):
-        logging.warning(self.request.resolver_match.url_name)
         if self.request.GET.get("funcao") == "modalvenda":
             return ["fazervendasservicomodal.html"]
         if self.request.GET.get("funcao") == "modalvisualizar":
@@ -124,26 +123,39 @@ class AbrirServicoView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(AbrirServicoView, self).get_context_data(**kwargs)
+        context['botaosubmit'] = "Abrir Ordem de Serviço"
         if self.request.GET.__contains__("cliente_sem_cadastro"):
             context['cliente_sem_cadastro'] = 1
 
         #Popular template
+        if self.request.GET.__contains__("identificador_servico"):
+            servico_editar = Servico.objects.get(identificador_servico=self.request.GET["identificador_servico"])
+            context['data_servico'] = servico_editar.criados.strftime('%d-%m-%Y')
+            context['imei'] = servico_editar.imei
+            context['descricao'] = servico_editar.descricao
+            context['identificador_servico'] = self.request.GET["identificador_servico"]
+            context['botaosubmit'] = "Atualizar Ordem de Serviço"
+
         context['clientes'] = Cliente.objects.filter().order_by('nomeCliente')
         return context
 
     def post(self, request, *args, **kwargs):
         context = super(AbrirServicoView, self).get_context_data(**kwargs)
 
-        try:
-            ultimo_servico = Servico.objects.order_by('-identificador_servico')
-            identificador_servico = 0
-            for identificador in ultimo_servico:
-                identificador_servico = identificador.identificador_servico
-                logging.warning(identificador_servico)
-                break
-            proximo_servico = identificador_servico + 1
-        except:
-            proximo_servico = 1
+        if self.request.POST.__contains__("identificador_servico"):
+            Servico.objects.get(identificador_servico=self.request.POST["identificador_servico"]).delete()
+            identificador_servico = self.request.POST.getlist('identificador_servico')
+            proximo_servico = identificador_servico[0]
+        else:
+            try:
+                ultimo_servico = Servico.objects.order_by('-identificador_servico')
+                identificador_servico = 0
+                for identificador in ultimo_servico:
+                    identificador_servico = identificador.identificador_servico
+                    break
+                proximo_servico = identificador_servico + 1
+            except:
+                proximo_servico = 1
 
         cliente = self.request.POST.getlist('cliente')
         data_servico = self.request.POST.getlist('data_servico')
@@ -177,5 +189,5 @@ class AbrirServicoView(TemplateView):
         )
         alerta.save()
 
-        return HttpResponseRedirect("/servicosemaberto/?abrirservico=1")
+        return HttpResponseRedirect("/servicoemaberto/?abrirservico=1")
 

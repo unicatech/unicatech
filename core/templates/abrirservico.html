@@ -154,7 +154,7 @@
 {% if venda_realizada == 1 %}
 <div class="alert-message float-end">
     <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
-    Venda Realizada
+    Serviço Realizado
 </div>
 {% endif %}
 
@@ -168,6 +168,7 @@
 					</div>
 					<form id="formServico" method="POST" action="{% url 'abrirservico' %}">
 					{% csrf_token %}
+						<input type="hidden" name="identificador_servico" value="{{identificador_servico}}"
 					<div class="card">
 						<div class="card-body">
 							<div class="row">
@@ -208,7 +209,7 @@
 								</div>
 								<div class="col-lg-3 col-sm-6 col-12">
 									<div class="form-group">
-										<label>Data da Venda </label>
+										<label>Data do Recebimento do Aparelho </label>
 										<div class="input-groupicon">
 											<input type="text" placeholder="DD-MM-AAAA" class="datetimepicker" name="data_servico" value="{{data_servico}}">
 											<div class="addonset">
@@ -222,7 +223,7 @@
 									<div class="form-group">
 										<label>IMEI </label>
             								<div class="input-groupicon">
-              									<input type="text" class="form-control" name="imei" id="imei" placeholder="">
+              									<input type="text" class="form-control" name="imei" id="imei" placeholder="" value="{{imei}}">
             								</div>
 									</div>
 								</div>
@@ -240,7 +241,7 @@
 									</div>
 								</div>
 								<div class="col-lg-12">
-                        		    <input type="submit" name="save" id="save" value="Abrir Ordem de Serviço" class="btn btn-primary btn-block">
+                        		    <input type="submit" name="save" id="save" value="{{botaosubmit}}" class="btn btn-primary btn-block">
 								</div>
 							</div>
                     </div>

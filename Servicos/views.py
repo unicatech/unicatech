@@ -134,6 +134,7 @@ class AbrirServicoView(TemplateView):
             context['imei'] = servico_editar.imei
             context['descricao'] = servico_editar.descricao
             context['identificador_servico'] = self.request.GET["identificador_servico"]
+            context['idCliente'] = servico_editar.cliente_id
             context['botaosubmit'] = "Atualizar Ordem de Serviço"
 
         context['clientes'] = Cliente.objects.filter().order_by('nomeCliente')

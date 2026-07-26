@@ -7,6 +7,7 @@ import logging
 from django.http import HttpResponseRedirect
 from django.utils import timezone
 from datetime import date, datetime, timedelta
+from django.shortcuts import render, redirect
 
 from Servicos.models import Servico
 from Vendas.models import Cliente, Venda
@@ -17,6 +18,19 @@ from Contas.models import MovimentacaoConta, Conta, Cartao, RecebimentoCartao
 # Create your views here.
 class ListarServicosView(TemplateView):
     template_name = 'listarservicos.html'
+
+    def get(self, request, *args, **kwargs):
+
+        if request.GET.get("funcao") == "finalizar":
+            servico = Servico.objects.get(
+                identificador_servico=request.GET["identificador_servico"]
+            )
+
+            if servico.imei == "000":
+               context = self.get_context_data(**kwargs)
+               return render(request, "abrirservico.html", context)
+
+        return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super(ListarServicosView, self).get_context_data(**kwargs)
@@ -47,11 +61,21 @@ class ListarServicosView(TemplateView):
             context['cliente'] = servico.cliente.nomeCliente
 
             if self.request.GET["funcao"] == "finalizar":
-                Servico.objects.filter(identificador_servico=servico.identificador_servico).update(ativo=False)
+                servico_interno = Servico.objects.get(identificador_servico=self.request.GET["identificador_servico"])
+                if servico_interno.imei != "000":
+                    Servico.objects.filter(identificador_servico=self.request.GET["identificador_servico"]).update(ativo=False)
+                else:
+                    context['data_servico'] = servico_interno.criados.strftime('%d-%m-%Y')
+                    context['cliente'] = servico_interno.cliente.nomeCliente
+                    context['imei'] = servico_interno.imei
+                    context['descricao'] = servico_interno.descricao
+                    context['identificador_servico'] = self.request.GET["identificador_servico"]
+                    context['idCliente'] = servico_interno.cliente_id
+                    context['botaosubmit'] = "Atualizar Ordem de Serviço"
+                    context['clientes'] = Cliente.objects.filter().order_by('nomeCliente')
 
             if self.request.GET["funcao"] == "reabrir":
                 Servico.objects.filter(identificador_servico=servico.identificador_servico).update(ativo=True)
-
 
             if self.request.GET["funcao"] == "apagar":
                 if self.request.GET.__contains__("id_tabela_venda"):
@@ -104,6 +128,7 @@ class ListarServicosView(TemplateView):
                 identificador_servico = servico.identificador_servico
 
         context['listar_servicos'] = listar_servicos_template
+
         return(context)
 
     def get_template_names(self):

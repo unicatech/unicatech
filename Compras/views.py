@@ -10,6 +10,7 @@ from django.db.models import Q
 from .models import Compra, LocalizacaoCompra, Fornecedor, Deslocamento
 from Produtos.models import Produto, CategoriaProduto
 from Contas.models import Conta, MovimentacaoConta
+from Servicos.models import Servico
 from Contas.views import MovimentacaoFinanceira
 from datetime import date, datetime, timedelta
 from django.utils import timezone
@@ -542,6 +543,30 @@ class LocalizacaoCompraView(TemplateView):
                 atualizarEstoque.estoque = atualizarEstoque.estoque + produto_comprado.quantidadeProduto
                 atualizarEstoque.save()
                 contador = contador + 1
+                #Adicionar em Serviços a fazer
+                try:
+                    ultimo_servico = Servico.objects.order_by('-identificador_servico')
+                    identificador_servico = 0
+                    for identificador in ultimo_servico:
+                        identificador_servico = identificador.identificador_servico
+                        break
+                    proximo_servico = identificador_servico + 1
+                except:
+                    proximo_servico = 1
+
+                for i in range(produto_comprado.quantidadeProduto):
+                    form_servico = Servico(
+                        criados=hoje,
+                        identificador_servico=str(proximo_servico),
+                        cliente_id="476",
+                        descricao=atualizarEstoque.NomeProduto,
+                        imei="000",
+                        usuario=request.user,
+                        ativo=True,
+                    )
+                    form_servico.save()
+                    proximo_servico = proximo_servico + 1
+
         return HttpResponseRedirect('/listarcompras/', context)
 
 class AdicionarLocalizacao(TemplateView):

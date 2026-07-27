@@ -14,6 +14,8 @@ from Vendas.models import Cliente, Venda
 from Produtos.models import Produto
 from core.models import Alertas
 from Contas.models import MovimentacaoConta, Conta, Cartao, RecebimentoCartao
+from django.contrib.auth.decorators import login_required, user_passes_test
+
 
 # Create your views here.
 class ListarServicosView(TemplateView):

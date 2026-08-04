@@ -146,6 +146,50 @@ class ListarServicosView(TemplateView):
             return ["listarservicos.html"]
         return [self.template_name]
 
+    def post(self, request, *args, **kwargs):
+        context = super(ListarServicosView, self).get_context_data(**kwargs)
+        data_inicio = self.request.POST.getlist('data_inicio')
+        data_fim = self.request.POST.getlist('data_fim')
+        imei = self.request.POST.get('imei')
+
+        servicos = Servico.objects.order_by('-identificador_servico')
+        if data_inicio[0] and data_fim[0]:
+            data_inicio = datetime.strptime(data_inicio[0], '%Y-%m-%d').date()
+            data_fim = datetime.strptime(data_fim[0], '%Y-%m-%d').date()
+            servicos = servicos.filter(
+                criados__range=[data_inicio, data_fim]
+            )
+        if imei:
+            servicos = servicos.filter(imei__icontains=imei)
+
+        listar_servicos_template = []
+        identificador_servico = 0
+
+        for servico in servicos:
+            if identificador_servico != servico.identificador_servico:
+                servico_identificado = Servico.objects.filter(identificador_servico=servico.identificador_servico,ativo=True).order_by('-identificador_servico')
+                valor_servico_total = 0
+                for servico in servico_identificado:
+                    valor_servico_total = valor_servico_total + servico.preco_servico
+
+                listar_servicos_template.append(
+                    {
+                        'identificador_servico': servico.identificador_servico,
+                        'cliente': servico.cliente.nomeCliente,
+                        'id_cliente': servico.cliente.id,
+                        'tecnico': servico.usuario.first_name,
+                        'data_servico': servico.criados,
+                        'valor_servico': servico.preco_servico,
+                        'imei': servico.imei,
+                        'descricao': servico.descricao,
+                     }
+                )
+                identificador_servico = servico.identificador_servico
+
+        context['listar_servicos'] = listar_servicos_template
+        return render(request, 'listarservicosbusca.html', context)
+
+
 
 class AbrirServicoView(TemplateView):
     template_name = 'abrirservico.html'
@@ -153,6 +197,8 @@ class AbrirServicoView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(AbrirServicoView, self).get_context_data(**kwargs)
         context['botaosubmit'] = "Abrir Ordem de Serviço"
+        agora = datetime.now()
+        context['data_servico'] = agora.strftime("%Y-%m-%d")
         if self.request.GET.__contains__("cliente_sem_cadastro"):
             context['cliente_sem_cadastro'] = 1
 

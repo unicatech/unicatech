@@ -34,7 +34,7 @@
                 <td>{{ c.nome_produto }}</td>
                 <td class="text-end">{{ c.quantidade_produto }} </td>
                 <td class="text-end">{{ c.tecnico }}</td>
-                <td class="text-end"> <a class="me-3 confirm-text" href="/listarservicos/?identificador_servico={{c.identificador_servico}}&id_tabela_venda={{ c.id_tabela_venda }}&funcao=apagar">
+                <td class="text-end"> <a class="me-3 confirm-text" href="/servicoemaberto/?identificador_servico={{c.identificador_servico}}&id_tabela_venda={{ c.id_tabela_venda }}&funcao=apagarprodutoservico">
                     <img src="{% static 'img/icons/delete.svg' %}" alt="Apagar"></a>
                 </td>
               </tr>

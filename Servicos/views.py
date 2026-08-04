@@ -80,13 +80,6 @@ class ListarServicosView(TemplateView):
                 Servico.objects.filter(identificador_servico=servico.identificador_servico).update(ativo=True)
 
             if self.request.GET["funcao"] == "apagar":
-                if self.request.GET.__contains__("id_tabela_venda"):
-                    quantidade_produto_venda = Venda.objects.get(id=self.request.GET["id_tabela_venda"],ativo=True)
-                    atualizar_estoque = Produto.objects.get(id=quantidade_produto_venda.produto_id)
-                    atualizar_estoque.estoque = atualizar_estoque.estoque + quantidade_produto_venda.quantidadeProduto
-                    atualizar_estoque.save()
-                    Venda.objects.filter(id=self.request.GET["id_tabela_venda"]).update(ativo=False)
-
                 if self.request.GET.__contains__("identificador_servico"):
                     estorno_estoque_produtos = Venda.objects.filter(identificador_servico=self.request.GET["identificador_servico"],ativo=True)
                     for estoque in estorno_estoque_produtos:
@@ -94,7 +87,16 @@ class ListarServicosView(TemplateView):
                         atualizar_estoque.estoque = atualizar_estoque.estoque + estoque.quantidadeProduto
                         atualizar_estoque.save()
                         Venda.objects.filter(id=estoque.id).update(ativo=False)
-                    Servico.objects.filter(identificador_servico=self.request.GET["identificador_servico"]).update(ativo=False)
+                    Servico.objects.filter(identificador_servico=self.request.GET["identificador_servico"]).delete()
+
+            if self.request.GET["funcao"] == "apagarprodutoservico":
+                if self.request.GET.__contains__("id_tabela_venda"):
+                    quantidade_produto_venda = Venda.objects.get(id=self.request.GET["id_tabela_venda"],ativo=True)
+                    atualizar_estoque = Produto.objects.get(id=quantidade_produto_venda.produto_id)
+                    atualizar_estoque.estoque = atualizar_estoque.estoque + quantidade_produto_venda.quantidadeProduto
+                    atualizar_estoque.save()
+                    Venda.objects.filter(id=self.request.GET["id_tabela_venda"]).update(ativo=False)
+
 
         hoje = timezone.now().date()
         seis_meses_atras = hoje - timedelta(days=180)

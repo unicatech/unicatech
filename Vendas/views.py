@@ -408,7 +408,7 @@ class FazerVendasView(TemplateView):
             )
             alerta.save()
             if identificador_servico != []:
-                return HttpResponseRedirect('/listarservicos/?peca_adicionada=1', context)
+                return HttpResponseRedirect('/servicoemaberto/?peca_adicionada=1', context)
 
             return HttpResponseRedirect('/' + tipo_produto[0] + '/?venda_realizada=1', context)
 

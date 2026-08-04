@@ -171,19 +171,20 @@ class AbrirServicoView(TemplateView):
         context = super(AbrirServicoView, self).get_context_data(**kwargs)
 
         if self.request.POST.__contains__("identificador_servico"):
-            Servico.objects.get(identificador_servico=self.request.POST["identificador_servico"]).delete()
             identificador_servico = self.request.POST.getlist('identificador_servico')
-            proximo_servico = identificador_servico[0]
-        else:
-            try:
-                ultimo_servico = Servico.objects.order_by('-identificador_servico')
-                identificador_servico = 0
-                for identificador in ultimo_servico:
-                    identificador_servico = identificador.identificador_servico
-                    break
-                proximo_servico = identificador_servico + 1
-            except:
-                proximo_servico = 1
+            if identificador_servico[0] != "":
+                Servico.objects.get(identificador_servico=identificador_servico[0]).delete()
+                proximo_servico = identificador_servico[0]
+            else:
+                try:
+                    ultimo_servico = Servico.objects.order_by('-identificador_servico')
+                    identificador_servico = 0
+                    for identificador in ultimo_servico:
+                        identificador_servico = identificador.identificador_servico
+                        break
+                    proximo_servico = identificador_servico + 1
+                except:
+                    proximo_servico = 1
 
         cliente = self.request.POST.getlist('cliente')
         data_servico = self.request.POST.getlist('data_servico')

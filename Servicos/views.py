@@ -33,7 +33,7 @@ class ListarServicosView(TemplateView):
                context = self.get_context_data(**kwargs)
                return render(request, "abrirservico.html", context)
             else:
-                evento_servico = f"Finalização de serviço feita por {request.user.first_name} na Ordem de Serviço número {request.GET["identificador_servico"]}"
+                evento_servico = f"Finalização de serviço feita por {request.user.first_name} na Ordem de Serviço número {request.GET['identificador_servico']}"
                 alerta = Alertas(
                     criados=str(hoje),
                     evento=evento_servico,
@@ -44,7 +44,7 @@ class ListarServicosView(TemplateView):
                 alerta.save()
 
         if request.GET.get("funcao")  == "reabrir":
-            evento_servico = f"Reabertura de serviço feita por {request.user.first_name} na Ordem de Serviço número {request.GET["identificador_servico"]}"
+            evento_servico = f"Reabertura de serviço feita por {request.user.first_name} na Ordem de Serviço número {request.GET['identificador_servico']}"
             alerta = Alertas(
                 criados=str(hoje),
                 evento=evento_servico,
@@ -56,7 +56,7 @@ class ListarServicosView(TemplateView):
 
         if request.GET.get("funcao")  == "apagar":
             if self.request.GET.__contains__("identificador_servico"):
-                evento_servico = f"Ordem de Serviço apagada por {request.user.first_name} na Ordem de Serviço número {request.GET["identificador_servico"]}"
+                evento_servico = f"Ordem de Serviço apagada por {request.user.first_name} na Ordem de Serviço número {request.GET['identificador_servico']}"
                 alerta = Alertas(
                     criados=str(hoje),
                     evento=evento_servico,

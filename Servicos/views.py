@@ -311,7 +311,6 @@ class AbrirServicoView(TemplateView):
         if cliente[0] == "":
             return HttpResponseRedirect('/' + tipo_produto[0] + '/?cliente_sem_cadastro=1', context)
 
-        logging.warning(data_servico_modificada)
         # Cadastrando Servico
         form_servico = Servico(
             criados=str(data_servico_modificada),

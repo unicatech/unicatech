@@ -42,7 +42,7 @@ services:
              apt-get install -y cron &&
              chmod +x /wait-for-it.sh &&
              /wait-for-it.sh db:5432 --
-             echo '* * * * * cd /app && /usr/local/bin/python manage.py computardespesas >> /var/log/cron.log 2>&1' > /etc/cron.d/django-cron &&
+             echo '0 3 * * * cd /app && /usr/local/bin/python manage.py computardespesas >> /var/log/cron.log 2>&1' > /etc/cron.d/django-cron &&
              chmod 0644 /etc/cron.d/django-cron &&
              crontab /etc/cron.d/django-cron &&
              cron -f"

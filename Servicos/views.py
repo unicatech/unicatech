@@ -22,15 +22,49 @@ class ListarServicosView(TemplateView):
     template_name = 'listarservicos.html'
 
     def get(self, request, *args, **kwargs):
+        agora = datetime.now()
+        hoje = agora.strftime("%Y-%m-%d")
 
         if request.GET.get("funcao") == "finalizar":
             servico = Servico.objects.get(
                 identificador_servico=request.GET["identificador_servico"]
             )
-
             if servico.imei == "000":
                context = self.get_context_data(**kwargs)
                return render(request, "abrirservico.html", context)
+            else:
+                evento_servico = f"Finalização de serviço feita por {request.user.first_name} na Ordem de Serviço número {request.GET["identificador_servico"]}"
+                alerta = Alertas(
+                    criados=str(hoje),
+                    evento=evento_servico,
+                    usuario_id=request.user.id,
+                    identificador_servico=request.GET["identificador_servico"],
+                    icone="tools.svg"
+                )
+                alerta.save()
+
+        if request.GET.get("funcao")  == "reabrir":
+            evento_servico = f"Reabertura de serviço feita por {request.user.first_name} na Ordem de Serviço número {request.GET["identificador_servico"]}"
+            alerta = Alertas(
+                criados=str(hoje),
+                evento=evento_servico,
+                usuario_id=request.user.id,
+                identificador_servico=request.GET["identificador_servico"],
+                icone="tools.svg"
+            )
+            alerta.save()
+
+        if request.GET.get("funcao")  == "apagar":
+            if self.request.GET.__contains__("identificador_servico"):
+                evento_servico = f"Ordem de Serviço apagada por {request.user.first_name} na Ordem de Serviço número {request.GET["identificador_servico"]}"
+                alerta = Alertas(
+                    criados=str(hoje),
+                    evento=evento_servico,
+                    usuario_id=request.user.id,
+                    identificador_servico=request.GET["identificador_servico"],
+                    icone="tools.svg"
+                )
+                alerta.save()
 
         return super().get(request, *args, **kwargs)
 
@@ -39,7 +73,9 @@ class ListarServicosView(TemplateView):
 
         if self.request.GET.__contains__("identificador_servico"):
             vendas_servico = Venda.objects.filter(ativo=True, identificador_servico=self.request.GET["identificador_servico"])
+            eventos_servico = Alertas.objects.filter(ativo=True, identificador_servico=self.request.GET["identificador_servico"])
             listar_produtos_template = []
+            eventos = []
             context['sem_produtos'] = 1
             for venda in vendas_servico:
                 listar_produtos_template.append(
@@ -54,8 +90,20 @@ class ListarServicosView(TemplateView):
                      }
                 )
                 context['sem_produtos'] = 0
+
+            for evento in eventos_servico:
+                eventos.append(
+                    {
+                        'identificador_servico': evento.identificador_servico,
+                        'evento': evento.evento,
+                        'tecnico': evento.usuario.first_name,
+                        'data': evento.criados,
+                    }
+                )
+
             servico = Servico.objects.get(identificador_servico=self.request.GET["identificador_servico"])
             context['produtos_servico_identificado'] = listar_produtos_template
+            context['eventos'] = eventos
             context['identificador_servico'] = servico.identificador_servico
             context['descricao'] = servico.descricao
             context['imei'] = servico.imei
@@ -198,7 +246,7 @@ class AbrirServicoView(TemplateView):
         context = super(AbrirServicoView, self).get_context_data(**kwargs)
         context['botaosubmit'] = "Abrir Ordem de Serviço"
         agora = datetime.now()
-        context['data_servico'] = agora.strftime("%Y-%m-%d")
+        context['data_servico'] = agora.strftime("%d-%m-%Y")
         if self.request.GET.__contains__("cliente_sem_cadastro"):
             context['cliente_sem_cadastro'] = 1
 
@@ -218,11 +266,27 @@ class AbrirServicoView(TemplateView):
     def post(self, request, *args, **kwargs):
         context = super(AbrirServicoView, self).get_context_data(**kwargs)
 
+        cliente = self.request.POST.getlist('cliente')
+        data_servico = self.request.POST.getlist('data_servico')
+        imei = self.request.POST.getlist('imei')
+        descricao = self.request.POST.getlist('descricao')
+        cliente_banco = Cliente.objects.get(id=cliente[0],ativo=True)
+        data_servico_modificada = re.sub(r'(\d{1,2})-(\d{1,2})-(\d{4})', '\\3-\\2-\\1', data_servico[0])
+
         if self.request.POST.__contains__("identificador_servico"):
             identificador_servico = self.request.POST.getlist('identificador_servico')
             if identificador_servico[0] != "":
                 Servico.objects.get(identificador_servico=identificador_servico[0]).delete()
                 proximo_servico = identificador_servico[0]
+                evento_servico = f"Ordem de Serviço número {proximo_servico} editada por {request.user.first_name} para o cliente {cliente_banco.nomeCliente}."
+                alerta = Alertas(
+                    criados=str(data_servico_modificada),
+                    evento=evento_servico,
+                    identificador_servico=str(proximo_servico),
+                    usuario_id=request.user.id,
+                    icone="tools.svg"
+                )
+                alerta.save()
             else:
                 try:
                     ultimo_servico = Servico.objects.order_by('-identificador_servico')
@@ -234,16 +298,20 @@ class AbrirServicoView(TemplateView):
                 except:
                     proximo_servico = 1
 
-        cliente = self.request.POST.getlist('cliente')
-        data_servico = self.request.POST.getlist('data_servico')
-        imei = self.request.POST.getlist('imei')
-        descricao = self.request.POST.getlist('descricao')
-
-        data_servico_modificada = re.sub(r'(\d{1,2})-(\d{1,2})-(\d{4})', '\\3-\\2-\\1', data_servico[0])
+                evento_servico = f"Ordem de Serviço número {proximo_servico} aberta por {request.user.first_name} para o cliente {cliente_banco.nomeCliente}."
+                alerta = Alertas(
+                    criados=str(data_servico_modificada),
+                    evento=evento_servico,
+                    identificador_servico=str(proximo_servico),
+                    usuario_id=request.user.id,
+                    icone="tools.svg"
+                )
+                alerta.save()
 
         if cliente[0] == "":
             return HttpResponseRedirect('/' + tipo_produto[0] + '/?cliente_sem_cadastro=1', context)
 
+        logging.warning(data_servico_modificada)
         # Cadastrando Servico
         form_servico = Servico(
             criados=str(data_servico_modificada),
@@ -255,16 +323,6 @@ class AbrirServicoView(TemplateView):
             ativo=True,
         )
         form_servico.save()
-
-        cliente = Cliente.objects.get(id=cliente[0],ativo=True)
-        evento_servico = f"Ordem de Serviço aberta por {request.user.first_name} para o cliente {cliente.nomeCliente}."
-        alerta = Alertas(
-            criados=str(data_servico_modificada),
-            evento=evento_servico,
-            usuario_id=request.user.id,
-            icone="sale.svg"
-        )
-        alerta.save()
 
         return HttpResponseRedirect("/servicoemaberto/?abrirservico=1")
 

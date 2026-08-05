@@ -19,6 +19,9 @@ class Alertas(Base):
     evento = models.CharField('Localização', max_length=200)
     novo = models.BooleanField('Ativo?', default=True)
     icone = models.CharField('Icone', max_length=200)
+    identificador_compra = models.IntegerField(null=True, blank=True)
+    identificador_venda = models.IntegerField(null=True, blank=True)
+    identificador_servico = models.IntegerField(null=True, blank=True)
 
     usuarios_vistos = models.ManyToManyField(
         User, blank=True, related_name='alertas_vistos'

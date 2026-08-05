@@ -71,3 +71,14 @@
   </div>
   {% endif %}
 
+  <!-- Descrição -->
+  {% if eventos %}
+<div class="p-2 mb-2" style="background:#f8f9fa;border:1px solid #e9ecef;border-radius:6px;">
+<strong>Eventos:</strong>
+  </div>
+  {% for e in eventos %}
+  <div class="p-2 mb-2" style="background:#f8f9fa;border:1px solid #e9ecef;border-radius:6px;">
+ {{ e.evento }}   <strong>Data:</strong> {{ e.data }}
+  </div>
+  {% endfor %}
+  {% endif %}

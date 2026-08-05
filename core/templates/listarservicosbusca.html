@@ -143,7 +143,7 @@
                 <th>Ordem de Serviço</th>
                 <th>Aberto por</th>
                 <th>Cliente</th>
-                <th>Valor</th>
+                <th>Descrição</th>
                 <th>IMEI</th>
                 <th>Ação</th>
               </tr>
@@ -155,7 +155,7 @@
                 <td>{{ servico.identificador_servico }}</td>
                 <td>{{ servico.tecnico }}</td>
                 <td>{{ servico.cliente }}</td>
-                <td>{{ servico.preco_servico |floatformat:2 }}</td>
+                <td>{{ servico.descricao }}</td>
                 <td>{{ servico.imei }}</td>
                 <td>
                   <a class="me-3" href="/abrirservico/?identificador_servico={{ servico.identificador_servico }}">

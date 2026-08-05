@@ -112,7 +112,7 @@ class ListarServicosView(TemplateView):
 
             if self.request.GET["funcao"] == "finalizar":
                 servico_interno = Servico.objects.get(identificador_servico=self.request.GET["identificador_servico"])
-                if servico_interno.imei != "000":
+                if servico_interno.imei != "0":
                     Servico.objects.filter(identificador_servico=self.request.GET["identificador_servico"]).update(ativo=False)
                 else:
                     context['data_servico'] = servico_interno.criados.strftime('%d-%m-%Y')

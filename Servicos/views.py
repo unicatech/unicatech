@@ -29,7 +29,7 @@ class ListarServicosView(TemplateView):
             servico = Servico.objects.get(
                 identificador_servico=request.GET["identificador_servico"]
             )
-            if servico.imei == "000":
+            if servico.imei == "0":
                context = self.get_context_data(**kwargs)
                return render(request, "abrirservico.html", context)
             else:

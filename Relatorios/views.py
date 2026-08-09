@@ -117,11 +117,11 @@ class RelatorioProdutoView(TemplateView):
                     })
 
             if tipo_movimento in ["compra", "ambos"]:
-                compras_qs = Compra.objects.filter(**compra_filters).filter(ativo=True).filter(compras_q).select_related("produto", "fornecedor")
+                compras_qs = Compra.objects.filter(**compra_filters).filter(ativo=True).filter(compras_q).select_related("produto", "fornecedor").order_by("-identificadorCompra")
                 add_movimento(compras_qs, "Compra", "identificadorCompra", "fornecedor")
 
             if tipo_movimento in ["venda", "ambos"]:
-                vendas_qs = Venda.objects.filter(**venda_filters).filter(ativo=True).filter(vendas_q).select_related("produto", "cliente")
+                vendas_qs = Venda.objects.filter(**venda_filters).filter(ativo=True).filter(vendas_q).select_related("produto", "cliente").order_by("-identificadorVenda")
                 add_movimento(vendas_qs, "Venda", "identificadorVenda", "cliente")
 
         final_movimentos = movimentos

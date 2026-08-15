@@ -161,7 +161,6 @@ class FazerVendasView(TemplateView):
             return HttpResponseRedirect('/' + tipo_produto[0] + '/?cliente_sem_cadastro=1', context)
         contador = 0
         valorVenda = 0
-        valorEstorno = 0
         #Caso a entrada nova possua mais de um registro
         produtos_repetidos = []
         #Caso a entrada nova possua mais de 1 registro e a antiga possua apenas 1
@@ -399,14 +398,15 @@ class FazerVendasView(TemplateView):
             alerta.save()
             return HttpResponseRedirect('/listarvendas/?venda_atualizada=1', context)
         else:
-            evento_venda = f"Venda feita por {request.user.first_name} no valor de R${valorVenda}. O total faturado do mês é de R${faturado}"
-            alerta = Alertas(
-                criados=str(dataModificada),
-                evento=evento_venda,
-                usuario_id=request.user.id,
-                icone="sale.svg"
-            )
-            alerta.save()
+            if id_servico == 0:
+                evento_venda = f"Venda feita por {request.user.first_name} no valor de R${valorVenda}. O total faturado do mês é de R${faturado}"
+                alerta = Alertas(
+                    criados=str(dataModificada),
+                    evento=evento_venda,
+                    usuario_id=request.user.id,
+                    icone="sale.svg"
+                )
+                alerta.save()
             if identificador_servico != []:
                 return HttpResponseRedirect('/servicoemaberto/?peca_adicionada=1', context)
 

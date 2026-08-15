@@ -5,6 +5,7 @@ from Compras.models import Compra
 from Vendas.models import Venda
 from Despesas.models import Despesa, CadastroDespesa
 from Produtos.models import Produto, CategoriaProduto
+from Servicos.models import Servico
 from django.db.models import F, Sum, Min, Count, FloatField, Q
 from django.db.models.functions import Lower
 from django.utils.dateparse import parse_date
@@ -567,5 +568,123 @@ class RelatorioFaturamentoeLucroView(TemplateView):
             'data_final': data_fim,
             'produto_nome': produto_nome,
         })
+
+        return context
+
+class RelatorioServicosTecnicoView(TemplateView):
+    template_name = 'relatorioservicostecnico.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        usuario_id = self.request.GET.get("usuario")
+        data_inicio = self.request.GET.get("data_inicio")
+        data_fim = self.request.GET.get("data_fim")
+        finalizado = self.request.GET.get("finalizado")
+
+        # ==========================
+        # SERVIÇOS
+        # ==========================
+
+        servicos = Servico.objects.select_related(
+            "cliente",
+            "usuario"
+        )
+
+        # Filtro por técnico
+        if usuario_id:
+            servicos = servicos.filter(
+                usuario_id=usuario_id
+            )
+
+        # Filtro por data
+        if data_inicio:
+            servicos = servicos.filter(
+                criados__date__gte=parse_date(data_inicio)
+            )
+
+        if data_fim:
+            servicos = servicos.filter(
+                criados__date__lte=parse_date(data_fim)
+            )
+
+        if finalizado == "sim":
+            servicos = servicos.filter(ativo=True)
+
+        elif finalizado == "nao":
+            servicos = servicos.filter(ativo=False)
+
+        # Maior identificador primeiro
+        servicos = servicos.order_by(
+            "-identificador_servico"
+        )
+
+        # ==========================
+        # VENDAS
+        # ==========================
+
+        identificadores = servicos.values_list(
+            "identificador_servico",
+            flat=True
+        )
+
+        vendas = Venda.objects.select_related(
+            "produto",
+            "cliente",
+            "usuario"
+        ).filter(
+            identificador_servico__in=identificadores
+        )
+
+        # Agrupar vendas pelo identificador_servico
+        vendas_por_servico = {}
+
+        for venda in vendas:
+
+            if venda.identificador_servico not in vendas_por_servico:
+                vendas_por_servico[
+                    venda.identificador_servico
+                ] = []
+
+            vendas_por_servico[
+                venda.identificador_servico
+            ].append(venda)
+
+        # ==========================
+        # MONTAR RESULTADO
+        # ==========================
+
+        resultado = []
+
+        for servico in servicos:
+
+            resultado.append({
+                "servico": servico,
+                "vendas": vendas_por_servico.get(
+                    servico.identificador_servico,
+                    []
+                ),
+            })
+
+        # ==========================
+        # CONTEXTO
+        # ==========================
+
+        context["resultado"] = resultado
+
+        context["usuarios"] = User.objects.all().order_by(
+            "first_name",
+            "username"
+        )
+
+        context["usuario_selecionado"] = (
+            int(usuario_id)
+            if usuario_id
+            else None
+        )
+
+        context["data_inicio"] = data_inicio
+        context["data_fim"] = data_fim
+        context["finalizado_selecionado"] = finalizado
 
         return context

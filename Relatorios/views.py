@@ -571,6 +571,7 @@ class RelatorioFaturamentoeLucroView(TemplateView):
 
         return context
 
+
 class RelatorioServicosTecnicoView(TemplateView):
     template_name = 'relatorioservicostecnico.html'
 
@@ -582,9 +583,9 @@ class RelatorioServicosTecnicoView(TemplateView):
         data_fim = self.request.GET.get("data_fim")
         finalizado = self.request.GET.get("finalizado")
 
-        # ==========================
+        # ==========================================
         # SERVIÇOS
-        # ==========================
+        # ==========================================
 
         servicos = Servico.objects.select_related(
             "cliente",
@@ -592,12 +593,13 @@ class RelatorioServicosTecnicoView(TemplateView):
         )
 
         # Filtro por técnico
+        # IMPORTANTE: filtro somente pelo Servico.usuario
         if usuario_id:
             servicos = servicos.filter(
                 usuario_id=usuario_id
             )
 
-        # Filtro por data
+        # Filtro por data do SERVIÇO
         if data_inicio:
             servicos = servicos.filter(
                 criados__date__gte=parse_date(data_inicio)
@@ -608,20 +610,25 @@ class RelatorioServicosTecnicoView(TemplateView):
                 criados__date__lte=parse_date(data_fim)
             )
 
+        # Filtro Finalizado
         if finalizado == "sim":
-            servicos = servicos.filter(ativo=True)
+            servicos = servicos.filter(
+                ativo=True
+            )
 
         elif finalizado == "nao":
-            servicos = servicos.filter(ativo=False)
+            servicos = servicos.filter(
+                ativo=False
+            )
 
         # Maior identificador primeiro
         servicos = servicos.order_by(
             "-identificador_servico"
         )
 
-        # ==========================
-        # VENDAS
-        # ==========================
+        # ==========================================
+        # VENDAS DOS SERVIÇOS ENCONTRADOS
+        # ==========================================
 
         identificadores = servicos.values_list(
             "identificador_servico",
@@ -636,10 +643,18 @@ class RelatorioServicosTecnicoView(TemplateView):
             identificador_servico__in=identificadores
         )
 
-        # Agrupar vendas pelo identificador_servico
+        # ==========================================
+        # AGRUPAR VENDAS POR SERVIÇO
+        # ==========================================
+
         vendas_por_servico = {}
 
         for venda in vendas:
+
+            venda.total_venda = (
+                venda.precoProduto *
+                venda.quantidadeProduto
+            )
 
             if venda.identificador_servico not in vendas_por_servico:
                 vendas_por_servico[
@@ -650,9 +665,36 @@ class RelatorioServicosTecnicoView(TemplateView):
                 venda.identificador_servico
             ].append(venda)
 
-        # ==========================
+        # ==========================================
+        # RESUMO DE MATERIAIS
+        # ==========================================
+
+        resumo_materiais = {}
+
+        for venda in vendas:
+
+            produto_id = venda.produto_id
+
+            if produto_id not in resumo_materiais:
+
+                resumo_materiais[produto_id] = {
+                    "produto": venda.produto.NomeProduto,
+                    "quantidade": 0,
+                }
+
+            resumo_materiais[produto_id]["quantidade"] += (
+                venda.quantidadeProduto
+            )
+
+        # Ordenar pelo nome do produto
+        resumo_materiais = sorted(
+            resumo_materiais.values(),
+            key=lambda x: x["produto"].lower()
+        )
+
+        # ==========================================
         # MONTAR RESULTADO
-        # ==========================
+        # ==========================================
 
         resultado = []
 
@@ -666,11 +708,13 @@ class RelatorioServicosTecnicoView(TemplateView):
                 ),
             })
 
-        # ==========================
+        # ==========================================
         # CONTEXTO
-        # ==========================
+        # ==========================================
 
         context["resultado"] = resultado
+
+        context["resumo_materiais"] = resumo_materiais
 
         context["usuarios"] = User.objects.all().order_by(
             "first_name",

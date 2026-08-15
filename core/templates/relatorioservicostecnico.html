@@ -164,6 +164,20 @@
         text-align: center;
       }
 
+      /* ==========================================
+         RESUMO DE MATERIAIS
+         ========================================== */
+
+      .resumo-total {
+        font-weight: 700;
+        border-top: 2px solid #fd7e14 !important;
+      }
+
+      .resumo-quantidade {
+        text-align: right;
+        font-weight: 600;
+      }
+
     </style>
 
 
@@ -349,7 +363,7 @@
 
 
         <!-- ==========================================
-             RESULTADOS
+             RESULTADOS DOS SERVIÇOS
              ========================================== -->
 
         {% if resultado %}
@@ -372,7 +386,7 @@
                     <tr>
 
                       <th>
-                        Serviço
+                        Serviço / Venda
                       </th>
 
                       <th>
@@ -417,7 +431,7 @@
                       <tr class="servico-row">
 
 
-                        <!-- IDENTIFICADOR -->
+                        <!-- IDENTIFICADOR DO SERVIÇO -->
 
                         <td>
 
@@ -430,7 +444,7 @@
                         </td>
 
 
-                        <!-- DESCRIÇÃO -->
+                        <!-- DESCRIÇÃO DO SERVIÇO -->
 
                         <td>
 
@@ -439,7 +453,7 @@
                         </td>
 
 
-                        <!-- CLIENTE -->
+                        <!-- CLIENTE DO SERVIÇO -->
 
                         <td>
 
@@ -448,7 +462,7 @@
                         </td>
 
 
-                        <!-- SERVICO.USUARIO -->
+                        <!-- USUÁRIO DO SERVIÇO -->
 
                         <td>
 
@@ -491,7 +505,7 @@
                         </td>
 
 
-                        <!-- PREÇO -->
+                        <!-- PREÇO DO SERVIÇO -->
 
                         <td class="valor">
 
@@ -549,7 +563,7 @@
                           </td>
 
 
-                          <!-- VENDA.USUARIO -->
+                          <!-- USUÁRIO DA VENDA -->
 
                           <td>
 
@@ -575,15 +589,17 @@
                           </td>
 
 
-                          <!-- SERVIÇO FINALIZADO -->
+                          <!-- STATUS DO SERVIÇO -->
 
                           <td>
                           </td>
 
 
-                          <!-- VALOR -->
+                          <!-- VALOR DA VENDA -->
 
                           <td class="valor">
+
+
                           </td>
 
 
@@ -592,6 +608,10 @@
 
                       {% empty %}
 
+
+                        <!-- ==================================
+                             SERVIÇO SEM VENDA
+                             ================================== -->
 
                         <tr class="venda-row">
 
@@ -624,8 +644,85 @@
           </div>
 
 
+          <!-- ==========================================
+               RESUMO DE MATERIAIS
+               ========================================== -->
+
+          {% if resumo_materiais %}
+
+            <div class="card mb-4">
+
+              <div class="card-body">
+
+                <h5>
+                  📦 Resumo de Materiais Utilizados
+                </h5>
+
+
+                <div class="table-responsive">
+
+                  <table class="table table-striped align-middle">
+
+                    <thead>
+
+                      <tr>
+
+                        <th>
+                          Material
+                        </th>
+
+                        <th class="text-end">
+                          Quantidade Utilizada
+                        </th>
+
+                      </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+
+                      {% for material in resumo_materiais %}
+
+                        <tr>
+
+                          <td>
+
+                            {{ material.produto }}
+
+                          </td>
+
+                          <td class="resumo-quantidade">
+
+                            {{ material.quantidade|floatformat:2 }}
+
+                          </td>
+
+                        </tr>
+
+                      {% endfor %}
+
+
+                    </tbody>
+
+                  </table>
+
+                </div>
+
+              </div>
+
+            </div>
+
+          {% endif %}
+
+
         {% else %}
 
+
+          <!-- ==========================================
+               NENHUM RESULTADO
+               ========================================== -->
 
           <div class="alert alert-info">
 

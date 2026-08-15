@@ -286,7 +286,7 @@
                       {% endif %}
                     >
 
-                      {{ usuario.username }}
+                      {{ usuario.first_name }}
 
                     </option>
 
@@ -468,7 +468,7 @@
 
                           {% if item.servico.usuario %}
 
-                            {{ item.servico.usuario.username }}
+                            {{ item.servico.usuario.first_name }}
 
                           {% else %}
 
@@ -558,7 +558,7 @@
 
                           <td>
 
-                            {{ venda.cliente.nomeCliente }}
+                            Reparo feito por:
 
                           </td>
 
@@ -569,7 +569,7 @@
 
                             {% if venda.usuario %}
 
-                              {{ venda.usuario.username }}
+                              {{ venda.usuario.username.first_name }}
 
                             {% else %}
 

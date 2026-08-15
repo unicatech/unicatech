@@ -1,5 +1,6 @@
 {% load static %}
 {% load l10n %}
+{% load permissoes_tags %}
 {% load math_extras %}
 <!DOCTYPE html>
 <html>
@@ -161,9 +162,12 @@
                   <a class="me-3" href="/abrirservico/?identificador_servico={{ servico.identificador_servico }}">
                     <img src="{% static 'img/icons/edit.svg' %}" alt="Editar">
                   </a>
+                  {% pode_ver 'Servico.delete_servico' as pode_apagar_servico %}
+                  {% if pode_apagar_servico %}
                   <a class="me-3 confirm-text" href="/servicoemaberto/?identificador_servico={{ servico.identificador_servico }}&funcao=apagar">
                     <img src="{% static 'img/icons/delete.svg' %}" alt="Apagar">
                   </a>
+                  {% endif %}
                   <a href="#" class="me-3 view-sale" data-url="/listarservicos/?identificador_servico={{ servico.identificador_servico }}&funcao=modalvisualizar">
                     <img src="{% static 'img/icons/eye.svg' %}" alt="Visualizar">
                   </a>

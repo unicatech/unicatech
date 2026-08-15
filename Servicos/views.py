@@ -8,6 +8,7 @@ from django.http import HttpResponseRedirect
 from django.utils import timezone
 from datetime import date, datetime, timedelta
 from django.shortcuts import render, redirect
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 from Servicos.models import Servico
 from Vendas.models import Cliente, Venda
@@ -18,7 +19,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 
 
 # Create your views here.
-class ListarServicosView(TemplateView):
+class ListarServicosView(LoginRequiredMixin,TemplateView):
     template_name = 'listarservicos.html'
 
     def get(self, request, *args, **kwargs):
@@ -239,7 +240,7 @@ class ListarServicosView(TemplateView):
 
 
 
-class AbrirServicoView(TemplateView):
+class AbrirServicoView(LoginRequiredMixin,TemplateView):
     template_name = 'abrirservico.html'
 
     def get_context_data(self, **kwargs):

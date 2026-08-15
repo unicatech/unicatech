@@ -693,6 +693,60 @@ class RelatorioServicosTecnicoView(TemplateView):
         )
 
         # ==========================================
+        # RESUMO DE MATERIAIS
+        # ==========================================
+
+        resumo_materiais = {}
+
+        for venda in vendas:
+
+            produto_id = venda.produto_id
+
+            if produto_id not in resumo_materiais:
+                resumo_materiais[produto_id] = {
+                    "produto": venda.produto.NomeProduto,
+                    "quantidade": 0,
+                }
+
+            resumo_materiais[produto_id]["quantidade"] += (
+                venda.quantidadeProduto
+            )
+
+        resumo_materiais = sorted(
+            resumo_materiais.values(),
+            key=lambda x: x["produto"].lower()
+        )
+
+        # ==========================================
+        # RESUMO DE REPAROS POR TÉCNICO
+        # ==========================================
+
+        resumo_reparos = {}
+
+        for venda in vendas:
+
+            if venda.usuario_id:
+
+                usuario_id = venda.usuario_id
+
+                if usuario_id not in resumo_reparos:
+                    resumo_reparos[usuario_id] = {
+                        "tecnico": venda.usuario.first_name,
+                        "quantidade": 0,
+                    }
+
+                # IMPORTANTE:
+                # Cada registro de Venda conta como 1 reparo.
+                # quantidadeProduto NÃO é usado aqui.
+                resumo_reparos[usuario_id]["quantidade"] += 1
+
+        resumo_reparos = sorted(
+            resumo_reparos.values(),
+            key=lambda x: x["tecnico"].lower()
+        )
+
+
+        # ==========================================
         # MONTAR RESULTADO
         # ==========================================
 
@@ -730,5 +784,7 @@ class RelatorioServicosTecnicoView(TemplateView):
         context["data_inicio"] = data_inicio
         context["data_fim"] = data_fim
         context["finalizado_selecionado"] = finalizado
+        context["resumo_materiais"] = resumo_materiais
+        context["resumo_reparos"] = resumo_reparos
 
         return context

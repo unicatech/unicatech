@@ -165,13 +165,8 @@
       }
 
       /* ==========================================
-         RESUMO DE MATERIAIS
+         RESUMOS
          ========================================== */
-
-      .resumo-total {
-        font-weight: 700;
-        border-top: 2px solid #fd7e14 !important;
-      }
 
       .resumo-quantidade {
         text-align: right;
@@ -425,13 +420,13 @@
 
 
                       <!-- ==================================
-                           SERVIÇO PRINCIPAL
+                           SERVIÇO
                            ================================== -->
 
                       <tr class="servico-row">
 
 
-                        <!-- IDENTIFICADOR DO SERVIÇO -->
+                        <!-- IDENTIFICADOR -->
 
                         <td>
 
@@ -444,7 +439,7 @@
                         </td>
 
 
-                        <!-- DESCRIÇÃO DO SERVIÇO -->
+                        <!-- DESCRIÇÃO -->
 
                         <td>
 
@@ -453,7 +448,7 @@
                         </td>
 
 
-                        <!-- CLIENTE DO SERVIÇO -->
+                        <!-- CLIENTE -->
 
                         <td>
 
@@ -462,7 +457,7 @@
                         </td>
 
 
-                        <!-- USUÁRIO DO SERVIÇO -->
+                        <!-- SERVICO.USUARIO -->
 
                         <td>
 
@@ -505,7 +500,7 @@
                         </td>
 
 
-                        <!-- PREÇO DO SERVIÇO -->
+                        <!-- PREÇO -->
 
                         <td class="valor">
 
@@ -519,7 +514,7 @@
 
 
                       <!-- ==================================
-                           VENDAS RELACIONADAS
+                           VENDAS
                            ================================== -->
 
                       {% for venda in item.vendas %}
@@ -558,18 +553,18 @@
 
                           <td>
 
-                            Reparo feito por:
+                            {{ venda.cliente.nomeCliente }}
 
                           </td>
 
 
-                          <!-- USUÁRIO DA VENDA -->
+                          <!-- VENDA.USUARIO -->
 
                           <td>
 
                             {% if venda.usuario %}
 
-                              {{ venda.usuario.username.first_name }}
+                              {{ venda.usuario.first_name }}
 
                             {% else %}
 
@@ -589,16 +584,18 @@
                           </td>
 
 
-                          <!-- STATUS DO SERVIÇO -->
+                          <!-- STATUS -->
 
                           <td>
                           </td>
 
 
-                          <!-- VALOR DA VENDA -->
+                          <!-- VALOR -->
 
                           <td class="valor">
 
+                            R$
+                            {{ venda.total_venda|floatformat:2 }}
 
                           </td>
 
@@ -610,7 +607,7 @@
 
 
                         <!-- ==================================
-                             SERVIÇO SEM VENDA
+                             SEM VENDA
                              ================================== -->
 
                         <tr class="venda-row">
@@ -682,7 +679,6 @@
 
                     <tbody>
 
-
                       {% for material in resumo_materiais %}
 
                         <tr>
@@ -703,6 +699,76 @@
 
                       {% endfor %}
 
+                    </tbody>
+
+                  </table>
+
+                </div>
+
+              </div>
+
+            </div>
+
+          {% endif %}
+
+
+          <!-- ==========================================
+               RESUMO DE REPAROS POR TÉCNICO
+               ========================================== -->
+
+          {% if resumo_reparos %}
+
+            <div class="card mb-4">
+
+              <div class="card-body">
+
+                <h5>
+                  🔧 Resumo de Reparos por Técnico
+                </h5>
+
+
+                <div class="table-responsive">
+
+                  <table class="table table-striped align-middle">
+
+                    <thead>
+
+                      <tr>
+
+                        <th>
+                          Técnico
+                        </th>
+
+                        <th class="text-end">
+                          Quantidade de Reparos
+                        </th>
+
+                      </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                      {% for tecnico in resumo_reparos %}
+
+                        <tr>
+
+                          <td>
+
+                            {{ tecnico.tecnico }}
+
+                          </td>
+
+                          <td class="resumo-quantidade">
+
+                            {{ tecnico.quantidade }}
+
+                          </td>
+
+                        </tr>
+
+                      {% endfor %}
 
                     </tbody>
 

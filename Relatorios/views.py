@@ -421,7 +421,6 @@ class RelatorioRecebimentoProdutosView(TemplateView):
                 'percentual_lucro': (item['lucro'] / total_lucro * 100) if total_lucro else 0
             })
         listarVendasTemplate.sort(key=lambda x: x['percentual_lucro'], reverse=True)
-
         context['listarVendasTemplate'] = listarVendasTemplate
         context['total_vendas'] = total_vendas
         context['total_lucro'] = total_lucro

@@ -820,10 +820,8 @@ class RelatorioLucroVendasView(TemplateView):
 
         if data_inicio or data_fim:
 
-            # --------------------------------------
             # Se o usuário informou alguma data,
-            # NÃO aplicar a restrição dos 3 meses
-            # --------------------------------------
+            # não aplicar a restrição dos 3 meses
 
             if data_inicio:
                 vendas = vendas.filter(
@@ -837,10 +835,8 @@ class RelatorioLucroVendasView(TemplateView):
 
         else:
 
-            # --------------------------------------
             # Nenhuma data informada:
             # mostrar somente os últimos 3 meses
-            # --------------------------------------
 
             data_limite = now() - timedelta(days=90)
 
@@ -893,9 +889,17 @@ class RelatorioLucroVendasView(TemplateView):
                     venda.identificadorVenda
                 ] = {
                     "identificador": venda.identificadorVenda,
+
+                    "identificador_servico": (
+                        venda.identificador_servico
+                    ),
+
                     "data_modificado": venda.modificado,
+
                     "produtos": [],
+
                     "valor_total": 0,
+
                     "lucro_total": 0,
                 }
 

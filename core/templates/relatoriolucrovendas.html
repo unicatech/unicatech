@@ -340,7 +340,7 @@
                                                         class="venda-header"
                                                     >
 
-                                                        {{ venda.identificador }}
+                                                        {{ venda.identificador }}{% if venda.identificador_servico != 0 %} (Serviço {{ venda.identificador_servico }}){% endif %}
 
                                                     </td>
 

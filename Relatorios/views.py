@@ -224,59 +224,14 @@ class RelatorioProdutoView(TemplateView):
 
         return context
 
-class RelatorioRecebimentoCartaoView(TemplateView):
-    template_name = "relatoriocartoes.html"
+from datetime import timedelta
+from dateutil.relativedelta import relativedelta
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
+from django.db.models import Sum
+from django.utils.dateparse import parse_date
+from django.utils import timezone
+from django.views.generic import TemplateView
 
-        # Filtros recebidos
-        data_inicial = self.request.GET.get("data_inicial")
-        data_final = self.request.GET.get("data_final")
-        bandeira = self.request.GET.get("bandeira")
-
-        # Query base
-        recebimentos = RecebimentoCartao.objects.all().order_by("-criados").filter(ativo=True)
-
-        # Filtro por datas
-        if data_inicial:
-            recebimentos = recebimentos.filter(criados__gte=parse_date(data_inicial))
-        if data_final:
-            recebimentos = recebimentos.filter(criados__lte=parse_date(data_final))
-
-        # Filtro por bandeira
-        if bandeira:
-            recebimentos = recebimentos.filter(bandeira__icontains=bandeira)
-
-        # Lista de bandeiras únicas (para o datalist)
-        bandeiras_lista = (
-            RecebimentoCartao.objects.values_list("bandeira", flat=True)
-            .distinct()
-            .order_by("bandeira")
-        )
-
-        # Resumo agrupado
-        resumo = (
-            recebimentos.values("bandeira")
-            .annotate(
-                total_valor=Sum("valor"),
-                total_liquido=Sum("valor_liquido")
-            )
-            .order_by("bandeira")
-        )
-
-        context.update({
-            "recebimentos": recebimentos,
-            "data_inicial": data_inicial or "",
-            "data_final": data_final or "",
-            "bandeira": bandeira or "",
-            "resumo": resumo,
-            "bandeiras_lista": bandeiras_lista,
-            "total_bruto": sum(r.valor for r in recebimentos),
-            "total_liquido": sum(r.valor_liquido for r in recebimentos),
-        })
-
-        return context
 
 class RelatorioRecebimentosContasView(TemplateView):
     template_name = 'relatoriocontas.html'
@@ -284,65 +239,261 @@ class RelatorioRecebimentosContasView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        # ====== FILTROS ======
+        # ==========================================================
+        # FILTROS
+        # ==========================================================
         data_inicio = self.request.GET.get('data_inicio')
         data_fim = self.request.GET.get('data_fim')
         conta_id = self.request.GET.get('conta')
 
-        # ====== QUERY BASE ======
+        hoje = timezone.localdate()
+
+        # ==========================================================
+        # PERÍODO PADRÃO
+        # Se nenhuma data foi informada, utiliza os últimos 6 meses
+        # ==========================================================
+        if not data_inicio and not data_fim:
+            data_inicio_parsed = hoje - relativedelta(months=6)
+            data_fim_parsed = hoje
+
+            data_inicio = data_inicio_parsed
+            data_fim = data_fim_parsed
+
+        else:
+            data_inicio_parsed = parse_date(data_inicio) if data_inicio else None
+            data_fim_parsed = parse_date(data_fim) if data_fim else None
+
+            # Se somente a data inicial foi informada
+            if data_inicio_parsed and not data_fim_parsed:
+                data_fim_parsed = hoje
+                data_fim = data_fim_parsed
+
+            # Se somente a data final foi informada
+            elif data_fim_parsed and not data_inicio_parsed:
+                data_inicio_parsed = data_fim_parsed - relativedelta(months=6)
+                data_inicio = data_inicio_parsed
+
+        # ==========================================================
+        # QUERY BASE
+        # ==========================================================
         movimentacoes = MovimentacaoConta.objects.filter(
             identificadorVenda__gt=0,
             valorDebito=0,
             valorCredito__gt=0,
             ativo=True
-        ).select_related('contaCredito').order_by('-identificadorVenda','-criados')
+        ).select_related(
+            'contaCredito'
+        )
 
-        # Filtro por data
-        if data_inicio:
-            data_inicio_parsed = parse_date(data_inicio)
-            if data_inicio_parsed:
-                movimentacoes = movimentacoes.filter(criados__gte=data_inicio_parsed)
+        # ==========================================================
+        # FILTRO DE DATA
+        # ==========================================================
+        if data_inicio_parsed:
+            movimentacoes = movimentacoes.filter(
+                criados__gte=data_inicio_parsed
+            )
 
-        if data_fim:
-            data_fim_parsed = parse_date(data_fim)
-            if data_fim_parsed:
-                movimentacoes = movimentacoes.filter(criados__lte=data_fim_parsed)
+        if data_fim_parsed:
+            # Inclui TODO o dia informado em data_fim.
+            # Em vez de <= 00:00:00, usamos < dia seguinte.
+            data_fim_exclusiva = data_fim_parsed + timedelta(days=1)
 
-        # Filtro por conta
+            movimentacoes = movimentacoes.filter(
+                criados__lt=data_fim_exclusiva
+            )
+
+        # ==========================================================
+        # FILTRO POR CONTA
+        # ==========================================================
+        conta_selecionada = None
+
         if conta_id and conta_id.isdigit():
-            movimentacoes = movimentacoes.filter(contaCredito_id=int(conta_id))
+            conta_selecionada = int(conta_id)
 
-        # ====== AGRUPAMENTO PARA SOMAR VALORES POR identificadorVenda ======
-        # Calcula o total de cada venda
-        totais_por_venda = movimentacoes.values('identificadorVenda').annotate(
+            movimentacoes = movimentacoes.filter(
+                contaCredito_id=conta_selecionada
+            )
+
+        movimentacoes = movimentacoes.order_by(
+            '-identificadorVenda',
+            '-criados'
+        )
+
+        # ==========================================================
+        # TOTAL DA VENDA
+        # ==========================================================
+        totais_por_venda = movimentacoes.values(
+            'identificadorVenda'
+        ).annotate(
             total_credito=Sum('valorCredito')
         )
-        totais_dict = {item['identificadorVenda']: item['total_credito'] for item in totais_por_venda}
 
-        # Prepara a lista final de registros, mantendo todos os movimentos
+        totais_dict = {
+            item['identificadorVenda']: item['total_credito']
+            for item in totais_por_venda
+        }
+
+        # ==========================================================
+        # LISTA DE MOVIMENTAÇÕES
+        # ==========================================================
         lista_final = []
+
         for mov in movimentacoes:
-            conta_nome = mov.contaCredito.nomeConta if mov.contaCredito else 'N/A'
+
+            conta_nome = (
+                mov.contaCredito.nomeConta
+                if mov.contaCredito
+                else 'N/A'
+            )
+
             lista_final.append({
                 'id': mov.id,
                 'data_criacao': mov.criados,
                 'identificadorVenda': mov.identificadorVenda,
                 'valorCredito': mov.valorCredito,
-                'total_credito_venda': totais_dict.get(mov.identificadorVenda, mov.valorCredito),
+                'total_credito_venda': totais_dict.get(
+                    mov.identificadorVenda,
+                    mov.valorCredito
+                ),
                 'contaCredito_nome': conta_nome,
                 'descricao': mov.descricao,
             })
 
-        # Todas as contas para o select
+        # ==========================================================
+        # TODAS AS CONTAS
+        # ==========================================================
         contas = Conta.objects.all().order_by('nomeConta')
 
-        # Atualiza o contexto
+        # ==========================================================
+        # TOTAL RECEBIDO POR CONTA
+        # ==========================================================
+        totais_contas_query = movimentacoes.values(
+            'contaCredito_id',
+            'contaCredito__nomeConta'
+        ).annotate(
+            total_recebido=Sum('valorCredito')
+        ).order_by(
+            'contaCredito__nomeConta'
+        )
+
+        totais_contas = []
+
+        total_geral = 0
+
+        for item in totais_contas_query:
+
+            total = item['total_recebido'] or 0
+
+            totais_contas.append({
+                'id': item['contaCredito_id'],
+                'nome': item['contaCredito__nomeConta'],
+                'total': total,
+            })
+
+            total_geral += total
+
+        # ==========================================================
+        # DADOS DOS GRÁFICOS
+        #
+        # Cada conta terá um gráfico mostrando os recebimentos
+        # agrupados por mês.
+        # ==========================================================
+
+        graficos_contas = []
+
+        for conta in totais_contas:
+
+            conta_id_grafico = conta['id']
+
+            movimentos_conta = movimentacoes.filter(
+                contaCredito_id=conta_id_grafico
+            )
+
+            # Agrupamento por mês
+            valores_por_mes = {}
+
+            for mov in movimentos_conta:
+
+                if not mov.criados:
+                    continue
+
+                mes = mov.criados.strftime('%Y-%m')
+
+                if mes not in valores_por_mes:
+                    valores_por_mes[mes] = 0
+
+                valores_por_mes[mes] += float(
+                    mov.valorCredito or 0
+                )
+
+            # ------------------------------------------------------
+            # Gera todos os meses do período
+            # Mesmo que não tenha recebido nada naquele mês.
+            # ------------------------------------------------------
+
+            meses = []
+
+            if data_inicio_parsed and data_fim_parsed:
+
+                primeiro_mes = data_inicio_parsed.replace(day=1)
+                ultimo_mes = data_fim_parsed.replace(day=1)
+
+                mes_atual = primeiro_mes
+
+                while mes_atual <= ultimo_mes:
+
+                    chave = mes_atual.strftime('%Y-%m')
+
+                    # Nome apresentado no gráfico
+                    nome_mes = mes_atual.strftime('%m/%Y')
+
+                    meses.append({
+                        'chave': chave,
+                        'nome': nome_mes,
+                        'valor': round(
+                            valores_por_mes.get(chave, 0),
+                            2
+                        )
+                    })
+
+                    mes_atual = mes_atual + relativedelta(
+                        months=1
+                    )
+
+            graficos_contas.append({
+                'id': conta_id_grafico,
+                'nome': conta['nome'],
+                'meses': meses,
+                'total': float(conta['total'] or 0),
+            })
+
+        # ==========================================================
+        # CONTEXTO
+        # ==========================================================
+
         context.update({
+
+            # Movimentações
             'movimentacoes': lista_final,
+
+            # Contas do select
             'contas': contas,
-            'data_inicio': data_inicio,
-            'data_fim': data_fim,
-            'conta_selecionada': int(conta_id) if conta_id and conta_id.isdigit() else None,
+
+            # Período
+            'data_inicio': data_inicio_parsed,
+            'data_fim': data_fim_parsed,
+
+            # Conta selecionada
+            'conta_selecionada': conta_selecionada,
+
+            # Resumo por conta
+            'totais_contas': totais_contas,
+
+            # Total geral
+            'total_geral': total_geral,
+
+            # Dados dos gráficos
+            'graficos_contas': graficos_contas,
         })
 
         return context
@@ -350,8 +501,8 @@ class RelatorioRecebimentosContasView(TemplateView):
     def get_template_names(self):
         if self.request.GET.get("funcao") == "modal":
             return ["detalhesvendamodal.html"]
-        return [self.template_name]
 
+        return [self.template_name]
 
 class RelatorioRecebimentoProdutosView(TemplateView):
     template_name = 'relatoriorecebimentoprodutos.html'

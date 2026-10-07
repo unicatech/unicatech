@@ -24,6 +24,10 @@ from django.utils.dateparse import parse_date
 from django.contrib.auth.models import User
 from core.models import Alertas
 from datetime import datetime, time
+from dateutil.relativedelta import relativedelta
+from django.utils.timezone import now
+from django.utils.dateparse import parse_date
+from datetime import timedelta
 
 class RelatorioProdutoView(TemplateView):
 
@@ -811,17 +815,37 @@ class RelatorioLucroVendasView(TemplateView):
         )
 
         # ==========================================
-        # FILTRO POR DATA DE MODIFICAÇÃO
+        # FILTRO POR DATA
         # ==========================================
 
-        if data_inicio:
-            vendas = vendas.filter(
-                modificado__date__gte=parse_date(data_inicio)
-            )
+        if data_inicio or data_fim:
 
-        if data_fim:
+            # --------------------------------------
+            # Se o usuário informou alguma data,
+            # NÃO aplicar a restrição dos 3 meses
+            # --------------------------------------
+
+            if data_inicio:
+                vendas = vendas.filter(
+                    modificado__date__gte=parse_date(data_inicio)
+                )
+
+            if data_fim:
+                vendas = vendas.filter(
+                    modificado__date__lte=parse_date(data_fim)
+                )
+
+        else:
+
+            # --------------------------------------
+            # Nenhuma data informada:
+            # mostrar somente os últimos 3 meses
+            # --------------------------------------
+
+            data_limite = now() - timedelta(days=90)
+
             vendas = vendas.filter(
-                modificado__date__lte=parse_date(data_fim)
+                modificado__gte=data_limite
             )
 
         # ==========================================
@@ -869,13 +893,9 @@ class RelatorioLucroVendasView(TemplateView):
                     venda.identificadorVenda
                 ] = {
                     "identificador": venda.identificadorVenda,
-
                     "data_modificado": venda.modificado,
-
                     "produtos": [],
-
                     "valor_total": 0,
-
                     "lucro_total": 0,
                 }
 

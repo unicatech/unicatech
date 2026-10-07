@@ -812,6 +812,8 @@ class RelatorioLucroVendasView(TemplateView):
             "produto",
             "cliente",
             "usuario"
+        ).filter(
+            ativo=True
         )
 
         # ==========================================

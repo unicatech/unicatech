@@ -1,0 +1,566 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+
+{% include 'head.html' %}
+
+<body>
+
+    {% include 'sidebar.html' %}
+
+    <style>
+
+        .page-header {
+            margin-bottom: 1.5rem;
+        }
+
+        .page-title h4 {
+            font-size: 1.6rem;
+            font-weight: 600;
+            color: #343a40;
+        }
+
+        .page-title h6 {
+            font-size: 1rem;
+            color: #6c757d;
+        }
+
+        .card {
+            border-radius: 12px;
+            border: 1px solid #e9ecef;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+            margin-bottom: 1.5rem;
+        }
+
+        .card-body {
+            padding: 1.5rem;
+        }
+
+        .form-label {
+            font-weight: 500;
+            color: #495057;
+        }
+
+        .form-control,
+        .form-select {
+            border-radius: 6px;
+            border: 1px solid #ced4da;
+            padding: 8px 10px;
+            font-size: 0.95rem;
+        }
+
+        .btn-submit {
+            background-color: #fd7e14;
+            border: none;
+            border-radius: 6px;
+            padding: 8px 16px;
+            font-size: 0.95rem;
+            color: #fff;
+            font-weight: 500;
+        }
+
+        .btn-submit:hover {
+            background-color: #e96b0c;
+            color: #fff;
+        }
+
+        table.table thead th {
+            background: #fff3e6;
+            font-weight: 600;
+            color: #fd7e14;
+            padding: 12px;
+            border-bottom: 2px solid #fd7e14;
+            white-space: nowrap;
+        }
+
+        table.table tbody td {
+            padding: 10px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .card-body h5 {
+            font-weight: 600;
+            color: #343a40;
+            border-left: 4px solid #fd7e14;
+            padding-left: 10px;
+            margin-bottom: 1rem;
+        }
+
+        .alert-info {
+            border-radius: 6px;
+            border: 1px solid #bee5eb;
+            background: #e8f7fa;
+            color: #0c5460;
+            font-weight: 500;
+        }
+
+        /* ==========================================
+           VENDA
+        ========================================== */
+
+        .venda-header {
+            background-color: #fff8f1;
+            font-weight: 600;
+            vertical-align: middle;
+        }
+
+        .venda-total {
+            background-color: #fff8f1;
+            font-weight: 600;
+            vertical-align: middle;
+        }
+
+        /* ==========================================
+           LUCRO
+        ========================================== */
+
+        .lucro {
+            color: #198754;
+            font-weight: 600;
+        }
+
+        /* ==========================================
+           SEPARADOR
+        ========================================== */
+
+        .separador-venda td {
+            padding: 3px !important;
+            background-color: #f8f9fa;
+            border: none !important;
+        }
+
+        /* ==========================================
+           TOTAL GERAL
+        ========================================== */
+
+        .total-geral {
+            background-color: #f1f3f5;
+            font-weight: 700;
+            font-size: 1rem;
+        }
+
+        .total-geral td {
+            border-top: 2px solid #6c757d !important;
+        }
+
+    </style>
+
+
+    <div class="page-wrapper">
+
+        <div class="content">
+
+
+            <!-- ======================================
+                 CABEÇALHO
+            ======================================= -->
+
+            <div class="page-header">
+
+                <div class="page-title">
+
+                    <h4>
+                        Relatório de Lucro por Venda e por Peça
+                    </h4>
+
+                    <h6>
+                        Detalhamento dos lucros por vendas e lucro por peças individuais em cada venda
+                    </h6>
+
+                </div>
+
+            </div>
+
+
+            <!-- ======================================
+                 FILTROS
+            ======================================= -->
+
+            <div class="card mb-4">
+
+                <div class="card-body">
+
+                    <h5>
+                        📅 Filtros
+                    </h5>
+
+
+                    <form method="get" class="row g-3">
+
+
+                        <!-- DATA INICIAL -->
+
+                        <div class="col-lg-2 col-sm-6 col-12">
+
+                            <label class="form-label">
+                                Data inicial
+                            </label>
+
+                            <input
+                                type="date"
+                                class="form-control"
+                                name="data_inicio"
+                                value="{{ data_inicio }}"
+                            >
+
+                        </div>
+
+
+                        <!-- DATA FINAL -->
+
+                        <div class="col-lg-2 col-sm-6 col-12">
+
+                            <label class="form-label">
+                                Data final
+                            </label>
+
+                            <input
+                                type="date"
+                                class="form-control"
+                                name="data_fim"
+                                value="{{ data_fim }}"
+                            >
+
+                        </div>
+
+
+                        <!-- BOTÃO -->
+
+                        <div class="col-lg-2 col-sm-6 col-12 d-flex align-items-end">
+
+                            <button
+                                type="submit"
+                                class="btn btn-submit w-100"
+                            >
+                                Filtrar
+                            </button>
+
+                        </div>
+
+
+                    </form>
+
+                </div>
+
+            </div>
+
+
+            <!-- ======================================
+                 RESULTADO
+            ======================================= -->
+
+            {% if resultado %}
+
+
+                <div class="card">
+
+                    <div class="card-body">
+
+
+                        <h5>
+                            📊 Vendas
+                        </h5>
+
+
+                        <div class="table-responsive">
+
+
+                            <table class="table table-bordered align-middle">
+
+
+                                <!-- ==================================
+                                     CABEÇALHO
+                                =================================== -->
+
+                                <thead>
+
+                                    <tr>
+
+                                        <th>
+                                            id Venda
+                                        </th>
+
+                                        <th>
+                                            Data
+                                        </th>
+
+                                        <th>
+                                            Produto
+                                        </th>
+
+                                        <th class="text-end">
+                                            Quantidade
+                                        </th>
+
+                                        <th class="text-end">
+                                            Valor do produto
+                                        </th>
+
+                                        <th class="text-end">
+                                            Lucro do produto
+                                        </th>
+
+                                        <th class="text-end">
+                                            Valor total da venda
+                                        </th>
+
+                                        <th class="text-end">
+                                            Lucro total da venda
+                                        </th>
+
+                                    </tr>
+
+                                </thead>
+
+
+                                <!-- ==================================
+                                     CORPO
+                                =================================== -->
+
+                                <tbody>
+
+
+                                    {% for venda in resultado %}
+
+
+                                        {% for produto in venda.produtos %}
+
+
+                                            <tr>
+
+
+                                                <!-- ==========================
+                                                     ID DA VENDA
+                                                =========================== -->
+
+                                                {% if forloop.first %}
+
+                                                    <td
+                                                        rowspan="{{ venda.produtos|length }}"
+                                                        class="venda-header"
+                                                    >
+
+                                                        {{ venda.identificador }}
+
+                                                    </td>
+
+
+                                                    <!-- ======================
+                                                         DATA
+                                                    ======================= -->
+
+                                                    <td
+                                                        rowspan="{{ venda.produtos|length }}"
+                                                        class="venda-header"
+                                                    >
+
+                                                        {{ venda.data_modificado|date:"d/m/Y" }}
+
+                                                    </td>
+
+                                                {% endif %}
+
+
+                                                <!-- ==========================
+                                                     PRODUTO
+                                                =========================== -->
+
+                                                <td>
+
+                                                    {{ produto.produto.NomeProduto }}
+
+                                                </td>
+
+
+                                                <!-- ==========================
+                                                     QUANTIDADE
+                                                =========================== -->
+
+                                                <td class="text-end">
+
+                                                    {{ produto.quantidadeProduto|floatformat:2 }}
+
+                                                </td>
+
+
+                                                <!-- ==========================
+                                                     VALOR DO PRODUTO
+                                                =========================== -->
+
+                                                <td class="text-end">
+
+                                                    R$
+                                                    {{ produto.valor_produto|floatformat:2 }}
+
+                                                </td>
+
+
+                                                <!-- ==========================
+                                                     LUCRO DO PRODUTO
+                                                =========================== -->
+
+                                                <td class="text-end lucro">
+
+                                                    R$
+                                                    {{ produto.lucro_produto|floatformat:2 }}
+
+                                                </td>
+
+
+                                                <!-- ==========================
+                                                     TOTAL DA VENDA
+                                                =========================== -->
+
+                                                {% if forloop.first %}
+
+                                                    <td
+                                                        rowspan="{{ venda.produtos|length }}"
+                                                        class="text-end venda-total"
+                                                    >
+
+                                                        R$
+                                                        {{ venda.valor_total|floatformat:2 }}
+
+                                                    </td>
+
+
+                                                    <!-- ======================
+                                                         LUCRO TOTAL
+                                                    ======================= -->
+
+                                                    <td
+                                                        rowspan="{{ venda.produtos|length }}"
+                                                        class="text-end venda-total lucro"
+                                                    >
+
+                                                        R$
+                                                        {{ venda.lucro_total|floatformat:2 }}
+
+                                                    </td>
+
+                                                {% endif %}
+
+
+                                            </tr>
+
+
+                                        {% endfor %}
+
+
+                                        <!-- ==================================
+                                             SEPARADOR ENTRE VENDAS
+                                        =================================== -->
+
+                                        <tr class="separador-venda">
+
+                                            <td colspan="8">
+                                            </td>
+
+                                        </tr>
+
+
+                                    {% endfor %}
+
+
+                                </tbody>
+
+
+                                <!-- ==================================
+                                     TOTAL GERAL
+                                =================================== -->
+
+                                <tfoot>
+
+                                    <tr class="total-geral">
+
+
+                                        <td colspan="4">
+
+                                            TOTAL GERAL
+
+                                        </td>
+
+
+                                        <!-- VALOR DOS PRODUTOS -->
+
+                                        <td class="text-end">
+
+                                            R$
+                                            {{ valor_total_geral|floatformat:2 }}
+
+                                        </td>
+
+
+                                        <!-- LUCRO DOS PRODUTOS -->
+
+                                        <td class="text-end lucro">
+
+                                            R$
+                                            {{ lucro_total_geral|floatformat:2 }}
+
+                                        </td>
+
+
+                                        <!-- VALOR TOTAL DAS VENDAS -->
+
+                                        <td class="text-end">
+
+                                            R$
+                                            {{ valor_total_geral|floatformat:2 }}
+
+                                        </td>
+
+
+                                        <!-- LUCRO TOTAL DAS VENDAS -->
+
+                                        <td class="text-end lucro">
+
+                                            R$
+                                            {{ lucro_total_geral|floatformat:2 }}
+
+                                        </td>
+
+
+                                    </tr>
+
+                                </tfoot>
+
+
+                            </table>
+
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+            {% else %}
+
+
+                <!-- ======================================
+                     SEM RESULTADOS
+                ======================================= -->
+
+                <div class="alert alert-info">
+
+                    Informe o período para visualizar o relatório de vendas.
+
+                </div>
+
+
+            {% endif %}
+
+
+        </div>
+
+    </div>
+
+
+    {% include 'footer.html' %}
+
+
+</body>
+
+</html>

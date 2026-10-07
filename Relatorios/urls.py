@@ -10,4 +10,5 @@ urlpatterns = [
     path('relatorioeventos/', RelatorioEventosView.as_view(), name='relatorioeventos'),
     path('relatoriofaturamentoelucro/', RelatorioFaturamentoeLucroView.as_view(), name='relatoriofaturamentoelucro'),
     path('relatorioservicostecnico/', RelatorioServicosTecnicoView.as_view(), name='relatorioservicostecnico'),
+    path('relatoriolucrovendas/', RelatorioLucroVendasView.as_view(), name='relatoriolucrovendas'),
 ]

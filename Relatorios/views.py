@@ -788,3 +788,160 @@ class RelatorioServicosTecnicoView(TemplateView):
         context["resumo_reparos"] = resumo_reparos
 
         return context
+
+class RelatorioLucroVendasView(TemplateView):
+
+    template_name = 'relatoriolucrovendas.html'
+
+    def get_context_data(self, **kwargs):
+
+        context = super().get_context_data(**kwargs)
+
+        data_inicio = self.request.GET.get("data_inicio")
+        data_fim = self.request.GET.get("data_fim")
+
+        # ==========================================
+        # VENDAS
+        # ==========================================
+
+        vendas = Venda.objects.select_related(
+            "produto",
+            "cliente",
+            "usuario"
+        )
+
+        # ==========================================
+        # FILTRO POR DATA DE MODIFICAÇÃO
+        # ==========================================
+
+        if data_inicio:
+            vendas = vendas.filter(
+                modificado__date__gte=parse_date(data_inicio)
+            )
+
+        if data_fim:
+            vendas = vendas.filter(
+                modificado__date__lte=parse_date(data_fim)
+            )
+
+        # ==========================================
+        # ORDENAR
+        # ==========================================
+
+        vendas = vendas.order_by(
+            "-identificadorVenda",
+            "id"
+        )
+
+        # ==========================================
+        # AGRUPAR POR VENDA
+        # ==========================================
+
+        vendas_por_identificador = {}
+
+        for venda in vendas:
+
+            # ======================================
+            # VALOR DO PRODUTO
+            # ======================================
+
+            venda.valor_produto = (
+                venda.precoProduto *
+                venda.quantidadeProduto
+            )
+
+            # ======================================
+            # LUCRO DO PRODUTO
+            # ======================================
+
+            venda.lucro_produto = (
+                venda.lucro *
+                venda.quantidadeProduto
+            )
+
+            # ======================================
+            # CRIAR VENDA
+            # ======================================
+
+            if venda.identificadorVenda not in vendas_por_identificador:
+
+                vendas_por_identificador[
+                    venda.identificadorVenda
+                ] = {
+                    "identificador": venda.identificadorVenda,
+
+                    "data_modificado": venda.modificado,
+
+                    "produtos": [],
+
+                    "valor_total": 0,
+
+                    "lucro_total": 0,
+                }
+
+            venda_atual = vendas_por_identificador[
+                venda.identificadorVenda
+            ]
+
+            # ======================================
+            # ADICIONAR PRODUTO
+            # ======================================
+
+            venda_atual["produtos"].append(venda)
+
+            # ======================================
+            # SOMAR VALOR DA VENDA
+            # ======================================
+
+            venda_atual["valor_total"] += (
+                venda.valor_produto
+            )
+
+            # ======================================
+            # SOMAR LUCRO DA VENDA
+            # ======================================
+
+            venda_atual["lucro_total"] += (
+                venda.lucro_produto
+            )
+
+        # ==========================================
+        # TRANSFORMAR DICIONÁRIO EM LISTA
+        # ==========================================
+
+        resultado = list(
+            vendas_por_identificador.values()
+        )
+
+        # ==========================================
+        # TOTAIS GERAIS
+        # ==========================================
+
+        valor_total_geral = sum(
+            venda["valor_total"]
+            for venda in resultado
+        )
+
+        lucro_total_geral = sum(
+            venda["lucro_total"]
+            for venda in resultado
+        )
+
+        # ==========================================
+        # CONTEXTO
+        # ==========================================
+
+        context["resultado"] = resultado
+
+        context["valor_total_geral"] = (
+            valor_total_geral
+        )
+
+        context["lucro_total_geral"] = (
+            lucro_total_geral
+        )
+
+        context["data_inicio"] = data_inicio
+        context["data_fim"] = data_fim
+
+        return context

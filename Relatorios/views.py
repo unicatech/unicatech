@@ -1028,8 +1028,7 @@ class RelatorioLucroVendasView(TemplateView):
             # ======================================
 
             venda.lucro_produto = (
-                venda.lucro *
-                venda.quantidadeProduto
+                venda.lucro
             )
 
             # ======================================

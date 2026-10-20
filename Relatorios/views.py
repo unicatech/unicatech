@@ -29,6 +29,7 @@ from django.utils.timezone import now
 from django.utils.dateparse import parse_date
 from datetime import timedelta
 
+
 class RelatorioProdutoView(TemplateView):
 
     template_name = "relatorioprodutos.html"
@@ -36,11 +37,10 @@ class RelatorioProdutoView(TemplateView):
     def _parse_date(self, s):
         try:
             return datetime.strptime(s, "%Y-%m-%d").date()
-        except Exception:
+        except (ValueError, TypeError):
             return None
 
     def normalizar_nome_produto(self, produto):
-
         nome = produto.NomeProduto.strip()
 
         if produto.categoria_id != 1:
@@ -54,7 +54,6 @@ class RelatorioProdutoView(TemplateView):
         return " ".join(partes[:-1])
 
     def get_context_data(self, **kwargs):
-
         context = super().get_context_data(**kwargs)
 
         data_inicial_str = self.request.GET.get("data_inicial") or ""
@@ -65,7 +64,11 @@ class RelatorioProdutoView(TemplateView):
         data_inicial = self._parse_date(data_inicial_str)
         data_final = self._parse_date(data_final_str)
 
-        produtos_queryset = Produto.objects.select_related("categoria").order_by("NomeProduto")
+        produtos_queryset = (
+            Produto.objects
+            .select_related("categoria")
+            .order_by("NomeProduto")
+        )
 
         produtos_agrupados = []
         vistos = set()
@@ -88,9 +91,15 @@ class RelatorioProdutoView(TemplateView):
             compra_filters = {}
             venda_filters = {}
 
-            if data_inicial and data_final:
-                compra_filters["criados__range"] = (data_inicial, data_final)
-                venda_filters["criados__range"] = (data_inicial, data_final)
+            # Permite filtrar somente pela data inicial,
+            # somente pela data final ou por ambas.
+            if data_inicial:
+                compra_filters["criados__date__gte"] = data_inicial
+                venda_filters["criados__date__gte"] = data_inicial
+
+            if data_final:
+                compra_filters["criados__date__lte"] = data_final
+                venda_filters["criados__date__lte"] = data_final
 
             compras_q = Q()
             vendas_q = Q()
@@ -101,45 +110,87 @@ class RelatorioProdutoView(TemplateView):
                     vendas_q |= Q(produto__NomeProduto__istartswith=nome)
 
             def add_movimento(qs, tipo, nota_field, contraparte_field):
-
                 for obj in qs:
 
-                    preco_unit = obj.precoProduto if tipo == "Venda" else obj.precoProduto * obj.valorDolarMedio
+                    if tipo == "Venda":
+                        preco_unit = obj.precoProduto
+                    else:
+                        preco_unit = (
+                            obj.precoProduto * obj.valorDolarMedio
+                        )
 
-                    valor_total = (obj.quantidadeProduto or 0) * preco_unit
+                    quantidade = obj.quantidadeProduto or 0
+                    valor_total = quantidade * preco_unit
+
+                    contraparte_obj = getattr(obj, contraparte_field)
 
                     movimentos.append({
                         "data": obj.criados,
                         "tipo": tipo,
-                        "produto_nome": self.normalizar_nome_produto(obj.produto),
-                        "quantidade": obj.quantidadeProduto,
+                        "produto_nome": self.normalizar_nome_produto(
+                            obj.produto
+                        ),
+                        "quantidade": quantidade,
                         "preco_unit": preco_unit,
                         "valor_total": valor_total,
-                        "contraparte": getattr(obj, contraparte_field).nomeCliente if tipo == "Venda" else getattr(obj, contraparte_field).nomeFornecedor,
+                        "contraparte": (
+                            contraparte_obj.nomeCliente
+                            if tipo == "Venda"
+                            else contraparte_obj.nomeFornecedor
+                        ),
                         "descricao": obj.descricao,
                         "nota": getattr(obj, nota_field),
                         "is_total": False,
                     })
 
             if tipo_movimento in ["compra", "ambos"]:
-                compras_qs = Compra.objects.filter(**compra_filters).filter(ativo=True).filter(compras_q).select_related("produto", "fornecedor").order_by("-identificadorCompra")
-                add_movimento(compras_qs, "Compra", "identificadorCompra", "fornecedor")
+                compras_qs = (
+                    Compra.objects
+                    .filter(**compra_filters)
+                    .filter(ativo=True)
+                    .filter(compras_q)
+                    .select_related("produto", "fornecedor")
+                    .order_by("-identificadorCompra")
+                )
+
+                add_movimento(
+                    compras_qs,
+                    "Compra",
+                    "identificadorCompra",
+                    "fornecedor",
+                )
 
             if tipo_movimento in ["venda", "ambos"]:
-                vendas_qs = Venda.objects.filter(**venda_filters).filter(ativo=True).filter(vendas_q).select_related("produto", "cliente").order_by("-identificadorVenda")
-                add_movimento(vendas_qs, "Venda", "identificadorVenda", "cliente")
+                vendas_qs = (
+                    Venda.objects
+                    .filter(**venda_filters)
+                    .filter(ativo=True)
+                    .filter(vendas_q)
+                    .select_related("produto", "cliente")
+                    .order_by("-identificadorVenda")
+                )
+
+                add_movimento(
+                    vendas_qs,
+                    "Venda",
+                    "identificadorVenda",
+                    "cliente",
+                )
 
         final_movimentos = movimentos
 
-        for m in final_movimentos:
+        # ==========================
+        # RESUMO POR PRODUTO
+        # ==========================
 
+        for m in final_movimentos:
             if m.get("is_total"):
                 continue
 
-            prod = m["produto_nome"]
+            produto = m["produto_nome"]
 
-            if prod not in resumo_por_produto:
-                resumo_por_produto[prod] = {
+            if produto not in resumo_por_produto:
+                resumo_por_produto[produto] = {
                     "compras_qtd": 0,
                     "compras_valor": 0.0,
                     "vendas_qtd": 0,
@@ -147,20 +198,27 @@ class RelatorioProdutoView(TemplateView):
                 }
 
             if m["tipo"] == "Compra":
-                resumo_por_produto[prod]["compras_qtd"] += m["quantidade"] or 0
-                resumo_por_produto[prod]["compras_valor"] += m["valor_total"] or 0.0
+                resumo_por_produto[produto]["compras_qtd"] += (
+                    m["quantidade"] or 0
+                )
+                resumo_por_produto[produto]["compras_valor"] += (
+                    m["valor_total"] or 0.0
+                )
             else:
-                resumo_por_produto[prod]["vendas_qtd"] += m["quantidade"] or 0
-                resumo_por_produto[prod]["vendas_valor"] += m["valor_total"] or 0.0
+                resumo_por_produto[produto]["vendas_qtd"] += (
+                    m["quantidade"] or 0
+                )
+                resumo_por_produto[produto]["vendas_valor"] += (
+                    m["valor_total"] or 0.0
+                )
 
         # ==========================
-        # GRÁFICO
+        # GRÁFICO POR DIA
         # ==========================
 
         grafico = {}
 
         for m in final_movimentos:
-
             if m.get("is_total"):
                 continue
 
@@ -168,10 +226,13 @@ class RelatorioProdutoView(TemplateView):
                 continue
 
             data_mov = m.get("data")
+
             if not data_mov:
                 continue
 
-            mes = data_mov.strftime("%m/%Y")
+            # Antes: "%m/%Y" (mensal)
+            # Agora: "%d/%m/%Y" (diário)
+            dia = data_mov.strftime("%d/%m/%Y")
             produto = m["produto_nome"]
 
             chave = produto
@@ -182,32 +243,43 @@ class RelatorioProdutoView(TemplateView):
             if chave not in grafico:
                 grafico[chave] = {
                     "tipo": m["tipo"],
-                    "dados": {}
+                    "dados": {},
                 }
 
-            grafico[chave]["dados"][mes] = grafico[chave]["dados"].get(mes, 0) + float(m["quantidade"] or 0)
+            grafico[chave]["dados"][dia] = (
+                grafico[chave]["dados"].get(dia, 0)
+                + float(m["quantidade"] or 0)
+            )
 
-        todos_meses = set()
-        for v in grafico.values():
-            todos_meses.update(v["dados"].keys())
+        todos_dias = set()
 
-        labels = sorted(list(todos_meses), key=lambda x: datetime.strptime(x, "%m/%Y"))
+        for info in grafico.values():
+            todos_dias.update(info["dados"].keys())
+
+        # Ordena cronologicamente, não alfabeticamente.
+        labels = sorted(
+            todos_dias,
+            key=lambda x: datetime.strptime(x, "%d/%m/%Y"),
+        )
 
         datasets = []
 
         for produto, info in grafico.items():
-
             estilo = {
                 "label": produto,
-                "data": [round(info["dados"].get(mes, 0), 2) for mes in labels],
+                "data": [
+                    round(info["dados"].get(dia, 0), 2)
+                    for dia in labels
+                ],
                 "tension": 0.3,
             }
 
-            # 🔥 LINHA POR TIPO
+            # Compras: linha tracejada.
+            # Vendas: linha contínua.
             if info["tipo"] == "Compra":
-                estilo["borderDash"] = [6, 6]  # pontilhado
+                estilo["borderDash"] = [6, 6]
             else:
-                estilo["borderDash"] = []      # linha contínua
+                estilo["borderDash"] = []
 
             datasets.append(estilo)
 

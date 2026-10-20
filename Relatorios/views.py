@@ -37,350 +37,274 @@ from django.utils import timezone
 from django.views.generic import TemplateView
 
 
+
+
 class RelatorioProdutoView(TemplateView):
+
     template_name = "relatorioprodutos.html"
 
-    @staticmethod
-    def _parse_date(value):
-        if not value:
-            return None
-
+    def _parse_date(self, s):
         try:
-            return datetime.strptime(value, "%Y-%m-%d").date()
+            return datetime.strptime(s, "%Y-%m-%d").date()
         except (ValueError, TypeError):
             return None
 
-    @staticmethod
-    def normalizar_nome_produto(produto):
-        nome = (
-            getattr(produto, "NomeProduto", "") or ""
-        ).strip()
+    def normalizar_nome_produto(self, produto):
 
-        if getattr(produto, "categoria_id", None) != 1:
+        nome = produto.NomeProduto.strip()
+
+        if produto.categoria_id != 1:
             return nome
 
         partes = nome.split()
 
-        if len(partes) > 1:
-            return " ".join(partes[:-1])
+        if len(partes) <= 1:
+            return nome
 
-        return nome
-
-    @staticmethod
-    def _get_valor(obj, *nomes, default=None):
-        for nome in nomes:
-            valor = getattr(obj, nome, None)
-
-            if valor is not None:
-                return valor
-
-        return default
-
-    @staticmethod
-    def _nome_relacionado(obj, *nomes):
-        """
-        Retorna um nome legível da relação sem depender de __str__().
-        Se não encontrar um campo de nome, usa a chave primária.
-        """
-        campos_nome = (
-            "NomeFornecedor",
-            "nome_fornecedor",
-            "NomeCliente",
-            "nome_cliente",
-            "Nome",
-            "nome",
-            "first_name",
-        )
-
-        for nome in nomes:
-            relacionado = getattr(obj, nome, None)
-
-            if relacionado is None:
-                continue
-
-            for campo in campos_nome:
-                valor = getattr(relacionado, campo, None)
-
-                if valor not in (None, ""):
-                    return str(valor)
-
-            pk = getattr(relacionado, "pk", None)
-
-            if pk is not None:
-                return str(pk)
-
-            # Last resort: protect against a broken __str__().
-            try:
-                resultado = str(relacionado)
-                if isinstance(resultado, str):
-                    return resultado
-            except (TypeError, ValueError):
-                pass
-
-            return ""
-
-        return ""
+        return " ".join(partes[:-1])
 
     def get_context_data(self, **kwargs):
+
         context = super().get_context_data(**kwargs)
-        request = self.request
 
-        data_inicial_texto = request.GET.get(
-            "data_inicial", ""
-        )
-        data_final_texto = request.GET.get(
-            "data_final", ""
-        )
+        data_inicial_str = self.request.GET.get("data_inicial") or ""
+        data_final_str = self.request.GET.get("data_final") or ""
+        produtos_selecionados = self.request.GET.getlist("produtos")
+        tipo_movimento = self.request.GET.get("tipo_movimento") or "ambos"
 
-        data_inicial = self._parse_date(
-            data_inicial_texto
-        )
-        data_final = self._parse_date(
-            data_final_texto
-        )
+        data_inicial = self._parse_date(data_inicial_str)
+        data_final = self._parse_date(data_final_str)
 
-        produtos_selecionados = request.GET.getlist(
-            "produtos"
-        )
-        tipo_movimento = request.GET.get(
-            "tipo_movimento", "ambos"
+        produtos_queryset = (
+            Produto.objects
+            .select_related("categoria")
+            .order_by("NomeProduto")
         )
 
-        # --------------------------------------------------
-        # PRODUTOS DISPONÍVEIS NO FILTRO
-        # --------------------------------------------------
-        todos_produtos = Produto.objects.all().order_by(
-            "NomeProduto"
-        )
+        produtos_agrupados = []
+        vistos = set()
 
-        produtos_lista = sorted({
-            self.normalizar_nome_produto(produto)
-            for produto in todos_produtos
-            if self.normalizar_nome_produto(produto)
-        })
+        for produto in produtos_queryset:
+            nome_base = self.normalizar_nome_produto(produto)
 
-        # --------------------------------------------------
-        # FILTROS DE DATA
-        # "criados" é DateField; não utilizar __date.
-        # --------------------------------------------------
-        compra_filters = {"ativo": True}
-        venda_filters = {"ativo": True}
+            if nome_base not in vistos:
+                vistos.add(nome_base)
+                produtos_agrupados.append(nome_base)
 
-        if data_inicial:
-            compra_filters["criados__gte"] = data_inicial
-            venda_filters["criados__gte"] = data_inicial
-
-        if data_final:
-            compra_filters["criados__lte"] = data_final
-            venda_filters["criados__lte"] = data_final
-
-        compras = Compra.objects.filter(
-            **compra_filters
-        ).select_related("produto")
-
-        vendas = Venda.objects.filter(
-            **venda_filters
-        ).select_related("produto")
+        context["produtos_lista"] = sorted(produtos_agrupados)
+        context["tipo_movimento"] = tipo_movimento
 
         movimentos = []
+        resumo_por_produto = {}
 
-        resumo_por_produto = defaultdict(
-            lambda: {
-                "compras_qtd": 0,
-                "compras_valor": 0.0,
-                "vendas_qtd": 0,
-                "vendas_valor": 0.0,
-            }
-        )
+        if data_inicial or data_final or produtos_selecionados:
 
-        # --------------------------------------------------
-        # ADICIONAR MOVIMENTOS
-        # --------------------------------------------------
-        def adicionar_movimento(obj, tipo):
-            produto_obj = getattr(obj, "produto", None)
+            compra_filters = {}
+            venda_filters = {}
 
-            if produto_obj is None:
-                return
+            # Filtros de data
+            if data_inicial and data_final:
+                compra_filters["criados__range"] = (
+                    data_inicial,
+                    data_final,
+                )
+                venda_filters["criados__range"] = (
+                    data_inicial,
+                    data_final,
+                )
 
-            nome_produto = (
-                self.normalizar_nome_produto(produto_obj)
-            )
+            elif data_inicial:
+                compra_filters["criados__gte"] = data_inicial
+                venda_filters["criados__gte"] = data_inicial
+
+            elif data_final:
+                compra_filters["criados__lte"] = data_final
+                venda_filters["criados__lte"] = data_final
+
+            compras_q = Q()
+            vendas_q = Q()
 
             # Filtro por produto
-            if (
-                produtos_selecionados
-                and nome_produto not in produtos_selecionados
-            ):
-                return
+            if produtos_selecionados:
+                for nome in produtos_selecionados:
+                    compras_q |= Q(
+                        produto__NomeProduto__istartswith=nome
+                    )
+                    vendas_q |= Q(
+                        produto__NomeProduto__istartswith=nome
+                    )
 
-            # Filtro por tipo
-            if (
-                tipo_movimento == "compra"
-                and tipo != "Compra"
-            ):
-                return
+            def add_movimento(qs, tipo, nota_field, contraparte_field):
 
-            if (
-                tipo_movimento == "venda"
-                and tipo != "Venda"
-            ):
-                return
+                for obj in qs:
 
-            data_mov = self._get_valor(
-                obj, "criados", "data"
-            )
+                    if tipo == "Venda":
+                        preco_unit = obj.precoProduto
+                    else:
+                        preco_unit = (
+                            obj.precoProduto * obj.valorDolarMedio
+                        )
+
+                    quantidade = obj.quantidadeProduto or 0
+                    valor_total = quantidade * preco_unit
+
+                    contraparte_obj = getattr(
+                        obj,
+                        contraparte_field,
+                        None,
+                    )
+
+                    if tipo == "Venda":
+                        contraparte = (
+                            getattr(
+                                contraparte_obj,
+                                "nomeCliente",
+                                "",
+                            )
+                            if contraparte_obj
+                            else ""
+                        )
+                    else:
+                        contraparte = (
+                            getattr(
+                                contraparte_obj,
+                                "nomeFornecedor",
+                                "",
+                            )
+                            if contraparte_obj
+                            else ""
+                        )
+
+                    movimentos.append({
+                        "data": obj.criados,
+                        "tipo": tipo,
+                        "produto_nome": self.normalizar_nome_produto(
+                            obj.produto
+                        ),
+                        "quantidade": quantidade,
+                        "preco_unit": preco_unit,
+                        "valor_total": valor_total,
+                        "contraparte": contraparte,
+                        "descricao": obj.descricao,
+                        "nota": getattr(obj, nota_field),
+                        "is_total": False,
+                    })
+
+            # Compras
+            if tipo_movimento in ["compra", "ambos"]:
+
+                compras_qs = (
+                    Compra.objects
+                    .filter(**compra_filters)
+                    .filter(ativo=True)
+                    .filter(compras_q)
+                    .select_related("produto", "fornecedor")
+                    .order_by("-identificadorCompra")
+                )
+
+                add_movimento(
+                    compras_qs,
+                    "Compra",
+                    "identificadorCompra",
+                    "fornecedor",
+                )
+
+            # Vendas
+            if tipo_movimento in ["venda", "ambos"]:
+
+                vendas_qs = (
+                    Venda.objects
+                    .filter(**venda_filters)
+                    .filter(ativo=True)
+                    .filter(vendas_q)
+                    .select_related("produto", "cliente")
+                    .order_by("-identificadorVenda")
+                )
+
+                add_movimento(
+                    vendas_qs,
+                    "Venda",
+                    "identificadorVenda",
+                    "cliente",
+                )
+
+        final_movimentos = movimentos
+
+        # ==========================
+        # RESUMO POR PRODUTO
+        # ==========================
+
+        for m in final_movimentos:
+
+            if m.get("is_total"):
+                continue
+
+            prod = m["produto_nome"]
+
+            if prod not in resumo_por_produto:
+                resumo_por_produto[prod] = {
+                    "compras_qtd": 0,
+                    "compras_valor": 0.0,
+                    "vendas_qtd": 0,
+                    "vendas_valor": 0.0,
+                }
+
+            quantidade = m["quantidade"] or 0
+            valor_total = m["valor_total"] or 0.0
+
+            if m["tipo"] == "Compra":
+                resumo_por_produto[prod]["compras_qtd"] += quantidade
+                resumo_por_produto[prod]["compras_valor"] += valor_total
+            else:
+                resumo_por_produto[prod]["vendas_qtd"] += quantidade
+                resumo_por_produto[prod]["vendas_valor"] += valor_total
+
+        # ==========================
+        # GRÁFICO DIÁRIO
+        # ==========================
+
+        from collections import defaultdict
+        from datetime import timedelta
+
+        grafico = {}
+
+        for m in final_movimentos:
+
+            if m.get("is_total"):
+                continue
+
+            if m["tipo"] not in ["Compra", "Venda"]:
+                continue
+
+            data_mov = m.get("data")
 
             if not data_mov:
-                return
+                continue
 
-            if hasattr(data_mov, "date"):
-                data_mov = data_mov.date()
+            dia = data_mov.strftime("%Y-%m-%d")
+            produto = m["produto_nome"]
 
-            quantidade = float(
-                self._get_valor(
-                    obj,
-                    "quantidadeProduto",
-                    "quantidade",
-                    default=0,
-                ) or 0
+            chave = produto
+
+            if tipo_movimento == "ambos":
+                chave = f"{m['tipo']} - {produto}"
+
+            if chave not in grafico:
+                grafico[chave] = {
+                    "tipo": m["tipo"],
+                    "dados": defaultdict(int),
+                }
+
+            # Soma quantidades inteiras
+            grafico[chave]["dados"][dia] += int(
+                m["quantidade"] or 0
             )
 
-            preco_unit = float(
-                self._get_valor(
-                    obj,
-                    "precoProduto",
-                    "preco",
-                    default=0,
-                ) or 0
-            )
-
-            # Converter preço de compra para reais.
-            if tipo == "Compra":
-                valor_dolar = float(
-                    self._get_valor(
-                        obj,
-                        "valorDolarMedio",
-                        default=1,
-                    ) or 1
-                )
-
-                preco_unit *= valor_dolar
-
-            valor_total = quantidade * preco_unit
-
-            nota = self._get_valor(
-                obj,
-                "nota",
-                "numeroNota",
-                "notaFiscal",
-                "identificador",
-                default="",
-            )
-
-            if tipo == "Compra":
-                contraparte = self._nome_relacionado(
-                    obj,
-                    "fornecedor",
-                    "Fornecedor",
-                )
-            else:
-                contraparte = self._nome_relacionado(
-                    obj,
-                    "cliente",
-                    "Cliente",
-                )
-
-            descricao = self._get_valor(
-                obj,
-                "descricao",
-                "observacao",
-                "observacoes",
-                default="",
-            )
-
-            movimentos.append({
-                "data": data_mov,
-                "tipo": tipo,
-                "produto": nome_produto,
-                "quantidade": quantidade,
-                "preco_unit": preco_unit,
-                "valor_total": valor_total,
-                "contraparte": contraparte,
-                "descricao": descricao,
-                "nota": nota,
-                "is_total": False,
-            })
-
-            # Resumo por produto
-            resumo = resumo_por_produto[nome_produto]
-
-            if tipo == "Compra":
-                resumo["compras_qtd"] += quantidade
-                resumo["compras_valor"] += valor_total
-            else:
-                resumo["vendas_qtd"] += quantidade
-                resumo["vendas_valor"] += valor_total
-
-        # --------------------------------------------------
-        # PROCESSAR DADOS QUANDO HOUVER FILTROS
-        # --------------------------------------------------
-        tem_filtros = bool(
-            data_inicial_texto
-            or data_final_texto
-            or produtos_selecionados
-            or tipo_movimento != "ambos"
-        )
-
-        if tem_filtros:
-            for compra in compras:
-                adicionar_movimento(compra, "Compra")
-
-            for venda in vendas:
-                adicionar_movimento(venda, "Venda")
-
-        # --------------------------------------------------
-        # ORDENAR MOVIMENTOS
-        # --------------------------------------------------
-        movimentos.sort(
-            key=lambda m: (
-                m["data"],
-                m["tipo"],
-                m["produto"],
-            )
-        )
-
-        # --------------------------------------------------
-        # AGRUPAR VALORES POR DIA
-        # --------------------------------------------------
-        valores_por_dia = defaultdict(
-            lambda: {
-                "compras": 0.0,
-                "vendas": 0.0,
-            }
-        )
-
-        for movimento in movimentos:
-            dia = movimento["data"]
-
-            if hasattr(dia, "date"):
-                dia = dia.date()
-
-            if movimento["tipo"] == "Compra":
-                valores_por_dia[dia]["compras"] += (
-                    movimento["valor_total"]
-                )
-
-            elif movimento["tipo"] == "Venda":
-                valores_por_dia[dia]["vendas"] += (
-                    movimento["valor_total"]
-                )
-
-        # --------------------------------------------------
-        # DEFINIR PERÍODO DO GRÁFICO
-        # --------------------------------------------------
-        datas_movimentos = [
-            movimento["data"]
-            for movimento in movimentos
+        # Determina o intervalo de datas do gráfico
+        datas_movimento = [
+            m["data"]
+            for m in final_movimentos
+            if m.get("data") and not m.get("is_total")
         ]
 
         if data_inicial and data_final:
@@ -389,94 +313,88 @@ class RelatorioProdutoView(TemplateView):
 
         elif data_inicial:
             inicio = data_inicial
-            fim = max(
-                datas_movimentos + [data_inicial]
+            fim = (
+                max(datas_movimento)
+                if datas_movimento
+                else data_inicial
             )
 
         elif data_final:
-            inicio = min(
-                datas_movimentos + [data_final]
+            inicio = (
+                min(datas_movimento)
+                if datas_movimento
+                else data_final
             )
             fim = data_final
 
-        elif datas_movimentos:
-            inicio = min(datas_movimentos)
-            fim = max(datas_movimentos)
+        elif datas_movimento:
+            inicio = min(datas_movimento)
+            fim = max(datas_movimento)
 
         else:
             inicio = None
             fim = None
 
-        # --------------------------------------------------
-        # GRÁFICO DIÁRIO COM ZEROS NOS DIAS SEM MOVIMENTAÇÃO
-        # --------------------------------------------------
-        grafico_labels = []
-        compras_data = []
-        vendas_data = []
+        # Cria todos os dias do intervalo
+        labels = []
 
-        if (
-            tem_filtros
-            and inicio
-            and fim
-            and inicio <= fim
-        ):
+        if inicio and fim and inicio <= fim:
+
             dia_atual = inicio
 
             while dia_atual <= fim:
-                grafico_labels.append(
-                    dia_atual.strftime("%d/%m/%Y")
-                )
-
-                valores = valores_por_dia[dia_atual]
-
-                compras_data.append(
-                    valores["compras"]
-                )
-                vendas_data.append(
-                    valores["vendas"]
-                )
-
+                labels.append(dia_atual.strftime("%d/%m/%Y"))
                 dia_atual += timedelta(days=1)
 
-        grafico_datasets = [
-            {
-                "label": "Compras",
-                "data": compras_data,
-                "borderDash": [5, 5],
-                "fill": False,
-                "tension": 0,
-            },
-            {
-                "label": "Vendas",
-                "data": vendas_data,
-                "borderDash": [],
-                "fill": False,
-                "tension": 0,
-            },
-        ]
+        # Monta os datasets com quantidades inteiras
+        datasets = []
 
-        # --------------------------------------------------
+        for nome, info in grafico.items():
+
+            dados = info["dados"]
+            valores = []
+
+            for label in labels:
+
+                dia_iso = datetime.strptime(
+                    label,
+                    "%d/%m/%Y",
+                ).strftime("%Y-%m-%d")
+
+                valores.append(
+                    int(dados.get(dia_iso, 0))
+                )
+
+            estilo = {
+                "label": nome,
+                "data": valores,
+                "tension": 0.3,
+                "spanGaps": False,
+            }
+
+            if info["tipo"] == "Compra":
+                estilo["borderDash"] = [6, 6]
+            else:
+                estilo["borderDash"] = []
+
+            datasets.append(estilo)
+
+        # ==========================
         # CONTEXTO DO TEMPLATE
-        # --------------------------------------------------
+        # ==========================
+
         context.update({
-            "movimentos": movimentos,
-            "resumo_por_produto": dict(
-                resumo_por_produto
-            ),
-            "produtos_lista": produtos_lista,
-            "produtos_selecionados": (
-                produtos_selecionados
-            ),
-            "data_inicial": data_inicial_texto,
-            "data_final": data_final_texto,
+            "movimentos": final_movimentos,
+            "resumo_por_produto": resumo_por_produto,
+            "data_inicial": data_inicial_str,
+            "data_final": data_final_str,
+            "produtos_selecionados": produtos_selecionados,
             "tipo_movimento": tipo_movimento,
-            "grafico_labels": grafico_labels,
-            "grafico_datasets": grafico_datasets,
+            "grafico_labels": labels,
+            "grafico_datasets": datasets,
         })
 
         return context
-
-
 
 
 class RelatorioRecebimentosContasView(TemplateView):

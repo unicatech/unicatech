@@ -1,3 +1,4 @@
+
 {% load static %}
 
 <!DOCTYPE html>
@@ -444,6 +445,10 @@ table.table tbody td {
 
 <script>
 
+// ==========================
+// SELEÇÃO DE PRODUTOS
+// ==========================
+
 const buscaProduto = document.getElementById(
     "busca-produto"
 );
@@ -452,117 +457,89 @@ const dropdown = document.getElementById(
     "dropdown-produtos"
 );
 
-//
-// ABRIR DROPDOWN
-//
-buscaProduto.addEventListener("focus", function(){
-
+// Abrir dropdown
+buscaProduto.addEventListener("focus", function() {
     dropdown.style.display = "block";
-
 });
 
-//
-// FILTRO
-//
-buscaProduto.addEventListener("keyup", function(){
+// Filtrar produtos
+buscaProduto.addEventListener("keyup", function() {
 
     let termo = this.value.toLowerCase();
 
     document
-    .querySelectorAll(".produto-item")
-    .forEach(function(item){
+        .querySelectorAll(".produto-item")
+        .forEach(function(item) {
 
-        let texto = item.innerText.toLowerCase();
+            let texto = item.innerText.toLowerCase();
 
-        item.style.display =
-            texto.includes(termo)
-            ? ""
-            : "none";
-
-    });
-
+            item.style.display = texto.includes(termo)
+                ? ""
+                : "none";
+        });
 });
 
-//
-// NÃO FECHAR AO CLICAR DENTRO
-//
-dropdown.addEventListener("click", function(e){
-
+// Não fechar ao clicar dentro
+dropdown.addEventListener("click", function(e) {
     e.stopPropagation();
-
 });
 
-//
-// FECHAR AO CLICAR FORA
-//
-document.addEventListener("click", function(e){
+// Fechar ao clicar fora
+document.addEventListener("click", function(e) {
 
-    if(
-        !dropdown.contains(e.target)
-        &&
+    if (
+        !dropdown.contains(e.target) &&
         e.target !== buscaProduto
-    ){
+    ) {
         dropdown.style.display = "none";
     }
-
 });
 
-//
-// MOSTRA SELECIONADOS NO INPUT
-//
-function atualizarTextoSelecionados(){
+// Mostrar produtos selecionados no input
+function atualizarTextoSelecionados() {
 
     let selecionados = [];
 
     document
-    .querySelectorAll(
-        'input[name="produtos"]:checked'
-    )
-    .forEach(function(cb){
-
-        selecionados.push(cb.value);
-
-    });
+        .querySelectorAll('input[name="produtos"]:checked')
+        .forEach(function(cb) {
+            selecionados.push(cb.value);
+        });
 
     buscaProduto.value = selecionados.join(", ");
-
 }
 
 document
-.querySelectorAll('input[name="produtos"]')
-.forEach(function(cb){
+    .querySelectorAll('input[name="produtos"]')
+    .forEach(function(cb) {
 
-    cb.addEventListener(
-        "change",
-        atualizarTextoSelecionados
-    );
-
-});
+        cb.addEventListener(
+            "change",
+            atualizarTextoSelecionados
+        );
+    });
 
 atualizarTextoSelecionados();
 
-//
-// CHART
-//
+
+// ==========================
+// GRÁFICO
+// ==========================
 
 const labels = JSON.parse(
-    document.getElementById(
-        'grafico-labels'
-    ).textContent
+    document.getElementById("grafico-labels").textContent
 );
 
 const datasets = JSON.parse(
-    document.getElementById(
-        'grafico-datasets'
-    ).textContent
+    document.getElementById("grafico-datasets").textContent
 );
 
-if(labels.length > 0){
+if (labels.length > 0) {
 
     new Chart(
-        document.getElementById('graficoVendas'),
+        document.getElementById("graficoVendas"),
         {
-            type: 'line',
+            type: "line",
 
             data: {
                 labels: labels,
@@ -574,29 +551,68 @@ if(labels.length > 0){
                 responsive: true,
 
                 interaction: {
-                    mode: 'index',
+                    mode: "index",
                     intersect: false
                 },
 
                 plugins: {
+
                     legend: {
-                        position: 'top'
+                        position: "top"
+                    },
+
+                    // Mostrar quantidades inteiras nos tooltips
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+
+                                const label = context.dataset.label || "";
+                                const value = Number(context.parsed.y);
+
+                                return label + ": " + (
+                                    Number.isFinite(value)
+                                        ? Math.round(value).toString()
+                                        : "0"
+                                );
+                            }
+                        }
                     }
                 },
 
                 scales: {
+
                     y: {
-                        beginAtZero: true
+                        beginAtZero: true,
+
+                        // Quantidades são inteiras
+                        ticks: {
+                            precision: 0,
+                            stepSize: 1,
+
+                            // Impede a exibição de valores como 2,0
+                            callback: function(value) {
+
+                                const numero = Number(value);
+
+                                if (!Number.isFinite(numero)) {
+                                    return "";
+                                }
+
+                                if (!Number.isInteger(numero)) {
+                                    return "";
+                                }
+
+                                return numero.toString();
+                            }
+                        }
                     }
                 }
             }
         }
     );
-
 }
 
 </script>
 
 </body>
 </html>
-

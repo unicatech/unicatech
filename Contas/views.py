@@ -370,10 +370,11 @@ class AdicionarFundosView(TemplateView):
         context = super(AdicionarFundosView, self).get_context_data(**kwargs)
         agora = datetime.now()
         hoje = agora.strftime("%Y-%m-%d")
+        valor_real = re.sub(r'\.', '', self.request.POST.get("valorReal")).replace(',', '.')
         dataform = MovimentacaoConta(
             contaCredito_id=self.request.POST.get("contaOrigem"),
             contaDebito="0",
-            valorCredito=self.request.POST.get("valorReal"),
+            valorCredito=valor_real,
             valorDebito="0",
             criados=hoje,
             identificadorDolar="0",
@@ -408,7 +409,7 @@ class RetiradaView(TemplateView):
             if self.request.GET["funcao"] == "apagar":
                 apagarproduto = MovimentacaoConta(id=self.request.GET["idMovimento"])
                 apagarproduto.delete()
-                context["mensagem"] = "Conta Apagada"
+                context["mensagem"] = "Movimentação Apagada"
 
         # Popular template
         informacoes_financeiras = MovimentacaoFinanceira(0,0)
@@ -421,7 +422,7 @@ class RetiradaView(TemplateView):
         # Popular template com dados de conta
         contas = informacoes_financeiras.contas_origem_e_detalhadas()
         context["contasDetalhadas"] = contas["contasDetalhadasTemplate"]
-        context["contaOrigem"] = contas["contaOrigem"]
+        context["contaOrigem"] = contas["contasTodas"]
         # popular movimentações
         context["movimentacaoContas"] = informacoes_financeiras.movimentacoes_contas
 
@@ -431,11 +432,12 @@ class RetiradaView(TemplateView):
         context = super(RetiradaView, self).get_context_data(**kwargs)
         agora = datetime.now()
         hoje = agora.strftime("%Y-%m-%d")
+        valor_retirada = re.sub(r'\.', '', self.request.POST.get("valor_retirada")).replace(',', '.')
         dataform = MovimentacaoConta(
             contaCredito_id="0",
             contaDebito=self.request.POST.get("contaOrigem"),
             valorCredito="0",
-            valorDebito=self.request.POST.get("valorReal"),
+            valorDebito=valor_retirada,
             criados=hoje,
             descricao="Retirada",
             identificadorDolar="0",
@@ -454,7 +456,7 @@ class RetiradaView(TemplateView):
         # Popular template com dados de conta
         contas = informacoes_financeiras.contas_origem_e_detalhadas()
         context["contasDetalhadas"] = contas["contasDetalhadasTemplate"]
-        context["contaOrigem"] = contas["contaOrigem"]
+        context["contaOrigem"] = contas["contasTodas"]
 
         # popular movimentações
         context["movimentacaoContas"] = informacoes_financeiras.movimentacoes_contas

@@ -45,7 +45,13 @@
 								<div class="col-lg-3 col-sm-6 col-12">
 									<div class="form-group">
 										<label>Valor da Retirada </label>
-										<input type="text" name="valorReal">
+										<input
+											type="text"
+											name="valor_retirada"
+											id="valor_retirada"
+											class="form-control"
+											placeholder="0,00"
+											autocomplete="off">
 									</div>
 								</div>
 								<div class="col-lg-12">
@@ -174,7 +180,7 @@
 						</div>
 					</div>
 		<!-- /Main Wrapper -->
-		 
+
 		<!-- jQuery -->
  			{% include 'footer.html' %}
 
@@ -185,7 +191,35 @@
 		<script src="{% static 'plugins/sweetalert/sweetalert2.all.min.js' %}"></script>
 		<script src="{% static 'plugins/sweetalert/sweetalerts.min.js' %}"></script>
 
+		<script>
+		document.addEventListener('DOMContentLoaded', function() {
 
-		
+			const campoValor = document.getElementById('valor_retirada');
+
+			campoValor.addEventListener('input', function(e) {
+
+				let valor = e.target.value.replace(/\D/g, '');
+
+				if (valor === '') {
+					e.target.value = '';
+					return;
+				}
+
+				valor = (parseInt(valor, 10) / 100).toFixed(2);
+
+				let partes = valor.split('.');
+
+				let inteiro = partes[0];
+				let decimal = partes[1];
+
+				inteiro = inteiro.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+
+				e.target.value = inteiro + ',' + decimal;
+
+			});
+
+		});
+		</script>
+
     </body>
 </html>

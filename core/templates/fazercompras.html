@@ -351,7 +351,9 @@
 								<label>Conta de Origem</label>
 									<select name="contaOrigem" class="select">
 										{% for c in contasDetalhadas %}
-										<option value="{{ c.id }}" {% if c.id == idConta %} SELECTED {% endif %}>{{ c.nomeConta }} {{ c.moeda }}{{ c.saldo|floatformat:2 }}</option>
+										  {% if c.id > 0%}
+											<option value="{{ c.id }}" {% if c.id == idConta %} SELECTED {% endif %}>{{ c.nomeConta }} {{ c.moeda }}{{ c.saldo|floatformat:2 }}</option>
+										  {%endif%}
 										{% endfor %}
 									</select>
 								</div>

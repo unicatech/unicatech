@@ -959,7 +959,7 @@ class RelatorioServicosTecnicoView(TemplateView):
             "cliente",
             "usuario"
         ).filter(
-            identificador_servico__in=identificadores
+            identificador_servico__in=identificadores,ativo=True
         )
 
         # ==========================================

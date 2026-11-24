@@ -932,12 +932,12 @@ class RelatorioServicosTecnicoView(TemplateView):
         # Filtro Finalizado
         if finalizado == "sim":
             servicos = servicos.filter(
-                ativo=True
+                ativo=False
             )
 
         elif finalizado == "nao":
             servicos = servicos.filter(
-                ativo=False
+                ativo=True
             )
 
         # Maior identificador primeiro

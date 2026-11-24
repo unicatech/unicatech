@@ -921,12 +921,12 @@ class RelatorioServicosTecnicoView(TemplateView):
         # Filtro por data do SERVIÇO
         if data_inicio:
             servicos = servicos.filter(
-                criados__gte=parse_date(data_inicio)
+                modificado__gte=parse_date(data_inicio)
             )
 
         if data_fim:
             servicos = servicos.filter(
-                criados__lte=parse_date(data_fim)
+                modificado__lte=parse_date(data_fim)
             )
 
         # Filtro Finalizado
@@ -942,7 +942,7 @@ class RelatorioServicosTecnicoView(TemplateView):
 
         # Maior identificador primeiro
         servicos = servicos.order_by(
-            "-identificador_servico"
+            "-modificado"
         )
 
         # ==========================================

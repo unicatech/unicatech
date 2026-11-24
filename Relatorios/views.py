@@ -921,12 +921,12 @@ class RelatorioServicosTecnicoView(TemplateView):
         # Filtro por data do SERVIÇO
         if data_inicio:
             servicos = servicos.filter(
-                criados__date__gte=parse_date(data_inicio)
+                criados__gte=parse_date(data_inicio)
             )
 
         if data_fim:
             servicos = servicos.filter(
-                criados__date__lte=parse_date(data_fim)
+                criados__lte=parse_date(data_fim)
             )
 
         # Filtro Finalizado

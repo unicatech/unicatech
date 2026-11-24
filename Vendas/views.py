@@ -388,7 +388,7 @@ class FazerVendasView(TemplateView):
         valorVenda = f"{valorVenda:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
         faturado = f"{faturado:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
         if identificadorVenda[0] != "":
-            evento_venda = f"Venda atualizada por {request.user.first_name} no valor de R${valorVenda}. O total faturado do mês é de R${faturado}"
+            evento_venda = f"Venda atualizada por {request.user.first_name} no valor de R${valorVenda}. O total faturado do mês é de R${faturado}. Venda número {proximaVenda}"
             alerta = Alertas(
                 criados=str(dataModificada),
                 evento=evento_venda,
@@ -399,7 +399,7 @@ class FazerVendasView(TemplateView):
             return HttpResponseRedirect('/listarvendas/?venda_atualizada=1', context)
         else:
             if id_servico == 0:
-                evento_venda = f"Venda feita por {request.user.first_name} no valor de R${valorVenda}. O total faturado do mês é de R${faturado}"
+                evento_venda = f"Venda feita por {request.user.first_name} no valor de R${valorVenda}. O total faturado do mês é de R${faturado}. Venda número {proximaVenda}"
                 alerta = Alertas(
                     criados=str(dataModificada),
                     evento=evento_venda,
